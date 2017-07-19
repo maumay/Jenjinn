@@ -219,15 +219,17 @@ public class EngineUtils
 		return -1;
 	}
 
-	public static byte[] getSetBitIndices(final long bitboard)
+	public static byte[] getSetBits(final long bitboard)
 	{
+		// long x = bitboard;
+
 		final int cardinality = Long.bitCount(bitboard);
 		final byte[] setBits = new byte[cardinality];
 		int counter = 0;
 
 		for (byte i = 0; i < 64 && counter < cardinality; i++)
 		{
-			if (((1L << i) & bitboard) != 0)
+			if ((BBDB.SOB[i] & bitboard) != 0)
 			{
 				setBits[counter] = i;
 				counter++;

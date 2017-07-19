@@ -136,7 +136,7 @@ public class Cord implements Comparable<Cord>
      
      private static Cord[] convertBitboardToCords(final byte startLoc, final long bitboard)
      {
-          final byte[] setBits = EngineUtils.getSetBitIndices(bitboard);
+          final byte[] setBits = EngineUtils.getSetBits(bitboard);
           final Cord[] converted = new Cord[setBits.length];
           int counter = 0;
           
