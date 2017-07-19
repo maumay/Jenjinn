@@ -221,8 +221,6 @@ public class EngineUtils
 
 	public static byte[] getSetBits(final long bitboard)
 	{
-		// long x = bitboard;
-
 		final int cardinality = Long.bitCount(bitboard);
 		final byte[] setBits = new byte[cardinality];
 		int counter = 0;
@@ -231,8 +229,41 @@ public class EngineUtils
 		{
 			if ((BBDB.SOB[i] & bitboard) != 0)
 			{
-				setBits[counter] = i;
-				counter++;
+				setBits[counter++] = i;
+			}
+		}
+		return setBits;
+	}
+
+	public static byte[] getSetBits2(long bitboard)
+	{
+		final int cardinality = Long.bitCount(bitboard);
+		final byte[] setBits = new byte[cardinality];
+		byte arrCounter = 0, loopCounter = 0;
+
+		while (bitboard > 0)
+		{
+			if ((BBDB.SOB[0] & bitboard) != 0)
+			{
+				setBits[arrCounter++] = loopCounter;
+			}
+			loopCounter++;
+			bitboard >>>= 1;
+		}
+		return setBits;
+	}
+
+	public static byte[] getSetBits3(final long bitboard)
+	{
+		final int cardinality = Long.bitCount(bitboard);
+		final byte[] setBits = new byte[cardinality];
+		int counter = 0;
+
+		for (byte i = 0; i < 64 && counter < cardinality; i++)
+		{
+			if ((BBDB.SOB[i] & bitboard) != 0)
+			{
+				setBits[counter++] = i;
 			}
 		}
 		return setBits;
