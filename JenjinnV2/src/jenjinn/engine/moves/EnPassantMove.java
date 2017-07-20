@@ -18,7 +18,17 @@ import jenjinn.engine.pieces.ChessPiece;
  */
 public class EnPassantMove extends AbstractChessMoveImplV2
 {
-	EnPassantMove(final int start, final int target)
+
+	private static final EnPassantMove[][] EP_CACHE = generateEnPassantMoveCache();
+
+	private static EnPassantMove[][] generateEnPassantMoveCache()
+	{
+		final EnPassantMove[][] cache = new EnPassantMove[8][4];
+		// TODO Auto-generated method stub
+		return cache;
+	}
+
+	private EnPassantMove(final int start, final int target)
 	{
 		super(MoveType.ENPASSANT, start, target);
 	}
@@ -55,7 +65,6 @@ public class EnPassantMove extends AbstractChessMoveImplV2
 				state.getDevelopmentStatus(),
 				newPieceLocations);
 	}
-
 }
 
 /* ---------------------------------------------------------------------*

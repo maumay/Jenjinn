@@ -6,6 +6,7 @@
  */
 package jenjinn.engine.boardstate;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -72,6 +73,11 @@ public class BoardStateImplV2 implements BoardState
 	@Override
 	public List<ChessMove> getMoves()
 	{
+		final Side friendlySide = getFriendlySide();
+		final long friendlyPieces = getSideLocations(friendlySide);
+
+		final List<ChessMove> moves = new ArrayList<>();
+
 		// TODO Auto-generated method stub
 		return null;
 	}

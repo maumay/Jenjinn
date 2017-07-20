@@ -6,10 +6,12 @@
  */
 package jenjinn.engine.moves;
 
+import jenjinn.engine.bitboarddatabase.BBDB;
 import jenjinn.engine.boardstate.BoardState;
 import jenjinn.engine.boardstate.BoardStateImplV2;
 import jenjinn.engine.boardstate.CastlingRights;
 import jenjinn.engine.enums.MoveType;
+import jenjinn.engine.misc.EngineUtils;
 import jenjinn.engine.pieces.ChessPiece;
 import jenjinn.engine.pieces.Pawn;
 
@@ -19,7 +21,71 @@ import jenjinn.engine.pieces.Pawn;
  */
 public class StandardMove extends AbstractChessMoveImplV2
 {
-	StandardMove(final int start, final int target)
+	// STATIC CACHE STUFF
+	/**
+	 * StandardMove database, all StandardMove objects we will need. Ordered in
+	 * natural way; start is first entry and target is second. Many entries will
+	 * be null but these correspond to impossible moves.
+	 */
+	private static final StandardMove[][] SM_CACHE = generateStandardMoveDB();
+
+	/**
+	 * This static factory is the way one should retrieve instances of this class.
+	 * It accesses the stored cache.
+	 *
+	 * @param start
+	 * @param target
+	 * @return
+	 */
+	public static StandardMove get(final int start, final int target)
+	{
+		return SM_CACHE[start][target];
+	}
+
+	private static StandardMove[][] generateStandardMoveDB()
+	{
+		final StandardMove[][] database = new StandardMove[64][64];
+
+		final long[] bishopEmptyBoardMoves = BBDB.EBM[2];
+		final long[] knightEmptyBoardMoves = BBDB.EBA[3];
+		final long[] rookEmptyBoardMoves = BBDB.EBM[4];
+
+		convertAndAddBitboardsToStandardMoveDB(database, bishopEmptyBoardMoves);
+		convertAndAddBitboardsToStandardMoveDB(database, knightEmptyBoardMoves);
+		convertAndAddBitboardsToStandardMoveDB(database, rookEmptyBoardMoves);
+
+		return database;
+	}
+
+	private static void convertAndAddBitboardsToStandardMoveDB(final StandardMove[][] db, final long[] bitboardsToAdd)
+	{
+		for (byte i = 0; i < bitboardsToAdd.length; i++)
+		{
+			final StandardMove[] movesetAsStandardMoves = bitboardToMoves(i, bitboardsToAdd[i]);
+			for (final StandardMove sm : movesetAsStandardMoves)
+			{
+				db[sm.getStart()][sm.getTarget()] = sm;
+			}
+		}
+	}
+
+	private static StandardMove[] bitboardToMoves(final byte loc, final long bitboard)
+	{
+		final int bitboardCard = Long.bitCount(bitboard);
+
+		final StandardMove[] mvs = new StandardMove[bitboardCard];
+
+		int ctr = 0;
+		for (final byte b : EngineUtils.getSetBits(bitboard))
+		{
+			mvs[ctr++] = new StandardMove(loc, b);
+		}
+
+		return mvs;
+	}
+
+	// INSTANCE STUFF
+	private StandardMove(final int start, final int target)
 	{
 		super(MoveType.STANDARD, start, target);
 	}

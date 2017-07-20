@@ -16,6 +16,7 @@ import gnu.trove.list.TLongList;
 import gnu.trove.list.array.TLongArrayList;
 import jenjinn.engine.bitboarddatabase.BBDB;
 import jenjinn.engine.enums.Sq;
+import jenjinn.engine.moves.StandardMove;
 
 /**
  * @author TB
@@ -294,6 +295,22 @@ public class EngineUtils
 		});
 
 		return averages;
+	}
+
+	public static StandardMove[] bitboardToMoves(final byte loc, final long bitboard)
+	{
+		final int bitboardCard = Long.bitCount(bitboard);
+
+		final StandardMove[] mvs = new StandardMove[bitboardCard];
+
+		int ctr = 0;
+		final byte[] setBits = getSetBits(bitboard);
+		for (final byte b : setBits)
+		{
+			mvs[ctr++] = StandardMove.get(loc, b);
+		}
+
+		return mvs;
 	}
 
 	public static void main(final String[] args)
