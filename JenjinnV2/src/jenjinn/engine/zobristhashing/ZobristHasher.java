@@ -97,7 +97,7 @@ public class ZobristHasher
 
 	public long getSquarePieceFeature(final byte loc, final ChessPiece piece)
 	{
-		return squarePieceFeatures[loc][piece.getId()];
+		return squarePieceFeatures[loc][piece.getIndex()];
 	}
 
 	public long getCastleFeature(final int i)

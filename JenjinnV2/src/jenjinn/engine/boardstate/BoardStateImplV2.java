@@ -6,6 +6,7 @@
  */
 package jenjinn.engine.boardstate;
 
+import java.util.Arrays;
 import java.util.List;
 
 import jenjinn.engine.bitboarddatabase.BBDB;
@@ -14,7 +15,6 @@ import jenjinn.engine.enums.TerminationType;
 import jenjinn.engine.misc.EngineUtils;
 import jenjinn.engine.moves.ChessMove;
 import jenjinn.engine.pieces.ChessPiece;
-import jenjinn.engine.zobristhashing.ZobristHasher;
 
 /**
  * @author ThomasB
@@ -22,13 +22,6 @@ import jenjinn.engine.zobristhashing.ZobristHasher;
  */
 public class BoardStateImplV2 implements BoardState
 {
-	public static ZobristHasher HASHER = ZobristHasher.getDefault();
-
-	public static void setHasher(final ZobristHasher hASHER)
-	{
-		HASHER = hASHER;
-	}
-
 	/**
 	 * An array of four most recent board hashings (including the
 	 * hash of this state) for determining repetition draws.
@@ -111,6 +104,21 @@ public class BoardStateImplV2 implements BoardState
 	}
 
 	@Override
+	public ChessPiece getPieceAt(final byte loc, final Side s)
+	{
+		final byte upperBound = (byte) (s.index() + 6);
+
+		for (byte index = s.index(); index < upperBound; index++)
+		{
+			if ((BBDB.SOB[loc] & pieceLocations[index]) != 0)
+			{
+				return ChessPiece.PIECES[index];
+			}
+		}
+		return null;
+	}
+
+	@Override
 	public long getPieceLocations(final int pieceIndex)
 	{
 		return pieceLocations[pieceIndex];
@@ -123,7 +131,7 @@ public class BoardStateImplV2 implements BoardState
 		final long occupiedSquares = getOccupiedSquares();
 		long attackedSquares = 0L;
 
-		for (byte i = side.getId(); i < side.getId() + 6; i++)
+		for (byte i = side.index(); i < side.index() + 6; i++)
 		{
 			final byte[] locs = EngineUtils.getSetBits(pieceLocations[i]);
 			final ChessPiece p = ChessPiece.get(i);
@@ -167,9 +175,11 @@ public class BoardStateImplV2 implements BoardState
 	}
 
 	@Override
-	public long[] getRecentHashings()
+	public long[] getNewRecentHashings(final long newHash)
 	{
-		return recentHashings;
+		final long[] newRecentHashings = { newHash, 0L, 0L, 0L };
+		System.arraycopy(recentHashings, 0, newRecentHashings, 1, 3);
+		return newRecentHashings;
 	}
 
 	@Override
@@ -190,19 +200,29 @@ public class BoardStateImplV2 implements BoardState
 		// First check for taking of king
 		final Side friendlySide = getFriendlySide();
 
-		if ((getAttackedSquares(friendlySide) & pieceLocations[friendlySide.otherSide().getId() + 6]) != 0)
+		if ((getAttackedSquares(friendlySide) & pieceLocations[friendlySide.otherSide().index() + 6]) != 0)
 		{
 			return friendlySide == Side.W ? TerminationType.WHITE_WIN : TerminationType.BLACK_WIN;
 		}
 
-		return null;
+		// Check for repetition draw // TODO - Remove stream to increase performance?
+		final int uniqueHashings = (int) Arrays.stream(recentHashings).distinct().count();
+
+		assert uniqueHashings >= 2;
+
+		if (uniqueHashings == 2 && Arrays.stream(recentHashings).filter(x -> x == recentHashings[0]).count() != 2)
+		{
+			return TerminationType.DRAW;
+		}
+
+		return TerminationType.NOT_TERMINAL;
 	}
 
 	@Override
 	public long getSideLocations(final Side s)
 	{
 		long locs = 0L;
-		for (byte index = s.getId(); index < s.getId() + 6; index++)
+		for (byte index = s.index(); index < s.index() + 6; index++)
 		{
 			locs |= pieceLocations[index];
 		}
@@ -213,6 +233,20 @@ public class BoardStateImplV2 implements BoardState
 	public long getOccupiedSquares()
 	{
 		return EngineUtils.multipleOr(pieceLocations);
+	}
+
+	@Override
+	public byte getFriendlySideValue()
+	{
+		return friendlySide;
+	}
+
+	@Override
+	public long[] getPieceLocationsCopy()
+	{
+		final long[] copy = new long[12];
+		System.arraycopy(pieceLocations, 0, copy, 0, 12);
+		return copy;
 	}
 }
 

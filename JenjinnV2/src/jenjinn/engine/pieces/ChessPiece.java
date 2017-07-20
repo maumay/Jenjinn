@@ -61,7 +61,7 @@ public abstract class ChessPiece
 	{
 		this.side = side;
 		this.value = value;
-		this.id = (byte) (type.getId() + side.getId());
+		this.id = (byte) (type.getId() + side.index());
 	}
 
 	/**
@@ -131,13 +131,13 @@ public abstract class ChessPiece
 	/**
 	 * @return the id
 	 */
-	public byte getId()
+	public byte getIndex()
 	{
 		return id;
 	}
 
 	public PieceType getPieceType()
 	{
-		return PieceType.fromId(getId());
+		return PieceType.fromId(getIndex());
 	}
 }

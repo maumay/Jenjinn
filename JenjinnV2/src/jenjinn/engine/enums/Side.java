@@ -16,18 +16,13 @@ public enum Side
 {
 	W(0, 1), B(6, -1);
 
-	private final byte id;
+	private final byte index;
 	private final byte orientation;
 
 	private Side(final int id, final int orientation)
 	{
-		this.id = (byte) id;
+		this.index = (byte) id;
 		this.orientation = (byte) orientation;
-	}
-
-	public int index()
-	{
-		return this == W ? 0 : 1;
 	}
 
 	public boolean isWhite()
@@ -84,9 +79,9 @@ public enum Side
 	/**
 	 * @return the id
 	 */
-	public byte getId()
+	public byte index()
 	{
-		return id;
+		return index;
 	}
 
 }

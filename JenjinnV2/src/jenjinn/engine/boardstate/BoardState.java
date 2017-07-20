@@ -9,6 +9,7 @@ import jenjinn.engine.enums.Side;
 import jenjinn.engine.enums.TerminationType;
 import jenjinn.engine.moves.ChessMove;
 import jenjinn.engine.pieces.ChessPiece;
+import jenjinn.engine.zobristhashing.ZobristHasher;
 
 /**
  * Completely immutable representation of a state of a chess board. IMPORTANT
@@ -22,6 +23,10 @@ import jenjinn.engine.pieces.ChessPiece;
  */
 public interface BoardState
 {
+	public static ZobristHasher HASHER = ZobristHasher.getDefault();
+
+	byte getFriendlySideValue();
+
 	Side getFriendlySide();
 
 	Side getEnemySide();
@@ -41,7 +46,11 @@ public interface BoardState
 
 	ChessPiece getPieceAt(final byte loc);
 
+	ChessPiece getPieceAt(final byte loc, Side s);
+
 	long getPieceLocations(int pieceIndex);
+
+	long[] getPieceLocationsCopy();
 
 	long getSideLocations(Side s);
 
@@ -59,5 +68,6 @@ public interface BoardState
 
 	byte getEnPassantSq();
 
-	long[] getRecentHashings();
+	long[] getNewRecentHashings(long newHash);
+
 }
