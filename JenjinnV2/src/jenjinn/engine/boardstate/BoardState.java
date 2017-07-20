@@ -3,8 +3,11 @@
  */
 package jenjinn.engine.boardstate;
 
+import java.util.List;
+
 import jenjinn.engine.enums.Side;
 import jenjinn.engine.enums.TerminationType;
+import jenjinn.engine.moves.ChessMove;
 import jenjinn.engine.pieces.ChessPiece;
 
 /**
@@ -21,9 +24,11 @@ public interface BoardState
 {
 	Side getFriendlySide();
 
+	Side getEnemySide();
+
 	TerminationType getTerminationState();
 
-	// List<ChessMove> getMoves();
+	List<ChessMove> getMoves();
 
 	// ChessMove generateMove(final AlgebraicCommand com);
 
@@ -40,13 +45,15 @@ public interface BoardState
 
 	long getSideLocations(Side s);
 
+	long getOccupiedSquares();
+
 	long getAttackedSquares(final Side side);
 
 	byte getCastleStatus();
 
 	byte getCastleRights();
 
-	short getDevelopmentStatus();
+	long getDevelopmentStatus();
 
 	long getHashing();
 

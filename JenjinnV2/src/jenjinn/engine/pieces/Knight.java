@@ -26,7 +26,7 @@ public class Knight extends ChessPiece
 	 *
 	 * @see jenjinn.engine.pieces.ChessPiece#getAttackset(byte, long, long) */
 	@Override
-	public long getAttackset(final byte loc, final long friendlyPieces, final long enemyPieces)
+	public long getAttackset(final byte loc, final long occupiedSquares)
 	{
 		return BBDB.EBA[3][loc];
 	}

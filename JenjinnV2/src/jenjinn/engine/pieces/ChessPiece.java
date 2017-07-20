@@ -69,7 +69,7 @@ public abstract class ChessPiece
 	 * and the location of all enemy pieces this method returns the attackset
 	 * in bitboard form.
 	 */
-	public abstract long getAttackset(final byte loc, final long friendlyPieces, final long enemyPieces);
+	public abstract long getAttackset(final byte loc, final long occupiedSquares);
 
 	// /**
 	// * Given the location of the piece, the location of all friendly pieces

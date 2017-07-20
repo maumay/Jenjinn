@@ -26,7 +26,7 @@ public class Pawn extends ChessPiece
 	 *
 	 * @see jenjinn.engine.pieces.ChessPiece#getAttackset(byte, long, long) */
 	@Override
-	public long getAttackset(final byte loc, final long friendlyPieces, final long enemyPieces)
+	public long getAttackset(final byte loc, final long occupiedSquares)
 	{
 		return BBDB.EBA[getSide().ordinal()][loc];
 	}

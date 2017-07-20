@@ -6,9 +6,13 @@
  */
 package jenjinn.engine.boardstate;
 
+import java.util.List;
+
 import jenjinn.engine.bitboarddatabase.BBDB;
 import jenjinn.engine.enums.Side;
 import jenjinn.engine.enums.TerminationType;
+import jenjinn.engine.misc.EngineUtils;
+import jenjinn.engine.moves.ChessMove;
 import jenjinn.engine.pieces.ChessPiece;
 import jenjinn.engine.zobristhashing.ZobristHasher;
 
@@ -41,6 +45,18 @@ public class BoardStateImplV2 implements BoardState
 	private final byte enPassantSq;
 	private final long devStatus; // For simplicity use a long
 
+	/**
+	 * Think its worth keeping this stored, we need to calculate it
+	 * for a states terminal status anyway and it allows us to remove
+	 * illegal king moves during move retrieval which could save
+	 * significant time during searching. TODO actually for termination status we need all friendly attacks too
+	 *
+	 * So if we keep all friendly attacks then we basically achieve the same thing because illegal king moves
+	 * we induce a terminal boardstate straight away and save on searching, although why store it then? It
+	 * will just be used once.
+	 */
+	// private final long friendlyAttacks;
+
 	private final long[] pieceLocations;
 
 	public BoardStateImplV2(final long[] recentHashings,
@@ -48,7 +64,7 @@ public class BoardStateImplV2 implements BoardState
 			final byte castleRights,
 			final byte castleStatus,
 			final byte enPassantSq,
-			final short devStatus,
+			final long devStatus,
 			final long[] pieceLocations)
 	{
 		this.recentHashings = recentHashings;
@@ -60,12 +76,12 @@ public class BoardStateImplV2 implements BoardState
 		this.pieceLocations = pieceLocations;
 	}
 
-	// @Override
-	// public List<ChessMove> getMoves()
-	// {
-	// // TODO Auto-generated method stub
-	// return null;
-	// }
+	@Override
+	public List<ChessMove> getMoves()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 	// @Override
 	// public ChessMove generateMove(final AlgebraicCommand com)
@@ -103,8 +119,21 @@ public class BoardStateImplV2 implements BoardState
 	@Override
 	public long getAttackedSquares(final Side side)
 	{
-		// TODO Auto-generated method stub
-		return 0;
+		// TODO - Could perform optimisation on pawn attacks
+		final long occupiedSquares = getOccupiedSquares();
+		long attackedSquares = 0L;
+
+		for (byte i = side.getId(); i < side.getId() + 6; i++)
+		{
+			final byte[] locs = EngineUtils.getSetBits(pieceLocations[i]);
+			final ChessPiece p = ChessPiece.get(i);
+
+			for (final byte loc : locs)
+			{
+				attackedSquares |= p.getAttackset(loc, occupiedSquares);
+			}
+		}
+		return attackedSquares;
 	}
 
 	@Override
@@ -120,7 +149,7 @@ public class BoardStateImplV2 implements BoardState
 	}
 
 	@Override
-	public short getDevelopmentStatus()
+	public long getDevelopmentStatus()
 	{
 		return devStatus;
 	}
@@ -150,9 +179,22 @@ public class BoardStateImplV2 implements BoardState
 	}
 
 	@Override
+	public Side getEnemySide()
+	{
+		return friendlySide == 0 ? Side.B : Side.W;
+	}
+
+	@Override
 	public TerminationType getTerminationState()
 	{
-		// TODO Auto-generated method stub
+		// First check for taking of king
+		final Side friendlySide = getFriendlySide();
+
+		if ((getAttackedSquares(friendlySide) & pieceLocations[friendlySide.otherSide().getId() + 6]) != 0)
+		{
+			return friendlySide == Side.W ? TerminationType.WHITE_WIN : TerminationType.BLACK_WIN;
+		}
+
 		return null;
 	}
 
@@ -165,6 +207,12 @@ public class BoardStateImplV2 implements BoardState
 			locs |= pieceLocations[index];
 		}
 		return locs;
+	}
+
+	@Override
+	public long getOccupiedSquares()
+	{
+		return EngineUtils.multipleOr(pieceLocations);
 	}
 }
 

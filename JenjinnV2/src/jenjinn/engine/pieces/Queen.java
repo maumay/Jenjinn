@@ -25,10 +25,10 @@ public class Queen extends ChessPiece
 	 *
 	 * @see jenjinn.engine.pieces.ChessPiece#getAttackset(byte, long, long) */
 	@Override
-	public long getAttackset(final byte loc, final long friendlyPieces, final long enemyPieces)
+	public long getAttackset(final byte loc, final long occupiedSquares)
 	{
-		final long bishopContribution = Bishop.staticGetAttackset(loc, friendlyPieces, enemyPieces);
-		final long rookContribution = Rook.staticGetAttackset(loc, friendlyPieces, enemyPieces);
+		final long bishopContribution = Bishop.staticGetAttackset(loc, occupiedSquares);
+		final long rookContribution = Rook.staticGetAttackset(loc, occupiedSquares);
 		return bishopContribution | rookContribution;
 	}
 }

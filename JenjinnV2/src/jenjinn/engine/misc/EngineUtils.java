@@ -6,6 +6,13 @@
 
 package jenjinn.engine.misc;
 
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import gnu.trove.iterator.TLongIterator;
+import gnu.trove.list.TLongList;
 import gnu.trove.list.array.TLongArrayList;
 import jenjinn.engine.bitboarddatabase.BBDB;
 import jenjinn.engine.enums.Sq;
@@ -64,11 +71,6 @@ public class EngineUtils
 	/** Performs bitwise or operation of all entries in the parameter array */
 	public static long multipleOr(final long... args)
 	{
-		if (args == null)
-		{
-			return -1;
-		}
-
 		long ans = 0L;
 		for (final long arg : args)
 		{
@@ -219,31 +221,55 @@ public class EngineUtils
 		return -1;
 	}
 
-	public static byte[] getSetBits(final long bitboard)
-	{
-		final int cardinality = Long.bitCount(bitboard);
-		final byte[] setBits = new byte[cardinality];
-		int counter = 0;
+	// public static byte[] getSetBits(final long bitboard)
+	// {
+	// final int cardinality = Long.bitCount(bitboard);
+	// final byte[] setBits = new byte[cardinality];
+	// int counter = 0;
+	//
+	// for (byte i = 0; i < 64 && counter < cardinality; i++)
+	// {
+	// if ((BBDB.SOB[i] & bitboard) != 0)
+	// {
+	// setBits[counter++] = i;
+	// }
+	// }
+	// return setBits;
+	// }
+	//
+	// public static byte[] getSetBits2(long bitboard)
+	// {
+	// final int cardinality = Long.bitCount(bitboard);
+	// final byte[] setBits = new byte[cardinality];
+	// byte arrCounter = 0, loopCounter = 0;
+	//
+	// while (bitboard != 0)
+	// {
+	// if ((BBDB.SOB[0] & bitboard) != 0)
+	// {
+	// setBits[arrCounter++] = loopCounter;
+	// }
+	// loopCounter++;
+	// bitboard >>>= 1;
+	// }
+	// return setBits;
+	// }
 
-		for (byte i = 0; i < 64 && counter < cardinality; i++)
-		{
-			if ((BBDB.SOB[i] & bitboard) != 0)
-			{
-				setBits[counter++] = i;
-			}
-		}
-		return setBits;
-	}
-
-	public static byte[] getSetBits2(long bitboard)
+	/**
+	 * This method is the current champion
+	 *
+	 * @param bitboard
+	 * @return
+	 */
+	public static byte[] getSetBits(long bitboard)
 	{
 		final int cardinality = Long.bitCount(bitboard);
 		final byte[] setBits = new byte[cardinality];
 		byte arrCounter = 0, loopCounter = 0;
 
-		while (bitboard > 0)
+		while (bitboard != 0)
 		{
-			if ((BBDB.SOB[0] & bitboard) != 0)
+			if ((1 & bitboard) != 0)
 			{
 				setBits[arrCounter++] = loopCounter;
 			}
@@ -253,19 +279,26 @@ public class EngineUtils
 		return setBits;
 	}
 
-	public static byte[] getSetBits3(final long bitboard)
+	public static List<BigInteger> average(final List<TLongList> values)
 	{
-		final int cardinality = Long.bitCount(bitboard);
-		final byte[] setBits = new byte[cardinality];
-		int counter = 0;
+		final List<BigInteger> averages = new ArrayList<>(values.size());
 
-		for (byte i = 0; i < 64 && counter < cardinality; i++)
+		values.stream().forEach(x ->
 		{
-			if ((BBDB.SOB[i] & bitboard) != 0)
+			BigInteger total = BigInteger.ZERO;
+			for (final TLongIterator itr = x.iterator(); itr.hasNext();)
 			{
-				setBits[counter++] = i;
+				total = total.add(BigInteger.valueOf(itr.next()));
 			}
-		}
-		return setBits;
+			averages.add(total.divide(BigInteger.valueOf(x.size())));
+		});
+
+		return averages;
+	}
+
+	public static void main(final String[] args)
+	{
+		System.out.println(Arrays.toString(getSetBits(33746390L)));
+		System.out.println(BBDB.SOB[0]);
 	}
 }

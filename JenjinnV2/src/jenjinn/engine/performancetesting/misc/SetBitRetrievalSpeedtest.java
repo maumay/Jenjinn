@@ -6,7 +6,14 @@
  */
 package jenjinn.engine.performancetesting.misc;
 
+import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
+
+import gnu.trove.list.TLongList;
+import gnu.trove.list.array.TLongArrayList;
+import jenjinn.engine.misc.EngineUtils;
 
 /**
  * @author ThomasB
@@ -14,7 +21,7 @@ import java.util.Random;
  */
 public class SetBitRetrievalSpeedtest
 {
-	static final int TEST_CASES = 4000;
+	static final int NUM_TEST_CASES = 4000000;
 
 	static final Random R = new Random();
 
@@ -23,7 +30,29 @@ public class SetBitRetrievalSpeedtest
 	 */
 	public static void main(final String[] args)
 	{
-		final long[] random = generateRandom64bits(TEST_CASES);
+		final long[] random = generateRandom64bits(NUM_TEST_CASES);
+		final List<TLongList> allTimes = Arrays.asList(new TLongArrayList());// , new TLongArrayList());
+
+		for (final long bit64 : random)
+		{
+			final long start1 = System.nanoTime();
+			final byte[] firstResult = EngineUtils.getSetBits(bit64);
+			allTimes.get(0).add(System.nanoTime() - start1);
+
+			// final long start2 = System.nanoTime();
+			// final byte[] secondResult = EngineUtils.getSetBits(bit64);
+			// allTimes.get(1).add(System.nanoTime() - start2);
+			//
+			// if (!Arrays.equals(firstResult, secondResult))
+			// {
+			// throw new AssertionError("" + bit64);
+			// }
+		}
+
+		final List<BigInteger> averageTimes = EngineUtils.average(allTimes);
+
+		System.out.println(averageTimes.get(0).toString());
+		// System.out.println(averageTimes.get(1).toString());
 
 	}
 
