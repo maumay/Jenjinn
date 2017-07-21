@@ -30,13 +30,15 @@ public class SetBitRetrievalSpeedtest
 	 */
 	public static void main(final String[] args)
 	{
-		final long[] random = generateRandom64bits(NUM_TEST_CASES);
+		final long[] random = generateRandom64bits(10);
 		final List<TLongList> allTimes = Arrays.asList(new TLongArrayList());// , new TLongArrayList());
 
-		for (final long bit64 : random)
+		for (int i = 0; i < NUM_TEST_CASES; i++)
 		{
+			final int rIndex = R.nextInt(10);
+
 			final long start1 = System.nanoTime();
-			final byte[] firstResult = EngineUtils.getSetBits(bit64);
+			final byte[] firstResult = EngineUtils.getSetBits(random[rIndex]);
 			allTimes.get(0).add(System.nanoTime() - start1);
 
 			// final long start2 = System.nanoTime();

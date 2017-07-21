@@ -18,14 +18,46 @@ import jenjinn.engine.pieces.ChessPiece;
  */
 public class EnPassantMove extends AbstractChessMoveImplV2
 {
+	//
+	// private static final EnPassantMove[][] EP_CACHE = generateEnPassantMoveCache();
+	//
+	// private static EnPassantMove[][] generateEnPassantMoveCache()
+	// {
+	// final EnPassantMove[][] cache = new EnPassantMove[8][4];
+	//
+	// for (int i = 0; i < 8; i++) // for each file
+	// {
+	// cache[i] = getEnPassantMovesForFile(i);
+	// }
+	//
+	// // TODO Auto-generated method stub
+	// return cache;
+	// }
+	//
+	// /**
+	// * Ordered in ascending order first by start and then target, i.e white before
+	// * black and right before left.
+	// *
+	// * @param i
+	// * @return
+	// */
+	// private static EnPassantMove[] getEnPassantMovesForFile(final int i)
+	// {
+	// EnPassantMove[]
+	// // TODO Auto-generated method stub
+	// return null;
+	// }
 
-	private static final EnPassantMove[][] EP_CACHE = generateEnPassantMoveCache();
-
-	private static EnPassantMove[][] generateEnPassantMoveCache()
+	/**
+	 * EnPassant moves are so rare that I don't think we really need to cache them.
+	 * 
+	 * @param start
+	 * @param target
+	 * @return
+	 */
+	public static EnPassantMove get(final int start, final int target)
 	{
-		final EnPassantMove[][] cache = new EnPassantMove[8][4];
-		// TODO Auto-generated method stub
-		return cache;
+		return new EnPassantMove(start, target);
 	}
 
 	private EnPassantMove(final int start, final int target)
