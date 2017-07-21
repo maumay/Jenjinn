@@ -31,17 +31,27 @@ public class Pawn extends ChessPiece
 		return BBDB.EBA[getSide().ordinal()][loc];
 	}
 
-	private int generateMagicIndex(final byte reverseFileNumber, final long allPieces)
-	{
-		final boolean isWhite = isWhite();
-		final long occupancyVariation = allPieces & (isWhite ? BBDB.WPFMOM[reverseFileNumber] : BBDB.BPFMOM[reverseFileNumber]);
-		final long magicNumber = isWhite ? BBDB.WPFMMN[reverseFileNumber] : BBDB.BPFMMN[reverseFileNumber];
-		final byte bitShift = BBDB.PFMB;
-		return (int) ((occupancyVariation * magicNumber) >>> bitShift);
-	}
-
 	private boolean inFirstMoveZone(final byte loc)
 	{
-		return isWhite() ? (7 < loc && loc < 16) : (47 < loc && loc < 56);
+		return isWhite() ? loc < 16 : 47 < loc;
+	}
+
+	@Override
+	public long getMoveset(final byte loc, final long friendlyPieces, final long enemyPieces)
+	{
+		final long attck = super.getMoveset(loc, friendlyPieces, enemyPieces);
+		long push = (1L << (loc + getSide().orientation() * 8)) & ~(friendlyPieces | enemyPieces);
+
+		if (inFirstMoveZone(loc) && push != 0)
+		{
+			push |= ((1L << (loc + getSide().orientation() * 16)) & ~(friendlyPieces | enemyPieces));
+		}
+		return attck | push;
+	}
+
+	@Override
+	public long getStartBitboard()
+	{
+		return 0b1111111100000000L << 40 * (getSide().isWhite() ? 0 : 1);
 	}
 }

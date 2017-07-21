@@ -20,13 +20,13 @@ public final class CastlingRights
 	{
 	}
 
-	private static final byte W_KINGSIDE = 0b1;
+	public static final byte W_KINGSIDE = 0b1;
 
-	private static final byte W_QUEENSIDE = 0b10;
+	public static final byte W_QUEENSIDE = 0b10;
 
-	private static final byte B_KINGSIDE = 0b100;
+	public static final byte B_KINGSIDE = 0b100;
 
-	private static final byte B_QUEENSIDE = 0b1000;
+	public static final byte B_QUEENSIDE = 0b1000;
 
 	public static final byte ALL_RIGHTS = 0b1111;
 

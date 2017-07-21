@@ -44,11 +44,11 @@ public abstract class AbstractChessMoveImplV2 implements ChessMove
 			}
 		}
 
-		if (oldState.getEnPassantSq() > -1)
+		if (oldState.getEnPassantSq() != BoardState.NO_ENPASSANT)
 		{
 			newHashing ^= BoardState.HASHER.getEnpassantFeature(oldState.getEnPassantSq() % 8);
 		}
-		if (newEnPassantSquare > -1)
+		if (newEnPassantSquare != BoardState.NO_ENPASSANT)
 		{
 			newHashing ^= BoardState.HASHER.getEnpassantFeature(newEnPassantSquare % 8);
 		}

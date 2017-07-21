@@ -50,7 +50,7 @@ public class EnPassantMove extends AbstractChessMoveImplV2
 
 	/**
 	 * EnPassant moves are so rare that I don't think we really need to cache them.
-	 * 
+	 *
 	 * @param start
 	 * @param target
 	 * @return
@@ -93,7 +93,8 @@ public class EnPassantMove extends AbstractChessMoveImplV2
 				(byte) (1 - state.getFriendlySideValue()),
 				state.getCastleRights(),
 				state.getCastleStatus(),
-				(byte) -1,
+				BoardState.NO_ENPASSANT,
+				(byte) 0,
 				state.getDevelopmentStatus(),
 				newPieceLocations);
 	}

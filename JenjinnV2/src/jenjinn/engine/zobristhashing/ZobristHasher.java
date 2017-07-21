@@ -119,6 +119,12 @@ public class ZobristHasher
 	{
 		getDefault();
 	}
+
+	public long generateStartHash()
+	{
+		// TODO Auto-generated method stub
+		return 0;
+	}
 }
 
 /* ---------------------------------------------------------------------*

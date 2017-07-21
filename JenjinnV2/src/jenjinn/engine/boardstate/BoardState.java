@@ -23,7 +23,9 @@ import jenjinn.engine.zobristhashing.ZobristHasher;
  */
 public interface BoardState
 {
-	public static ZobristHasher HASHER = ZobristHasher.getDefault();
+	static byte NO_ENPASSANT = 127;
+
+	static ZobristHasher HASHER = ZobristHasher.getDefault();
 
 	byte getFriendlySideValue();
 
@@ -61,6 +63,8 @@ public interface BoardState
 	byte getCastleStatus();
 
 	byte getCastleRights();
+
+	byte getClockValue();
 
 	long getDevelopmentStatus();
 

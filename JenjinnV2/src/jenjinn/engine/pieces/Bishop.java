@@ -44,4 +44,10 @@ public class Bishop extends ChessPiece
 		final byte bitShift = BBDB.BMB[loc];
 		return (int) ((occupancyVariation * magicNumber) >>> bitShift);
 	}
+
+	@Override
+	public long getStartBitboard()
+	{
+		return 0b100100L << 56 * (getSide().isWhite() ? 0 : 1);
+	}
 }

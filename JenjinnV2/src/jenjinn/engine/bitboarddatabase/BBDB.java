@@ -105,20 +105,6 @@ public class BBDB
 	public static final long[] ROM;
 
 	/**
-	 * White pawn first move occupancy masks for each square on the second
-	 * rank, simply the two squares the pawn could move to at the start of the
-	 * game.
-	 */
-	public static final long[] WPFMOM;
-
-	/**
-	 * Black pawn first move occupancy masks for each square on the seventh
-	 * rank, simply the two squares the pawn could move to at the start of the
-	 * game.
-	 */
-	public static final long[] BPFMOM;
-
-	/**
 	 * Container of all the possible bishop occupancy variations for each
 	 * different square. A bov for square i is BOM[i] & (location of all pieces
 	 * on the board). There are 2^(Cardinality(BOM[i])) variations.
@@ -131,18 +117,6 @@ public class BBDB
 	 * on the board). There are 2^(Cardinality(ROM[i])) variations.
 	 */
 	public static final long[][] ROV;
-
-	/**
-	 * Container of all the possible white pawn first move occupancy variations
-	 * for each square on second rank. Note index 0 corresponds to h file.
-	 */
-	public static final long[][] WPFMOV;
-
-	/**
-	 * Container of all the possible black pawn first move occupancy variations
-	 * for each square on seventh rank. Note index 0 corresponds to h file.
-	 */
-	public static final long[][] BPFMOV;
 
 	/**
 	 * Bishop magic bitshift values for each square. BMB[i] =
@@ -200,18 +174,6 @@ public class BBDB
 			0x20801100400L, 0x1000202418100L, 0x408001102501L, 0x11008042002852L, 0x8800406001043009L,
 			0x1012000821100442L, 0x1000442080011L, 0x1001000c00020801L, 0x400082104821004L, 0x2080010140208402L };
 
-	/**
-	 * White pawn first move magic numbers for each square on the second rank.
-	 */
-	public static final long[] WPFMMN = { 0x8a04080007020L, 0x84204000704200L, 0x40810e0401a00a0L, 0x81014000882L,
-			0x40c18109c0140L, 0x400402100a0004L, 0x8020890a01e01460L, 0x6140010880089680L };
-
-	/**
-	 * Black pawn first move magic numbers for each square on the seventh rank.
-	 */
-	public static final long[] BPFMMN = { 0x400400242882010L, 0x1100000440e05006L, 0x20024104000L, 0x12b0800208900000L,
-			0x1002001148044005L, 0x6000008840a0100L, 0x272015010L, 0x1080204206c12848L };
-
 	static
 	{
 		BOV = BBDBInitialisationUtilsSection2.generateAllBishopOccupancyVariations();
@@ -220,10 +182,6 @@ public class BBDB
 		BOM = BBDBInitialisationUtilsSection2.generateBishopOccupancyMasks();
 		RMB = BBDBInitialisationUtilsSection2.generateRookMagicBitshifts();
 		BMB = BBDBInitialisationUtilsSection2.generateBishopMagicBitshifts();
-		WPFMOM = BBDBInitialisationUtilsSection2.generateWhitePawnFirstMoveOccupancyMasks();
-		BPFMOM = BBDBInitialisationUtilsSection2.generateBlackPawnFirstMoveOccupancyMasks();
-		WPFMOV = BBDBInitialisationUtilsSection2.generateWhitePawnFirstMoveOccupancyVariations();
-		BPFMOV = BBDBInitialisationUtilsSection2.generateBlackPawnFirstMoveOccupancyVariations();
 	}
 
 	// --------------------------------------------
@@ -243,24 +201,10 @@ public class BBDB
 	 */
 	public static final long[][] RMM;
 
-	/**
-	 * White pawn first move database implementing the magic bitboard mapping
-	 * technique.
-	 */
-	public static final long[][] WPMFM;
-
-	/**
-	 * Black pawn first move database implementing the magic bitboard mapping
-	 * technique.
-	 */
-	public static final long[][] BPMFM;
-
 	static
 	{
 		RMM = BBDBInitialisationUtilsSection3.generateRookMagicMoveDatabase();
 		BMM = BBDBInitialisationUtilsSection3.generateBishopMagicMoveDatabase();
-		WPMFM = BBDBInitialisationUtilsSection3.generateWhitePawnMagicMoveDatabase();
-		BPMFM = BBDBInitialisationUtilsSection3.generateBlackPawnMagicMoveDatabase();
 	}
 
 	public static void main(final String... args)

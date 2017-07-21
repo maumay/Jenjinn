@@ -71,12 +71,17 @@ public abstract class ChessPiece
 	 */
 	public abstract long getAttackset(final byte loc, final long occupiedSquares);
 
-	// /**
-	// * Given the location of the piece, the location of all friendly pieces
-	// * and the location of all enemy pieces this method returns the possible
-	// * (standard) moves as an array.
-	// */
-	// public abstract StandardMove[] getMoveset(final byte loc, final long friendlyPieces, final long enemyPieces);
+	public abstract long getStartBitboard();
+
+	/**
+	 * Given the location of the piece, the location of all friendly pieces
+	 * and the location of all enemy pieces this method returns the possible
+	 * (standard) moves as an array.
+	 */
+	public long getMoveset(final byte loc, final long friendlyPieces, final long enemyPieces)
+	{
+		return getAttackset(loc, enemyPieces | friendlyPieces) & ~friendlyPieces;
+	}
 
 	@Override
 	public String toString()
@@ -140,4 +145,5 @@ public abstract class ChessPiece
 	{
 		return PieceType.fromId(getIndex());
 	}
+
 }

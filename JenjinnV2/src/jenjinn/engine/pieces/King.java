@@ -24,11 +24,17 @@ public class King extends ChessPiece
 	}
 
 	/* (non-Javadoc)
-	 * 
+	 *
 	 * @see jenjinn.engine.pieces.ChessPiece#getAttackset(byte, long, long) */
 	@Override
 	public long getAttackset(final byte loc, final long occupiedSquares)
 	{
 		return BBDB.EBA[6][loc];
+	}
+
+	@Override
+	public long getStartBitboard()
+	{
+		return 0b1000L << 56 * (getSide().isWhite() ? 0 : 1);
 	}
 }

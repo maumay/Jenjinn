@@ -31,4 +31,10 @@ public class Queen extends ChessPiece
 		final long rookContribution = Rook.staticGetAttackset(loc, occupiedSquares);
 		return bishopContribution | rookContribution;
 	}
+
+	@Override
+	public long getStartBitboard()
+	{
+		return 0b10000L << 56 * (getSide().isWhite() ? 0 : 1);
+	}
 }

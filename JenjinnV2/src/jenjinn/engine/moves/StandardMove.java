@@ -94,11 +94,12 @@ public class StandardMove extends AbstractChessMoveImplV2
 	public BoardState evolve(final BoardState state)
 	{
 		final ChessPiece movingPiece = state.getPieceAt(getStart(), state.getFriendlySide());
-		final ChessPiece removedPiece = state.getPieceAt(getStart(), state.getEnemySide());
+		final ChessPiece removedPiece = state.getPieceAt(getTarget(), state.getEnemySide());
 
 		final byte newFriendlySide = (byte) (1 - state.getFriendlySideValue());
 		final byte newCastleRights = updateCastleRights(state.getCastleRights());
 		final byte newEnPassantSquare = getNewEnPassantSquare(movingPiece);
+		final byte newClockValue = getNewClockValue(movingPiece, removedPiece, state.getClockValue());
 
 		long newHash = updateGeneralHashFeatures(state, newCastleRights, newEnPassantSquare);
 		newHash ^= BoardState.HASHER.getSquarePieceFeature(getStart(), movingPiece);
@@ -123,8 +124,18 @@ public class StandardMove extends AbstractChessMoveImplV2
 				newCastleRights,
 				state.getCastleStatus(),
 				newEnPassantSquare,
+				newClockValue,
 				newDevStatus,
 				newPieceLocations);
+	}
+
+	private byte getNewClockValue(final ChessPiece movingPiece, final ChessPiece removedPiece, final byte oldClockValue)
+	{
+		if (removedPiece != null || movingPiece instanceof Pawn)
+		{
+			return 0;
+		}
+		return (byte) (oldClockValue + 1);
 	}
 
 	private byte getNewEnPassantSquare(final ChessPiece movingPiece)
@@ -133,7 +144,7 @@ public class StandardMove extends AbstractChessMoveImplV2
 		{
 			return (byte) (getStart() + Math.signum(getTarget() - getStart()) * 8);
 		}
-		return -1;
+		return BoardState.NO_ENPASSANT;
 	}
 
 	byte updateCastleRights(byte oldRights)

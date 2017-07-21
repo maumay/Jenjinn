@@ -44,4 +44,10 @@ public class Rook extends ChessPiece
 		final byte bitShift = BBDB.RMB[loc];
 		return (int) ((occupancyVariation * magicNumber) >>> bitShift);
 	}
+
+	@Override
+	public long getStartBitboard()
+	{
+		return 0b10000001L << 56 * (getSide().isWhite() ? 0 : 1);
+	}
 }

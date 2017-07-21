@@ -30,4 +30,10 @@ public class Knight extends ChessPiece
 	{
 		return BBDB.EBA[3][loc];
 	}
+
+	@Override
+	public long getStartBitboard()
+	{
+		return 0b1000010L << 56 * (getSide().isWhite() ? 0 : 1);
+	}
 }

@@ -12,7 +12,7 @@ package jenjinn.engine.enums;
  */
 public enum MoveType
 {
-	STANDARD, CASTLE, ENPASSANT;
+	STANDARD, CASTLE, ENPASSANT, PROMOTION;
 }
 
 /* ---------------------------------------------------------------------*
