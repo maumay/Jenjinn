@@ -35,11 +35,16 @@ public class Pawn extends ChessPiece
 	{
 		return isWhite() ? loc < 16 : 47 < loc;
 	}
+	
+	public static boolean onBackRank(byte loc, Side side)
+	{
+		return side.isWhite() ? loc < 8 : 55 < loc;
+	}
 
 	@Override
 	public long getMoveset(final byte loc, final long friendlyPieces, final long enemyPieces)
 	{
-		final long attck = super.getMoveset(loc, friendlyPieces, enemyPieces);
+		final long attck = getAttackset(loc, enemyPieces | friendlyPieces) & enemyPieces;
 		long push = (1L << (loc + getSide().orientation() * 8)) & ~(friendlyPieces | enemyPieces);
 
 		if (inFirstMoveZone(loc) && push != 0)

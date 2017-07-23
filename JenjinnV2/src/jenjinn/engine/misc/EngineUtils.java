@@ -69,7 +69,7 @@ public class EngineUtils
 			System.out.println(builder.toString());
 		}
 	}
-
+	
 	/** Performs bitwise or operation of all entries in the parameter array */
 	public static long multipleOr(final long... args)
 	{

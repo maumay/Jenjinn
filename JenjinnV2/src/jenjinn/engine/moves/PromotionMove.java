@@ -10,6 +10,7 @@ import jenjinn.engine.boardstate.BoardState;
 import jenjinn.engine.boardstate.BoardStateImplV2;
 import jenjinn.engine.enums.MoveType;
 import jenjinn.engine.enums.Side;
+import jenjinn.engine.enums.Sq;
 import jenjinn.engine.pieces.ChessPiece;
 
 /**
@@ -64,6 +65,11 @@ public class PromotionMove extends AbstractChessMoveImplV2
 				0,
 				state.getDevelopmentStatus(),
 				newPieceLocations);
+	}
+	
+	public String toString()
+	{
+		return "P" + "[" + Sq.getSq(getStart()).name() + ", " + Sq.getSq(getTarget()).name() + "]";
 	}
 
 }

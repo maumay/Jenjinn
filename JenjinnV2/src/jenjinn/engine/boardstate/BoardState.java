@@ -8,6 +8,7 @@ import java.util.List;
 import jenjinn.engine.enums.Side;
 import jenjinn.engine.enums.TerminationType;
 import jenjinn.engine.moves.ChessMove;
+import jenjinn.engine.openingdatabase.AlgebraicCommand;
 import jenjinn.engine.pieces.ChessPiece;
 import jenjinn.engine.zobristhashing.ZobristHasher;
 
@@ -37,7 +38,7 @@ public interface BoardState
 
 	List<ChessMove> getMoves();
 
-	// ChessMove generateMove(final AlgebraicCommand com);
+	ChessMove generateMove(final AlgebraicCommand com);
 
 	/**
 	 * In general this hashing function is not what would be used during the tree search.
@@ -73,5 +74,9 @@ public interface BoardState
 	byte getEnPassantSq();
 
 	long[] getNewRecentHashings(long newHash);
+	
+	void print();
+	
+	void printMoves();
 
 }

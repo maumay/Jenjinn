@@ -1,5 +1,5 @@
 /**
- * Copyright © 2017 Lhasa Limited
+ * Copyright ï¿½ 2017 Lhasa Limited
  * File created: 20 Jul 2017 by ThomasB
  * Creator : ThomasB
  * Version : $Id$
@@ -11,6 +11,7 @@ import jenjinn.engine.boardstate.BoardState;
 import jenjinn.engine.boardstate.BoardStateImplV2;
 import jenjinn.engine.boardstate.CastlingRights;
 import jenjinn.engine.enums.MoveType;
+import jenjinn.engine.enums.Sq;
 import jenjinn.engine.misc.EngineUtils;
 import jenjinn.engine.pieces.ChessPiece;
 import jenjinn.engine.pieces.Pawn;
@@ -40,6 +41,11 @@ public class StandardMove extends AbstractChessMoveImplV2
 	public static StandardMove get(final int start, final int target)
 	{
 		return SM_CACHE[start][target];
+	}
+	
+	public static StandardMove get(final Sq start, final Sq target)
+	{
+		return get(start.ordinal(), target.ordinal());
 	}
 
 	private static StandardMove[][] generateStandardMoveDB()
@@ -161,6 +167,11 @@ public class StandardMove extends AbstractChessMoveImplV2
 			}
 		}
 		return oldRights;
+	}
+	
+	public String toString()
+	{
+		return "S" + "[" + Sq.getSq(getStart()).name() + ", " + Sq.getSq(getTarget()).name() + "]";
 	}
 }
 

@@ -1,5 +1,5 @@
 /**
- * Copyright © 2017 Lhasa Limited
+ * Copyright ï¿½ 2017 Lhasa Limited
  * File created: 20 Jul 2017 by ThomasB
  * Creator : ThomasB
  * Version : $Id$
@@ -15,6 +15,16 @@ import jenjinn.engine.boardstate.BoardState;
 public interface ChessMove
 {
 	BoardState evolve(BoardState state);
+
+	default String toRecordString()
+	{
+		throw new RuntimeException();
+	}
+
+	static ChessMove getFromReportString(String string)
+	{
+		throw new RuntimeException();
+	}
 }
 
 /* ---------------------------------------------------------------------*

@@ -9,9 +9,13 @@ package jenjinn.engine.boardstate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import gnu.trove.list.TLongList;
+import gnu.trove.list.array.TLongArrayList;
 import jenjinn.engine.bitboarddatabase.BBDB;
 import jenjinn.engine.enums.Side;
+import jenjinn.engine.enums.Sq;
 import jenjinn.engine.enums.TerminationType;
 import jenjinn.engine.misc.EngineUtils;
 import jenjinn.engine.moves.CastleMove;
@@ -19,6 +23,7 @@ import jenjinn.engine.moves.ChessMove;
 import jenjinn.engine.moves.EnPassantMove;
 import jenjinn.engine.moves.PromotionMove;
 import jenjinn.engine.moves.StandardMove;
+import jenjinn.engine.openingdatabase.AlgebraicCommand;
 import jenjinn.engine.pieces.ChessPiece;
 
 /**
@@ -27,21 +32,21 @@ import jenjinn.engine.pieces.ChessPiece;
  */
 public class BoardStateImplV2 implements BoardState
 {
-	/**
-	 * We store each of these properties in the spare 32 bits of space of the
-	 * pawn bitboards (since pawns can't be on first and last rank).
+	// Stored in metadata bitboard
+	/*
+	 * 
 	 */
-	// Stored in white pawn bb
-	private static final long ENPASSANT_SQUARE_GETTER = 0b11111111;
+	private static final long CASTLE_RIGHTS_GETTER = 0b11110000L << (7 * 8);
+	
+	private static final long CASTLE_STATUS_GETTER = 0b1111L << (7 * 8);
+	
+	private static final long ENPASSANT_SQUARE_GETTER = 0b11111110L << (6 * 8);
+	
+	private static final long FRIENDLY_SIDE_GETTER = 1L  << (6 * 8);
 
-	private static final long CASTLE_RIGHTS_GETTER = 0b11110000L << 56;
-
-	private static final long FRIENDLY_SIDE_GETTER = 1L << 56;
-
-	// Stored in black pawn bb
-	private static final long HALFMOVE_CLOCK_GETTER = 0b11111111L << 56;
-
-	private static final long CASTLE_STATUS_GETTER = 0b1111L;
+	private static final long HALFMOVE_CLOCK_GETTER = 0b11111100L << (5 * 8);
+	//
+	
 
 	/**
 	 * An array of four most recent board hashings (including the
@@ -54,18 +59,8 @@ public class BoardStateImplV2 implements BoardState
 	 * 0 for white and 1 for black.
 	 */
 	private final long devStatus; // For simplicity use a long
-
-	/**
-	 * Think its worth keeping this stored, we need to calculate it
-	 * for a states terminal status anyway and it allows us to remove
-	 * illegal king moves during move retrieval which could save
-	 * significant time during searching. TODO actually for termination status we need all friendly attacks too
-	 *
-	 * So if we keep all friendly attacks then we basically achieve the same thing because illegal king moves
-	 * we induce a terminal boardstate straight away and save on searching, although why store it then? It
-	 * will just be used once.
-	 */
-	// private final long friendlyAttacks;
+	
+	private final long metaData;
 
 	private final long[] pieceLocations;
 
@@ -81,9 +76,12 @@ public class BoardStateImplV2 implements BoardState
 		this.recentHashings = recentHashings;
 		this.devStatus = devStatus;
 		this.pieceLocations = pieceLocations;
-
-		pieceLocations[0] |= (enPassantSq | (castleRights << 60) | (friendlySide << 56));
-		pieceLocations[6] |= (castleStatus | (halfMoveClock << 56));
+		
+		this.metaData = (castleRights << 60) | 
+				(castleStatus << 56) | 
+				(enPassantSq << 49) | 
+				(friendlySide << 48) |
+				(halfMoveClock << 42);
 	}
 
 	@Override
@@ -233,7 +231,7 @@ public class BoardStateImplV2 implements BoardState
 	{
 		for (byte index = 0; index < 12; index++)
 		{
-			if ((BBDB.SOB[loc] & pieceLocations[index]) != 0)
+			if (((1L << loc) & pieceLocations[index]) != 0)
 			{
 				return ChessPiece.PIECES[index];
 			}
@@ -244,11 +242,11 @@ public class BoardStateImplV2 implements BoardState
 	@Override
 	public ChessPiece getPieceAt(final byte loc, final Side s)
 	{
-		final byte upperBound = (byte) (s.index() + 6);
+		final byte lowerBound = s.index(), upperBound = (byte) (s.index() + 6);
 
-		for (byte index = s.index(); index < upperBound; index++)
+		for (byte index = lowerBound; index < upperBound; index++)
 		{
-			if ((BBDB.SOB[loc] & pieceLocations[index]) != 0)
+			if (((1L << loc) & pieceLocations[index]) != 0)
 			{
 				return ChessPiece.PIECES[index];
 			}
@@ -283,18 +281,6 @@ public class BoardStateImplV2 implements BoardState
 	}
 
 	@Override
-	public byte getCastleStatus()
-	{
-		return (byte) (pieceLocations[6] & CASTLE_STATUS_GETTER);
-	}
-
-	@Override
-	public byte getCastleRights()
-	{
-		return (byte) ((pieceLocations[0] & CASTLE_RIGHTS_GETTER) >>> 60);
-	}
-
-	@Override
 	public long getDevelopmentStatus()
 	{
 		return devStatus;
@@ -305,17 +291,35 @@ public class BoardStateImplV2 implements BoardState
 	{
 		return recentHashings[0];
 	}
+	
+	@Override
+	public byte getCastleStatus()
+	{
+		return (byte) ((metaData & CASTLE_STATUS_GETTER) >>> 56);
+	}
+
+	@Override
+	public byte getCastleRights()
+	{
+		return (byte) ((metaData & CASTLE_RIGHTS_GETTER) >>> 60);
+	}
 
 	@Override
 	public byte getEnPassantSq()
 	{
-		return (byte) (pieceLocations[0] & ENPASSANT_SQUARE_GETTER);
+		return (byte) ((metaData & ENPASSANT_SQUARE_GETTER) >>> 49);
 	}
 
 	@Override
 	public byte getClockValue()
 	{
-		return (byte) ((pieceLocations[6] & HALFMOVE_CLOCK_GETTER) >>> 56);
+		return (byte) ((metaData & HALFMOVE_CLOCK_GETTER) >>> 42);
+	}
+	
+	@Override
+	public byte getFriendlySideValue()
+	{
+		return (byte) ((metaData & FRIENDLY_SIDE_GETTER) >>> 48);
 	}
 
 	@Override
@@ -371,7 +375,8 @@ public class BoardStateImplV2 implements BoardState
 	public long getSideLocations(final Side s)
 	{
 		long locs = 0L;
-		for (byte index = s.index(); index < s.index() + 6; index++)
+		byte upperBound = (byte) (s.index() + 6);
+		for (byte index = s.index(); index < upperBound; index++)
 		{
 			locs |= pieceLocations[index];
 		}
@@ -382,12 +387,6 @@ public class BoardStateImplV2 implements BoardState
 	public long getOccupiedSquares()
 	{
 		return EngineUtils.multipleOr(pieceLocations);
-	}
-
-	@Override
-	public byte getFriendlySideValue()
-	{
-		return (byte) (pieceLocations[0] & FRIENDLY_SIDE_GETTER >>> 56);
 	}
 
 	@Override
@@ -423,9 +422,106 @@ public class BoardStateImplV2 implements BoardState
 
 	
 
-	public static void main(final String[] args)
+	@Override
+	public ChessMove generateMove(AlgebraicCommand com) 
 	{
-		EngineUtils.printNbitBoards(getStartBoard().getPieceLocationsCopy());// ((long) 0b10) << 2);
+		if (com.isPromotionOrder())
+		{
+			throw new RuntimeException("Not yet implemented.");
+		}
+
+		final String castleOrder = com.getCastleOrder();
+
+		if (castleOrder != null)
+		{
+			return CastleMove.get(getFriendlySide().isWhite() ? "WHITE" + castleOrder : "BLACK" + castleOrder);
+		}
+
+		final Sq targSq = com.getTargetSq();
+		final byte targ = (byte) com.getTargetSq().ordinal();
+
+		if (com.isAttackOrder() && getPieceAt(targ, getEnemySide()) == null)
+		{
+			final int startFile = com.getStartFile();
+			final Sq start = Sq.getSq(startFile, targ / 8 - getFriendlySide().orientation());
+			return EnPassantMove.get(start, targSq);
+		}
+
+		final int startRnk = com.getStartRow();
+		final int startFle = com.getStartFile();
+
+		final List<StandardMove> possibleStandardMoves = getMoves().stream()
+				.filter(x -> x instanceof StandardMove)
+				.map(x -> (StandardMove) x)
+				.collect(Collectors.toList());
+
+		for (final StandardMove mv : possibleStandardMoves)
+		{
+			ChessPiece p = getPieceAt(mv.getStart(), getFriendlySide());
+			if (p == null)
+			{
+				System.out.println();
+				System.out.println(getFriendlySide().name());
+				System.out.println(mv.toString());
+				throw new RuntimeException();
+			}
+			if (mv.getTarget() == targ && p.getPieceType() == com.getPieceToMove())
+			{
+				if (startRnk < 0 && startFle < 0)
+				{
+					return mv;
+				}
+				else if (startFle >= 0 && startRnk < 0)
+				{
+					if (startFle == (7 - mv.getStart() % 8))
+					{
+						return mv;
+					}
+				}
+				else if (startRnk >= 0 && startFle < 0)
+				{
+					if (startRnk == mv.getStart() / 8)
+					{
+						return mv;
+					}
+				}
+				else
+				{
+					if (startFle == (7 - mv.getStart() % 8) && startRnk == mv.getStart() / 8)
+					{
+						return mv;
+					}
+				}
+			}
+		}
+
+		System.out.println(com.getAsString());
+		System.out.println(getFriendlySide().name());
+		throw new AssertionError("Not found a move correctly.");
+	}
+	
+	public void print()
+	{
+		TLongList toPrint = new TLongArrayList(pieceLocations);
+		toPrint.add(metaData);
+		toPrint.add(devStatus);
+		EngineUtils.printNbitBoards(toPrint.toArray());
+	}
+	
+	public static void main(String[] args)
+	{
+		BoardState state = getStartBoard();
+//		state.print();
+//		state.getMoves().stream().forEach(x -> System.out.println(x.toString()));
+//		System.out.println(state.getPieceAt((byte) 8, state.getFriendlySide()));
+		BoardStateImplV2 s = (BoardStateImplV2) state;
+		EngineUtils.printNbitBoards(s.metaData);
+	}
+
+	@Override
+	public void printMoves() 
+	{
+		getMoves().stream().forEach(x -> System.out.println(x.toString()));
 	}
 }
 

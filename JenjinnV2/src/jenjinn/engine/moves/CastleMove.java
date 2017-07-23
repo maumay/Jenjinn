@@ -27,6 +27,23 @@ public final class CastleMove extends AbstractChessMoveImplV2
 	public static final CastleMove BLACK_KINGSIDE = new CastleMove(59, 57, new int[] { 59, 57, 56, 58 });
 
 	public static final CastleMove BLACK_QUEENSIDE = new CastleMove(59, 61, new int[] { 59, 62, 63, 61 });
+	
+	public static CastleMove get(String name)
+	{
+		switch(name)
+		{
+		case "WHITE_KINGSIDE":
+			return WHITE_KINGSIDE;
+		case "WHITE_QUEENSIDE":
+			return WHITE_QUEENSIDE;
+		case "BLACK_KINGSIDE":
+			return BLACK_KINGSIDE;
+		case "BLACK_QUEENSIDE":
+			return BLACK_QUEENSIDE;
+		default:
+			throw new IllegalArgumentException();
+		}
+	}
 
 	// ------------------------------------------------------------------------------------------------
 	/** The bit indices representing the 'from' and 'to' squares for the king in this castle move. */
@@ -73,7 +90,7 @@ public final class CastleMove extends AbstractChessMoveImplV2
 		final byte newCastleRights = updateCastleRights(state.getCastleRights(), moveSide);
 		final byte newCastleStatus = updateCastleStatus(state.getCastleStatus(), moveSide);
 
-		long newHash = updateGeneralHashFeatures(state, newCastleRights, (byte) -1);
+		long newHash = updateGeneralHashFeatures(state, newCastleRights, BoardState.NO_ENPASSANT);
 		newHash ^= BoardState.HASHER.getSquarePieceFeature(kingAdditionSquare, ChessPiece.get(5 + moveSide.index()));
 		newHash ^= BoardState.HASHER.getSquarePieceFeature(kingRemovalSquare, ChessPiece.get(5 + moveSide.index()));
 		newHash ^= BoardState.HASHER.getSquarePieceFeature(rookAdditionSquare, ChessPiece.get(3 + moveSide.index()));

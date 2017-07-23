@@ -10,6 +10,7 @@ import jenjinn.engine.boardstate.BoardState;
 import jenjinn.engine.boardstate.BoardStateImplV2;
 import jenjinn.engine.enums.MoveType;
 import jenjinn.engine.enums.Side;
+import jenjinn.engine.enums.Sq;
 import jenjinn.engine.pieces.ChessPiece;
 
 /**
@@ -46,15 +47,15 @@ public class EnPassantMove extends AbstractChessMoveImplV2
 	{
 		final Side friendlySide = state.getFriendlySide();
 
-		final long enPassantSquare = state.getEnPassantSq();
+		final long enPassantSquareBB = 1L << getEnPassantSquare();
 
 		final long[] newPieceLocations = state.getPieceLocationsCopy();
 
 		newPieceLocations[friendlySide.index()] &= ~getStartBB();
 		newPieceLocations[friendlySide.index()] |= getTargetBB();
-		newPieceLocations[friendlySide.otherSide().index()] &= ~enPassantSquare;
+		newPieceLocations[friendlySide.otherSide().index()] &= ~enPassantSquareBB;
 
-		long newHash = updateGeneralHashFeatures(state, state.getCastleRights(), (byte) -1);
+		long newHash = updateGeneralHashFeatures(state, state.getCastleRights(), BoardState.NO_ENPASSANT);
 		newHash ^= BoardState.HASHER.getSquarePieceFeature(getStart(), ChessPiece.get(friendlySide.index()));
 		newHash ^= BoardState.HASHER.getSquarePieceFeature(getTarget(), ChessPiece.get(friendlySide.index()));
 		newHash ^= BoardState.HASHER.getSquarePieceFeature(getEnPassantSquare(), ChessPiece.get(friendlySide.otherSide().index()));
@@ -68,6 +69,16 @@ public class EnPassantMove extends AbstractChessMoveImplV2
 				0,
 				state.getDevelopmentStatus(),
 				newPieceLocations);
+	}
+
+	public static EnPassantMove get(Sq start, Sq targSq) 
+	{
+		return get(start.ordinal(), targSq.ordinal());
+	}
+	
+	public String toString()
+	{
+		return "E" + "[" + Sq.getSq(getStart()).name() + ", " + Sq.getSq(getTarget()).name() + "]";
 	}
 }
 
