@@ -38,31 +38,31 @@ public class BoardEvolutionSpeedTest
 		
 		TLongList times = new TLongArrayList();
 		String game = "1.d4 Nf6 2.c4 g6 3.Nc3 Bg7 4.e4 d6 5.f3 O-O 6.Be3 e5 7.d5 Ne8 8.Qd2 f5 9.O-O-O f4 10.Bf2 Nd7 11.Nge2 Nb6 12.Qd3 g5 13.Kb1 Bd7 14.Nc1 c5 15.dxc6 bxc6 16.c5 Nc8 17.cxd6 Nexd6";
-//		while((game = reader.readLine()) != null)
-//		{
+		while((game = reader.readLine()) != null)
+		{
 			AlgebraicCommand[] commands = ChessGameReader.processSequenceOfCommands(game);
 			
 			BoardState state = BoardStateImplV2.getStartBoard();
 			
 			for (AlgebraicCommand command : commands)
 			{
-//				try
-//				{
+				try
+				{
 					ChessMove mv = state.generateMove(command);
 					long start = System.nanoTime();
 					state = mv.evolve(state);
 					times.add(System.nanoTime() - start);
-					System.out.println(state.getEnPassantSq());
-					state.print();
-//				}
-//				catch (AssertionError err)
-//				{
-//					System.out.println(game);
-//					throw new RuntimeException();
-//				}
+//					System.out.println(state.getEnPassantSq());
+//					state.print();
+				}
+				catch (AssertionError err)
+				{
+					System.out.println(game);
+					throw err;
+				}
 			}
 			
-//		}
+		}
 		
 		System.out.println(EngineUtils.average(Arrays.asList(times)).get(0));
 	}
