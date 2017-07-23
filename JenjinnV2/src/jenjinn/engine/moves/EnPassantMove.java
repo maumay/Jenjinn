@@ -1,5 +1,5 @@
 /**
- * Copyright © 2017 Lhasa Limited
+ * Copyright ï¿½ 2017 Lhasa Limited
  * File created: 20 Jul 2017 by ThomasB
  * Creator : ThomasB
  * Version : $Id$
@@ -18,35 +18,6 @@ import jenjinn.engine.pieces.ChessPiece;
  */
 public class EnPassantMove extends AbstractChessMoveImplV2
 {
-	//
-	// private static final EnPassantMove[][] EP_CACHE = generateEnPassantMoveCache();
-	//
-	// private static EnPassantMove[][] generateEnPassantMoveCache()
-	// {
-	// final EnPassantMove[][] cache = new EnPassantMove[8][4];
-	//
-	// for (int i = 0; i < 8; i++) // for each file
-	// {
-	// cache[i] = getEnPassantMovesForFile(i);
-	// }
-	//
-	// // TODO Auto-generated method stub
-	// return cache;
-	// }
-	//
-	// /**
-	// * Ordered in ascending order first by start and then target, i.e white before
-	// * black and right before left.
-	// *
-	// * @param i
-	// * @return
-	// */
-	// private static EnPassantMove[] getEnPassantMovesForFile(final int i)
-	// {
-	// EnPassantMove[]
-	// // TODO Auto-generated method stub
-	// return null;
-	// }
 
 	/**
 	 * EnPassant moves are so rare that I don't think we really need to cache them.
@@ -75,7 +46,7 @@ public class EnPassantMove extends AbstractChessMoveImplV2
 	{
 		final Side friendlySide = state.getFriendlySide();
 
-		final long enPassantSquare = (1L << getEnPassantSquare());
+		final long enPassantSquare = state.getEnPassantSq();
 
 		final long[] newPieceLocations = state.getPieceLocationsCopy();
 
@@ -90,11 +61,11 @@ public class EnPassantMove extends AbstractChessMoveImplV2
 
 		return new BoardStateImplV2(
 				state.getNewRecentHashings(newHash),
-				(byte) (1 - state.getFriendlySideValue()),
+				1 - state.getFriendlySideValue(),
 				state.getCastleRights(),
 				state.getCastleStatus(),
 				BoardState.NO_ENPASSANT,
-				(byte) 0,
+				0,
 				state.getDevelopmentStatus(),
 				newPieceLocations);
 	}

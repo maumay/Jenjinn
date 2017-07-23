@@ -1,5 +1,5 @@
 /**
- * Copyright © 2017 Lhasa Limited
+ * Copyright ï¿½ 2017 Lhasa Limited
  * File created: 21 Jul 2017 by ThomasB
  * Creator : ThomasB
  * Version : $Id$
@@ -57,11 +57,11 @@ public class PromotionMove extends AbstractChessMoveImplV2
 
 		return new BoardStateImplV2(
 				state.getNewRecentHashings(newHash),
-				(byte) (1 - state.getFriendlySideValue()),
+				1 - state.getFriendlySideValue(),
 				state.getCastleRights(),
 				state.getCastleStatus(),
 				BoardState.NO_ENPASSANT,
-				(byte) 0,
+				0,
 				state.getDevelopmentStatus(),
 				newPieceLocations);
 	}

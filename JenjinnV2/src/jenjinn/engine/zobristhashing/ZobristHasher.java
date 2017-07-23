@@ -11,6 +11,7 @@ import java.util.Random;
 import gnu.trove.set.TLongSet;
 import gnu.trove.set.hash.TLongHashSet;
 import jenjinn.engine.enums.Sq;
+import jenjinn.engine.misc.EngineUtils;
 import jenjinn.engine.pieces.ChessPiece;
 
 /**
@@ -122,8 +123,20 @@ public class ZobristHasher
 
 	public long generateStartHash()
 	{
-		// TODO Auto-generated method stub
-		return 0;
+		long startHash = EngineUtils.multipleXor(castleFeatures);
+		
+		long[] startPieceLocs = EngineUtils.getStartingPieceLocs();
+		
+		for (int i = 0; i < 12; i++)
+		{
+			byte[] locs = EngineUtils.getSetBits(startPieceLocs[i]);
+			
+			for (byte loc : locs)
+			{
+				startHash ^= getSquarePieceFeature(loc, ChessPiece.get(i));
+			}
+		}
+		return startHash;
 	}
 }
 

@@ -1,5 +1,5 @@
 /**
- * Copyright © 2017 Lhasa Limited
+ * Copyright ï¿½ 2017 Lhasa Limited
  * File created: 19 Jul 2017 by ThomasB
  * Creator : ThomasB
  * Version : $Id$
@@ -70,11 +70,11 @@ public class BoardStateImplV2 implements BoardState
 	private final long[] pieceLocations;
 
 	public BoardStateImplV2(final long[] recentHashings,
-			final byte friendlySide,
-			final byte castleRights,
-			final byte castleStatus,
-			final byte enPassantSq,
-			final byte halfMoveClock,
+			final long friendlySide,
+			final long castleRights,
+			final long castleStatus,
+			final long enPassantSq,
+			final long halfMoveClock,
 			final long devStatus,
 			final long[] pieceLocations)
 	{
@@ -82,8 +82,8 @@ public class BoardStateImplV2 implements BoardState
 		this.devStatus = devStatus;
 		this.pieceLocations = pieceLocations;
 
-		pieceLocations[0] |= (enPassantSq | ((long) castleRights << 60) | ((long) friendlySide << 56));
-		pieceLocations[6] |= (castleStatus | ((long) halfMoveClock << 56));
+		pieceLocations[0] |= (enPassantSq | (castleRights << 60) | (friendlySide << 56));
+		pieceLocations[6] |= (castleStatus | (halfMoveClock << 56));
 	}
 
 	@Override
@@ -341,6 +341,11 @@ public class BoardStateImplV2 implements BoardState
 	@Override
 	public TerminationType getTerminationState()
 	{
+		if (getClockValue() == 50)
+		{
+			return TerminationType.DRAW;
+		}
+		
 		// First check for taking of king
 		final Side friendlySide = getFriendlySide();
 
@@ -399,31 +404,24 @@ public class BoardStateImplV2 implements BoardState
 
 		return new BoardStateImplV2(
 				new long[] { startHash, 0L, 0L, 0L },
-				(byte) 0,
-				(byte) 0b1111,
-				(byte) 0,
+				0,
+				0b1111,
+				0,
 				BoardState.NO_ENPASSANT,
-				(byte) 0,
+				0,
 				getStartingDevStatus(),
-				getStartingPieceLocs());
+				EngineUtils.getStartingPieceLocs());
 	}
 
 	private static long getStartingDevStatus()
 	{
-		throw new RuntimeException("Not yet impl");
+		long[] startLocs = EngineUtils.getStartingPieceLocs();
+		
+		return startLocs[1] | startLocs[2] | startLocs[7] | startLocs[8] | 
+				((startLocs[0] | startLocs[6]) & (BBDB.FILE[3] | BBDB.FILE[4]));
 	}
 
-	private static long[] getStartingPieceLocs()
-	{
-		final long[] start = new long[12];
-
-		for (int i = 0; i < 12; i++)
-		{
-			start[i] = ChessPiece.get(i).getStartBitboard();
-		}
-
-		return start;
-	}
+	
 
 	public static void main(final String[] args)
 	{

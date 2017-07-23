@@ -17,6 +17,7 @@ import gnu.trove.list.array.TLongArrayList;
 import jenjinn.engine.bitboarddatabase.BBDB;
 import jenjinn.engine.enums.Sq;
 import jenjinn.engine.moves.StandardMove;
+import jenjinn.engine.pieces.ChessPiece;
 
 /**
  * @author TB
@@ -76,6 +77,17 @@ public class EngineUtils
 		for (final long arg : args)
 		{
 			ans |= arg;
+		}
+		return ans;
+	}
+	
+	/** Performs bitwise xor operation of all entries in the parameter array */
+	public static long multipleXor(final long... args)
+	{
+		long ans = 0L;
+		for (final long arg : args)
+		{
+			ans ^= arg;
 		}
 		return ans;
 	}
@@ -311,6 +323,18 @@ public class EngineUtils
 		}
 
 		return mvs;
+	}
+	
+	public static long[] getStartingPieceLocs()
+	{
+		final long[] start = new long[12];
+
+		for (int i = 0; i < 12; i++)
+		{
+			start[i] = ChessPiece.get(i).getStartBitboard();
+		}
+
+		return start;
 	}
 
 	public static void main(final String[] args)

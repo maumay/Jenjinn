@@ -1,5 +1,5 @@
 /**
- * Copyright © 2017 Lhasa Limited
+ * Copyright ï¿½ 2017 Lhasa Limited
  * File created: 20 Jul 2017 by ThomasB
  * Creator : ThomasB
  * Version : $Id$
@@ -81,11 +81,11 @@ public final class CastleMove extends AbstractChessMoveImplV2
 
 		return new BoardStateImplV2(
 				state.getNewRecentHashings(newHash),
-				(byte) (1 - state.getFriendlySideValue()),
+				1 - state.getFriendlySideValue(),
 				newCastleRights,
 				newCastleStatus,
 				BoardState.NO_ENPASSANT,
-				(byte) (state.getClockValue() + 1),
+				state.getClockValue() + 1,
 				state.getDevelopmentStatus(),
 				newPiecePositions);
 	}
