@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package jenjinn.engine.performancetesting.misc;
 
@@ -24,46 +24,53 @@ import jenjinn.engine.pgnutils.ChessGameReader;
  * @author t
  *
  */
-public class BoardEvolutionSpeedTest 
+public class BoardEvolutionSpeedTest
 {
 	private static final Path SRC_FILE_PATH = Paths.get("positionproviders", "talprovider500.txt");
 
 	/**
 	 * @param args
-	 * @throws IOException 
+	 * @throws IOException
 	 */
-	public static void main(String[] args) throws IOException 
+	public static void main(final String[] args) throws IOException
 	{
-		BufferedReader reader = Files.newBufferedReader(SRC_FILE_PATH, StandardCharsets.ISO_8859_1);
-		
-		TLongList times = new TLongArrayList();
-		String game = "1.d4 Nf6 2.c4 g6 3.Nc3 Bg7 4.e4 d6 5.f3 O-O 6.Be3 e5 7.d5 Ne8 8.Qd2 f5 9.O-O-O f4 10.Bf2 Nd7 11.Nge2 Nb6 12.Qd3 g5 13.Kb1 Bd7 14.Nc1 c5 15.dxc6 bxc6 16.c5 Nc8 17.cxd6 Nexd6";
-		while((game = reader.readLine()) != null)
+		final BufferedReader reader = Files.newBufferedReader(SRC_FILE_PATH, StandardCharsets.ISO_8859_1);
+
+		final TLongList times = new TLongArrayList();
+		String game;// = "1.e4 c5 2.Nf3 d6 3.d4 cxd4 4.Nxd4 Nf6 5.Nc3 e5 6.Bb5+ Bd7 7.Bxd7+ Qxd7 8.Nf5 Nc6 9.O-O Nxe4 10.Nxe4 Qxf5 11.Nxd6+ Bxd6 12.Qxd6
+					// Qd7 13.Qc5 Qe7 14.Be3 Qxc5 15.Bxc5 O-O-O 16.Rfd1 b6 17.Be3 Rd7";
+		while ((game = reader.readLine()) != null)
 		{
-			AlgebraicCommand[] commands = ChessGameReader.processSequenceOfCommands(game);
-			
+			final AlgebraicCommand[] commands = ChessGameReader.processSequenceOfCommands(game);
+
 			BoardState state = BoardStateImplV2.getStartBoard();
-			
-			for (AlgebraicCommand command : commands)
+
+			for (final AlgebraicCommand command : commands)
 			{
 				try
 				{
-					ChessMove mv = state.generateMove(command);
-					long start = System.nanoTime();
+					final ChessMove mv = state.generateMove(command);
+					final long start = System.nanoTime();
 					state = mv.evolve(state);
 					times.add(System.nanoTime() - start);
-//					System.out.println(state.getEnPassantSq());
-//					state.print();
+					// System.out.println(state.getEnPassantSq());
+					// state.print();
 				}
-				catch (AssertionError err)
+				catch (final AssertionError err)
 				{
-					System.out.println(game);
-					throw err;
+					System.out.println("AE with game: " + game);
+					break;
+				}
+				catch (final NullPointerException npe)
+				{
+					System.out.println("NPE with game: " + game);
+					System.out.println("at command: " + command.getAsString());
+					break;
 				}
 			}
-			
+
 		}
-		
+
 		System.out.println(EngineUtils.average(Arrays.asList(times)).get(0));
 	}
 

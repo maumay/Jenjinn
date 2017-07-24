@@ -29,6 +29,7 @@ public class PgnReader
 {
 	private static final String WHITE_WINS = "1-0";
 	private static final String DRAW = "1/2-1/2";
+	private static final String BLACK_WINS = "0-1";
 
 	private static final String OPENING_FOLDER_PATH = "OpeningResources";
 
@@ -68,7 +69,10 @@ public class PgnReader
 
 		wholeFile.stream().forEach(fileLineAction);
 
-		List<String> games = gameBuilder.stream().map(x -> x.toString().trim()).collect(Collectors.toList());
+		List<String> games = gameBuilder.stream()
+				.map(x -> removeGameResult(x.toString().trim()))
+				.filter(x -> !x.isEmpty())
+				.collect(Collectors.toList());
 
 		if (gameCap > -1)
 		{
@@ -89,6 +93,31 @@ public class PgnReader
 			}
 		}
 		return games;
+	}
+
+	private static String removeGameResult(final String game)
+	{
+		if (game.contains(WHITE_WINS))
+		{
+			return game.substring(0, game.indexOf(WHITE_WINS)).trim();
+		}
+		else if (game.contains(DRAW))
+		{
+			return game.substring(0, game.indexOf(DRAW)).trim();
+		}
+		else if (game.contains(BLACK_WINS))
+		{
+			return game.substring(0, game.indexOf(BLACK_WINS)).trim();
+		}
+		else
+		{
+			System.err.println("--------------------------");
+			System.err.println("Invalid game result for game:");
+			System.err.println(game);
+			System.err.println("game skipped.");
+			System.err.println("--------------------------");
+			return "";
+		}
 	}
 
 	public static OpeningOrder[] processFileForOpeningOrders(final String fileName, final int lengthCap) throws IOException

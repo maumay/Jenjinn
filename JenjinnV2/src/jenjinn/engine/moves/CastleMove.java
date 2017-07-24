@@ -26,22 +26,22 @@ public final class CastleMove extends AbstractChessMoveImplV2
 
 	public static final CastleMove BLACK_KINGSIDE = new CastleMove(59, 57, new int[] { 59, 57, 56, 58 });
 
-	public static final CastleMove BLACK_QUEENSIDE = new CastleMove(59, 61, new int[] { 59, 62, 63, 61 });
-	
-	public static CastleMove get(String name)
+	public static final CastleMove BLACK_QUEENSIDE = new CastleMove(59, 61, new int[] { 59, 61, 63, 60 });
+
+	public static CastleMove get(final String name)
 	{
-		switch(name)
+		switch (name)
 		{
-		case "WHITE_KINGSIDE":
-			return WHITE_KINGSIDE;
-		case "WHITE_QUEENSIDE":
-			return WHITE_QUEENSIDE;
-		case "BLACK_KINGSIDE":
-			return BLACK_KINGSIDE;
-		case "BLACK_QUEENSIDE":
-			return BLACK_QUEENSIDE;
-		default:
-			throw new IllegalArgumentException();
+			case "WHITE_KINGSIDE":
+				return WHITE_KINGSIDE;
+			case "WHITE_QUEENSIDE":
+				return WHITE_QUEENSIDE;
+			case "BLACK_KINGSIDE":
+				return BLACK_KINGSIDE;
+			case "BLACK_QUEENSIDE":
+				return BLACK_QUEENSIDE;
+			default:
+				throw new IllegalArgumentException();
 		}
 	}
 
