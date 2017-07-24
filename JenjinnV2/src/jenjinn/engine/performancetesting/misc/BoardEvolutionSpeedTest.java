@@ -26,7 +26,7 @@ import jenjinn.engine.pgnutils.ChessGameReader;
  */
 public class BoardEvolutionSpeedTest
 {
-	private static final Path SRC_FILE_PATH = Paths.get("positionproviders", "talprovider500.txt");
+	private static final Path SRC_FILE_PATH = Paths.get("JenjinnV2","positionproviders", "talprovider500.txt");
 
 	/**
 	 * @param args
@@ -37,8 +37,7 @@ public class BoardEvolutionSpeedTest
 		final BufferedReader reader = Files.newBufferedReader(SRC_FILE_PATH, StandardCharsets.ISO_8859_1);
 
 		final TLongList times = new TLongArrayList();
-		String game;// = "1.e4 c5 2.Nf3 d6 3.d4 cxd4 4.Nxd4 Nf6 5.Nc3 e5 6.Bb5+ Bd7 7.Bxd7+ Qxd7 8.Nf5 Nc6 9.O-O Nxe4 10.Nxe4 Qxf5 11.Nxd6+ Bxd6 12.Qxd6
-					// Qd7 13.Qc5 Qe7 14.Be3 Qxc5 15.Bxc5 O-O-O 16.Rfd1 b6 17.Be3 Rd7";
+		String game;// = "1.c4 Nf6 2.Nc3 d6 3.d4 g6 4.e4 Bg7 5.Be2 e5 6.dxe5 dxe5 7.Qxd8+ Kxd8 8.f4 Be6 9.Nf3 Nbd7 10.O-O c6 11.Ng5 h6 12.f5 hxg5 13.fxe6 fxe6 14.Bxg5 Ke7 15.Rad1 Nf8 16.Rd3 Nh7 17.Be3 Rhd8";
 		while ((game = reader.readLine()) != null)
 		{
 			final AlgebraicCommand[] commands = ChessGameReader.processSequenceOfCommands(game);
@@ -49,12 +48,13 @@ public class BoardEvolutionSpeedTest
 			{
 				try
 				{
+				String comStr = command.getAsString();
 					final ChessMove mv = state.generateMove(command);
 					final long start = System.nanoTime();
 					state = mv.evolve(state);
 					times.add(System.nanoTime() - start);
-					// System.out.println(state.getEnPassantSq());
-					// state.print();
+//					 System.out.println(state.getEnPassantSq());
+//					 state.print();
 				}
 				catch (final AssertionError err)
 				{
