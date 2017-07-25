@@ -34,19 +34,18 @@ public class BoardStateImplV2 implements BoardState
 {
 	// Stored in metadata bitboard
 	/*
-	 * 
+	 *
 	 */
 	private static final long CASTLE_RIGHTS_GETTER = 0b11110000L << (7 * 8);
-	
+
 	private static final long CASTLE_STATUS_GETTER = 0b1111L << (7 * 8);
-	
+
 	private static final long ENPASSANT_SQUARE_GETTER = 0b11111110L << (6 * 8);
-	
-	private static final long FRIENDLY_SIDE_GETTER = 1L  << (6 * 8);
+
+	private static final long FRIENDLY_SIDE_GETTER = 1L << (6 * 8);
 
 	private static final long HALFMOVE_CLOCK_GETTER = 0b11111100L << (5 * 8);
 	//
-	
 
 	/**
 	 * An array of four most recent board hashings (including the
@@ -59,7 +58,7 @@ public class BoardStateImplV2 implements BoardState
 	 * 0 for white and 1 for black.
 	 */
 	private final long devStatus; // For simplicity use a long
-	
+
 	private final long metaData;
 
 	private final long[] pieceLocations;
@@ -76,10 +75,10 @@ public class BoardStateImplV2 implements BoardState
 		this.recentHashings = recentHashings;
 		this.devStatus = devStatus;
 		this.pieceLocations = pieceLocations;
-		
-		this.metaData = (castleRights << 60) | 
-				(castleStatus << 56) | 
-				(enPassantSq << 49) | 
+
+		this.metaData = (castleRights << 60) |
+				(castleStatus << 56) |
+				(enPassantSq << 49) |
 				(friendlySide << 48) |
 				(halfMoveClock << 42);
 	}
@@ -202,7 +201,7 @@ public class BoardStateImplV2 implements BoardState
 				if (((0b1110000L << (getFriendlySideValue() * 56)) & allPieces) == 0)
 				{
 					// if squares are not attacked
-					if (((0b1110000L << (getFriendlySideValue() * 56)) & getAttackedSquares(getEnemySide())) == 0)
+					if (((0b1111000L << (getFriendlySideValue() * 56)) & getAttackedSquares(getEnemySide())) == 0)
 					{
 						cmvs.add(getFriendlySideValue() == 0 ? CastleMove.WHITE_QUEENSIDE : CastleMove.BLACK_QUEENSIDE);
 					}
@@ -291,7 +290,7 @@ public class BoardStateImplV2 implements BoardState
 	{
 		return recentHashings[0];
 	}
-	
+
 	@Override
 	public byte getCastleStatus()
 	{
@@ -315,7 +314,7 @@ public class BoardStateImplV2 implements BoardState
 	{
 		return (byte) ((metaData & HALFMOVE_CLOCK_GETTER) >>> 42);
 	}
-	
+
 	@Override
 	public byte getFriendlySideValue()
 	{
@@ -349,7 +348,7 @@ public class BoardStateImplV2 implements BoardState
 		{
 			return TerminationType.DRAW;
 		}
-		
+
 		// First check for taking of king
 		final Side friendlySide = getFriendlySide();
 
@@ -375,7 +374,7 @@ public class BoardStateImplV2 implements BoardState
 	public long getSideLocations(final Side s)
 	{
 		long locs = 0L;
-		byte upperBound = (byte) (s.index() + 6);
+		final byte upperBound = (byte) (s.index() + 6);
 		for (byte index = s.index(); index < upperBound; index++)
 		{
 			locs |= pieceLocations[index];
@@ -414,16 +413,14 @@ public class BoardStateImplV2 implements BoardState
 
 	private static long getStartingDevStatus()
 	{
-		long[] startLocs = EngineUtils.getStartingPieceLocs();
-		
-		return startLocs[1] | startLocs[2] | startLocs[7] | startLocs[8] | 
+		final long[] startLocs = EngineUtils.getStartingPieceLocs();
+
+		return startLocs[1] | startLocs[2] | startLocs[7] | startLocs[8] |
 				((startLocs[0] | startLocs[6]) & (BBDB.FILE[3] | BBDB.FILE[4]));
 	}
 
-	
-
 	@Override
-	public ChessMove generateMove(AlgebraicCommand com) 
+	public ChessMove generateMove(final AlgebraicCommand com)
 	{
 		if (com.isPromotionOrder())
 		{
@@ -455,9 +452,10 @@ public class BoardStateImplV2 implements BoardState
 				.map(x -> (StandardMove) x)
 				.collect(Collectors.toList());
 
+		StandardMove uniquePossibleMove = null;
 		for (final StandardMove mv : possibleStandardMoves)
 		{
-			ChessPiece p = getPieceAt(mv.getStart(), getFriendlySide());
+			final ChessPiece p = getPieceAt(mv.getStart(), getFriendlySide());
 			if (p == null)
 			{
 				System.out.println();
@@ -469,7 +467,11 @@ public class BoardStateImplV2 implements BoardState
 			{
 				if (startRnk < 0 && startFle < 0)
 				{
-					return mv;
+					if (uniquePossibleMove != null)
+					{
+						throw new AssertionError("Pgn is ambiguous at command " + com.getAsString() + " or something is wrong");
+					}
+					uniquePossibleMove = mv;
 				}
 				else if (startFle >= 0 && startRnk < 0)
 				{
@@ -482,44 +484,56 @@ public class BoardStateImplV2 implements BoardState
 				{
 					if (startRnk == mv.getStart() / 8)
 					{
-						return mv;
+						if (uniquePossibleMove != null)
+						{
+							throw new AssertionError("Pgn is ambiguous at command " + com.getAsString() + " or something is wrong");
+						}
+						uniquePossibleMove = mv;
 					}
 				}
 				else
 				{
 					if (startFle == (7 - mv.getStart() % 8) && startRnk == mv.getStart() / 8)
 					{
-						return mv;
+						if (uniquePossibleMove != null)
+						{
+							throw new AssertionError("Pgn is ambiguous at command " + com.getAsString() + " or something is wrong");
+						}
+						uniquePossibleMove = mv;
 					}
 				}
 			}
 		}
-
-		System.out.println(com.getAsString());
-		System.out.println(getFriendlySide().name());
-		throw new AssertionError("Not found a move correctly.");
+		if (uniquePossibleMove == null)
+		{
+			System.out.println(com.getAsString());
+			System.out.println(getFriendlySide().name());
+			throw new AssertionError("Not found a move correctly.");
+		}
+		return uniquePossibleMove;
 	}
-	
+
+	@Override
 	public void print()
 	{
-		TLongList toPrint = new TLongArrayList(pieceLocations);
+		final TLongList toPrint = new TLongArrayList(pieceLocations);
 		toPrint.add(metaData);
 		toPrint.add(devStatus);
 		EngineUtils.printNbitBoards(toPrint.toArray());
 	}
-	
-	public static void main(String[] args)
+
+	public static void main(final String[] args)
 	{
-		BoardState state = getStartBoard();
-//		state.print();
-//		state.getMoves().stream().forEach(x -> System.out.println(x.toString()));
-//		System.out.println(state.getPieceAt((byte) 8, state.getFriendlySide()));
-		BoardStateImplV2 s = (BoardStateImplV2) state;
+		final BoardState state = getStartBoard();
+		// state.print();
+		// state.getMoves().stream().forEach(x -> System.out.println(x.toString()));
+		// System.out.println(state.getPieceAt((byte) 8, state.getFriendlySide()));
+		final BoardStateImplV2 s = (BoardStateImplV2) state;
 		EngineUtils.printNbitBoards(s.metaData);
 	}
 
 	@Override
-	public void printMoves() 
+	public void printMoves()
 	{
 		getMoves().stream().forEach(x -> System.out.println(x.toString()));
 	}
