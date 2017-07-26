@@ -1,5 +1,5 @@
 /**
- *
+ * 
  */
 package jenjinn.engine.performancetesting.misc;
 
@@ -25,16 +25,16 @@ import jenjinn.engine.pgnutils.ChessGameReader;
  * @author t
  *
  */
-public class BoardEvolutionSpeedTest
+public class MoveGenerationSpeedTest 
 {
+
 	private static final Path SRC_FILE_PATH = Paths.get("JenjinnV2","positionproviders", "talprovider500.txt");//Paths.get("positionproviders", "talprovider500.txt");// ,
-																									// 
 
 	/**
-	 * @param args
-	 * @throws IOException
+	 * @throws IOException 
+	 * 
 	 */
-	public static void main(final String[] args) throws IOException
+	public static void main(String[] args) throws IOException 
 	{
 		final BufferedReader reader = Files.newBufferedReader(SRC_FILE_PATH, StandardCharsets.ISO_8859_1);
 
@@ -53,8 +53,9 @@ public class BoardEvolutionSpeedTest
 				{
 					final String comStr = command.getAsString();
 					final ChessMove mv = state.generateMove(command);
-					final long start = System.nanoTime();
 					state = mv.evolve(state);
+					final long start = System.nanoTime();
+					state.getMoves();
 					times.add(System.nanoTime() - start);
 					// System.out.println(state.getEnPassantSq());
 					// state.print();
@@ -77,5 +78,6 @@ public class BoardEvolutionSpeedTest
 
 		System.out.println(EngineUtils.average(Arrays.asList(times)).get(0));
 	}
+	
 
 }

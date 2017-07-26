@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 
 import gnu.trove.set.TLongSet;
 import gnu.trove.set.hash.TLongHashSet;
+import jenjinn.engine.exceptions.AmbiguousPgnException;
 import jenjinn.engine.openingdatabase.OpeningOrder;
 
 /**
@@ -144,8 +145,17 @@ public class PgnReader
 		// Convert to OpeningOrders and add as appropriate
 		for (final String gs : gameStrings)
 		{
-			final OpeningOrder[] game = ChessGameReader.convertAlgebraicString(gs.split("  ")[0], lengthCap);
-			Arrays.stream(game).forEach(orderAction);
+			OpeningOrder[] game;
+			try 
+			{
+				game = ChessGameReader.convertAlgebraicString(gs.split("  ")[0], lengthCap);
+				Arrays.stream(game).forEach(orderAction);
+			} 
+			catch (AmbiguousPgnException e) 
+			{
+				System.err.println("Removed ambiguous game.");
+				continue;
+			}
 		}
 
 		System.out.println(ordersRead.size() + " positions successfully read from " + fileName);
