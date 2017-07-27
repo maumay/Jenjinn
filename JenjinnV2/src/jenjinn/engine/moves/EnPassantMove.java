@@ -12,6 +12,7 @@ import jenjinn.engine.enums.MoveType;
 import jenjinn.engine.enums.Side;
 import jenjinn.engine.enums.Sq;
 import jenjinn.engine.pieces.ChessPiece;
+import jenjinn.engine.pieces.Pawn;
 
 /**
  * @author ThomasB
@@ -45,6 +46,8 @@ public class EnPassantMove extends AbstractChessMoveImplV2
 	@Override
 	public BoardState evolve(final BoardState state)
 	{
+		assert state.getPieceAt(getEnPassantSquare(), state.getEnemySide()) instanceof Pawn;
+
 		final Side friendlySide = state.getFriendlySide();
 
 		final long enPassantSquareBB = 1L << getEnPassantSquare();
@@ -71,11 +74,12 @@ public class EnPassantMove extends AbstractChessMoveImplV2
 				newPieceLocations);
 	}
 
-	public static EnPassantMove get(Sq start, Sq targSq) 
+	public static EnPassantMove get(final Sq start, final Sq targSq)
 	{
 		return get(start.ordinal(), targSq.ordinal());
 	}
-	
+
+	@Override
 	public String toString()
 	{
 		return "E" + "[" + Sq.getSq(getStart()).name() + ", " + Sq.getSq(getTarget()).name() + "]";

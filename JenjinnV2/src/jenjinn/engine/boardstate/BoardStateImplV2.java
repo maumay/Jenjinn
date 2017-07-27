@@ -26,6 +26,7 @@ import jenjinn.engine.moves.PromotionMove;
 import jenjinn.engine.moves.StandardMove;
 import jenjinn.engine.openingdatabase.AlgebraicCommand;
 import jenjinn.engine.pieces.ChessPiece;
+import jenjinn.engine.pieces.King;
 
 /**
  * @author ThomasB
@@ -33,6 +34,7 @@ import jenjinn.engine.pieces.ChessPiece;
  */
 public class BoardStateImplV2 implements BoardState
 {
+
 	// Stored in metadata bitboard
 	/*
 	 *
@@ -46,6 +48,8 @@ public class BoardStateImplV2 implements BoardState
 	private static final long FRIENDLY_SIDE_GETTER = 1L << (6 * 8);
 
 	private static final long HALFMOVE_CLOCK_GETTER = 0b11111100L << (5 * 8);
+
+	// private static final long GAME_PHASE_GETTER =
 	//
 
 	/**
@@ -55,10 +59,13 @@ public class BoardStateImplV2 implements BoardState
 	private final long[] recentHashings;
 
 	/**
-	 * Representation of the side to move, i.e the friendly side.
-	 * 0 for white and 1 for black.
+	 * Record of the development progress of the 'development pieces' i.e
+	 * the central pawns and minor pieces. These are the pieces any self
+	 * respecting opening should develop. We use a long for simplicity
+	 * so there is wasted space but we can potentially use this as a
+	 * secondary meta data holder (e.g. data for evaluation) in the future.
 	 */
-	private final long devStatus; // For simplicity use a long
+	private final long devStatus;
 
 	private final long metaData;
 
@@ -531,6 +538,9 @@ public class BoardStateImplV2 implements BoardState
 		// System.out.println(state.getPieceAt((byte) 8, state.getFriendlySide()));
 		final BoardStateImplV2 s = (BoardStateImplV2) state;
 		EngineUtils.printNbitBoards(s.metaData);
+		System.out.println();
+		System.out.println(256.0 / 24);
+		System.out.println(null instanceof King);
 	}
 
 	@Override

@@ -29,6 +29,8 @@ public interface BoardState
 
 	static ZobristHasher HASHER = ZobristHasher.getDefault();
 
+	static byte[] PIECE_PHASE_VALUES = { 0, };
+
 	byte getFriendlySideValue();
 
 	Side getFriendlySide();
@@ -75,9 +77,9 @@ public interface BoardState
 	byte getEnPassantSq();
 
 	long[] getNewRecentHashings(long newHash);
-	
+
 	void print();
-	
+
 	void printMoves();
 
 }
