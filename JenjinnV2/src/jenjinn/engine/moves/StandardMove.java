@@ -14,6 +14,7 @@ import jenjinn.engine.enums.MoveType;
 import jenjinn.engine.enums.Sq;
 import jenjinn.engine.misc.EngineUtils;
 import jenjinn.engine.pieces.ChessPiece;
+import jenjinn.engine.pieces.King;
 import jenjinn.engine.pieces.Pawn;
 
 /**
@@ -42,7 +43,7 @@ public class StandardMove extends AbstractChessMoveImplV2
 	{
 		return SM_CACHE[start][target];
 	}
-	
+
 	public static StandardMove get(final Sq start, final Sq target)
 	{
 		return get(start.ordinal(), target.ordinal());
@@ -101,6 +102,8 @@ public class StandardMove extends AbstractChessMoveImplV2
 	{
 		final ChessPiece movingPiece = state.getPieceAt(getStart(), state.getFriendlySide());
 		final ChessPiece removedPiece = state.getPieceAt(getTarget(), state.getEnemySide());
+
+		assert !(removedPiece instanceof King);
 
 		final byte newFriendlySide = (byte) (1 - state.getFriendlySideValue());
 		final byte newCastleRights = updateCastleRights(state.getCastleRights());
@@ -168,7 +171,8 @@ public class StandardMove extends AbstractChessMoveImplV2
 		}
 		return oldRights;
 	}
-	
+
+	@Override
 	public String toString()
 	{
 		return "S" + "[" + Sq.getSq(getStart()).name() + ", " + Sq.getSq(getTarget()).name() + "]";
