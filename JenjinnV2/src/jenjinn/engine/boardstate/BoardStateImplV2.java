@@ -17,6 +17,7 @@ import jenjinn.engine.bitboarddatabase.BBDB;
 import jenjinn.engine.enums.Side;
 import jenjinn.engine.enums.Sq;
 import jenjinn.engine.enums.TerminationType;
+import jenjinn.engine.exceptions.AmbiguousPgnException;
 import jenjinn.engine.misc.EngineUtils;
 import jenjinn.engine.moves.CastleMove;
 import jenjinn.engine.moves.ChessMove;
@@ -429,7 +430,7 @@ public class BoardStateImplV2 implements BoardState
 	}
 
 	@Override
-	public ChessMove generateMove(final AlgebraicCommand com)
+	public ChessMove generateMove(final AlgebraicCommand com) throws AmbiguousPgnException
 	{
 		if (com.isPromotionOrder())
 		{
@@ -478,7 +479,7 @@ public class BoardStateImplV2 implements BoardState
 				{
 					if (uniquePossibleMove != null)
 					{
-						throw new AssertionError("Pgn is ambiguous at command " + com.getAsString() + " or something is wrong");
+						throw new AmbiguousPgnException();
 					}
 					uniquePossibleMove = mv;
 				}
@@ -495,7 +496,7 @@ public class BoardStateImplV2 implements BoardState
 					{
 						if (uniquePossibleMove != null)
 						{
-							throw new AssertionError("Pgn is ambiguous at command " + com.getAsString() + " or something is wrong");
+							throw new AmbiguousPgnException();
 						}
 						uniquePossibleMove = mv;
 					}
@@ -506,7 +507,7 @@ public class BoardStateImplV2 implements BoardState
 					{
 						if (uniquePossibleMove != null)
 						{
-							throw new AssertionError("Pgn is ambiguous at command " + com.getAsString() + " or something is wrong");
+							throw new AmbiguousPgnException();
 						}
 						uniquePossibleMove = mv;
 					}

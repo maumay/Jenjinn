@@ -10,6 +10,7 @@ import jenjinn.engine.enums.TerminationType;
 import jenjinn.engine.evaluation.PieceSquareTable;
 import jenjinn.engine.evaluation.piecetables.impl.EndGamePSTimplV1;
 import jenjinn.engine.evaluation.piecetables.impl.MiddleGamePSTimplV1;
+import jenjinn.engine.exceptions.AmbiguousPgnException;
 import jenjinn.engine.moves.ChessMove;
 import jenjinn.engine.openingdatabase.AlgebraicCommand;
 import jenjinn.engine.pieces.ChessPiece;
@@ -49,7 +50,7 @@ public interface BoardState
 
 	List<ChessMove> getMoves();
 
-	ChessMove generateMove(final AlgebraicCommand com);
+	ChessMove generateMove(final AlgebraicCommand com) throws AmbiguousPgnException;
 
 	/**
 	 * In general this hashing function is not what would be used during the tree search.

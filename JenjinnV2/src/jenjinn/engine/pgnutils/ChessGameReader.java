@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import jenjinn.engine.boardstate.BoardState;
 import jenjinn.engine.boardstate.BoardStateImplV2;
+import jenjinn.engine.exceptions.AmbiguousPgnException;
 import jenjinn.engine.moves.ChessMove;
 import jenjinn.engine.openingdatabase.AlgebraicCommand;
 import jenjinn.engine.openingdatabase.OpeningOrder;
@@ -21,7 +22,7 @@ public class ChessGameReader
 	// {
 	// }
 
-	public static OpeningOrder[] convertAlgebraicString(final String s, final int lengthCap)
+	public static OpeningOrder[] convertAlgebraicString(final String s, final int lengthCap) throws AmbiguousPgnException
 	{
 		final ArrayList<OpeningOrder> ans = new ArrayList<>();
 		final String trimmed = s.trim();
