@@ -50,10 +50,13 @@ public class PromotionMove extends AbstractChessMoveImplV2
 		newHash ^= BoardState.HASHER.getSquarePieceFeature(getStart(), ChessPiece.get(friendlySide.index()));
 		newHash ^= BoardState.HASHER.getSquarePieceFeature(getTarget(), ChessPiece.get(friendlySide.index() + 4));
 
+		byte oldPiecePhase = state.getPiecePhase();
+
 		if (removedPiece != null)
 		{
 			newPieceLocations[removedPiece.getIndex()] &= ~getTargetBB();
 			newHash ^= BoardState.HASHER.getSquarePieceFeature(getTarget(), ChessPiece.get(removedPiece.getIndex()));
+			oldPiecePhase = updatePiecePhase(oldPiecePhase, removedPiece);
 		}
 
 		return new BoardStateImplV2(
@@ -63,15 +66,16 @@ public class PromotionMove extends AbstractChessMoveImplV2
 				state.getCastleStatus(),
 				BoardState.NO_ENPASSANT,
 				0,
+				Math.max(0, oldPiecePhase - 4), // Putting new queen on the board so piece phase decreases.
 				state.getDevelopmentStatus(),
 				newPieceLocations);
 	}
-	
+
+	@Override
 	public String toString()
 	{
 		return "P" + "[" + Sq.getSq(getStart()).name() + ", " + Sq.getSq(getTarget()).name() + "]";
 	}
-
 }
 
 /* ---------------------------------------------------------------------*

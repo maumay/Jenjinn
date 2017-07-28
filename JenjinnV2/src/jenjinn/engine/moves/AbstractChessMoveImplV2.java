@@ -6,8 +6,6 @@
  */
 package jenjinn.engine.moves;
 
-import jenjinn.engine.boardstate.BoardState;
-import jenjinn.engine.boardstate.CastlingRights;
 import jenjinn.engine.enums.MoveType;
 
 /**
@@ -25,35 +23,6 @@ public abstract class AbstractChessMoveImplV2 implements ChessMove
 		this.type = type;
 		this.start = (byte) start;
 		this.target = (byte) target;
-	}
-
-	protected long updateGeneralHashFeatures(final BoardState oldState, final byte newCastleRights, final byte newEnPassantSquare)
-	{
-		long newHashing = oldState.getHashing() ^ BoardState.HASHER.getBlackToMove();
-
-		// Can't gain castling rights, can only lose them.
-		final byte castleRightsChange = (byte) (oldState.getCastleRights() & ~newCastleRights);
-		if (castleRightsChange > 0)
-		{
-			for (int i = 0; i < 4; i++)
-			{
-				if ((CastlingRights.VALUES.get(i) & castleRightsChange) > 0)
-				{
-					newHashing ^= BoardState.HASHER.getCastleFeature(i);
-				}
-			}
-		}
-
-		if (oldState.getEnPassantSq() != BoardState.NO_ENPASSANT)
-		{
-			newHashing ^= BoardState.HASHER.getEnpassantFeature(oldState.getEnPassantSq() % 8);
-		}
-		if (newEnPassantSquare != BoardState.NO_ENPASSANT)
-		{
-			newHashing ^= BoardState.HASHER.getEnpassantFeature(newEnPassantSquare % 8);
-		}
-
-		return newHashing;
 	}
 
 	public byte getStart()

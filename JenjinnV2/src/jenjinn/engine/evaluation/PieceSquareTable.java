@@ -1,25 +1,25 @@
 /**
  * Copyright © 2017 Lhasa Limited
- * File created: 27 Jul 2017 by ThomasB
+ * File created: 28 Jul 2017 by ThomasB
  * Creator : ThomasB
  * Version : $Id$
  */
 package jenjinn.engine.evaluation;
 
-/**
- * @author ThomasB
- * @since 27 Jul 2017
- */
-public final class GamePhase
-{
-	// public static final
+import jenjinn.engine.boardstate.BoardState;
 
-	/**
-	 *
-	 */
-	private GamePhase()
-	{
-	}
+/**
+ * Simple interface representing a piece square table which integrates PIECE VALUES
+ * into the table as well as bonuses/penalties for positions. This means we don't
+ * have to calculate material values separately. The scores are designed to be stored
+ * in {@link BoardState} instances and updated incrementally during evolution.
+ *
+ * @author ThomasB
+ * @since 28 Jul 2017
+ */
+public interface PieceSquareTable
+{
+	short getPieceSquareValue(byte pieceIndex, byte squareIndex);
 }
 
 /* ---------------------------------------------------------------------*

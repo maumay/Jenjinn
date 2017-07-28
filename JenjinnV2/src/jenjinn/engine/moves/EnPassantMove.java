@@ -70,6 +70,7 @@ public class EnPassantMove extends AbstractChessMoveImplV2
 				state.getCastleStatus(),
 				BoardState.NO_ENPASSANT,
 				0,
+				state.getPiecePhase(),
 				state.getDevelopmentStatus(),
 				newPieceLocations);
 	}

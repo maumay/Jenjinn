@@ -119,10 +119,13 @@ public class StandardMove extends AbstractChessMoveImplV2
 		newPieceLocations[movingPiece.getIndex()] &= ~start;
 		newPieceLocations[movingPiece.getIndex()] |= target;
 
+		byte piecePhase = state.getPiecePhase();
+
 		if (removedPiece != null)
 		{
 			newPieceLocations[removedPiece.getIndex()] &= ~target;
 			newHash ^= BoardState.HASHER.getSquarePieceFeature(getTarget(), removedPiece);
+			piecePhase = updatePiecePhase(piecePhase, removedPiece);
 		}
 
 		final long newDevStatus = state.getDevelopmentStatus() & ~start;
@@ -134,6 +137,7 @@ public class StandardMove extends AbstractChessMoveImplV2
 				state.getCastleStatus(),
 				newEnPassantSquare,
 				newClockValue,
+				piecePhase,
 				newDevStatus,
 				newPieceLocations);
 	}

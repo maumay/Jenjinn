@@ -103,6 +103,7 @@ public final class CastleMove extends AbstractChessMoveImplV2
 				newCastleStatus,
 				BoardState.NO_ENPASSANT,
 				state.getClockValue() + 1,
+				state.getPiecePhase(),
 				state.getDevelopmentStatus(),
 				newPiecePositions);
 	}

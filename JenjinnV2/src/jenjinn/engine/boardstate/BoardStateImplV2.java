@@ -25,7 +25,6 @@ import jenjinn.engine.moves.PromotionMove;
 import jenjinn.engine.moves.StandardMove;
 import jenjinn.engine.openingdatabase.AlgebraicCommand;
 import jenjinn.engine.pieces.ChessPiece;
-import jenjinn.engine.pieces.King;
 
 /**
  * @author ThomasB
@@ -48,7 +47,7 @@ public class BoardStateImplV2 implements BoardState
 
 	private static final long HALFMOVE_CLOCK_GETTER = 0b11111100L << (5 * 8);
 
-	// private static final long GAME_PHASE_GETTER =
+	private static final long PIECE_PHASE_GETTER = 0b1111100000L << (4 * 8);
 	//
 
 	/**
@@ -76,6 +75,7 @@ public class BoardStateImplV2 implements BoardState
 			final long castleStatus,
 			final long enPassantSq,
 			final long halfMoveClock,
+			final long piecePhase,
 			final long devStatus,
 			final long[] pieceLocations)
 	{
@@ -83,11 +83,12 @@ public class BoardStateImplV2 implements BoardState
 		this.devStatus = devStatus;
 		this.pieceLocations = pieceLocations;
 
-		this.metaData = (castleRights << 60) |
-				(castleStatus << 56) |
-				(enPassantSq << 49) |
-				(friendlySide << 48) |
-				(halfMoveClock << 42);
+		this.metaData = (castleRights << 60) | // 60 = (7 * 8) + 4
+				(castleStatus << 56) | // 56 = 7 * 8
+				(enPassantSq << 49) | // 49 = (6 * 8) + 1
+				(friendlySide << 48) | // 48 = 6 * 8
+				(halfMoveClock << 42) | // 42 = (5 * 8) + 2
+				(piecePhase << 33); // 33 = (4 * 8) + 1
 	}
 
 	@Override
@@ -414,6 +415,7 @@ public class BoardStateImplV2 implements BoardState
 				0,
 				BoardState.NO_ENPASSANT,
 				0,
+				0,
 				getStartingDevStatus(),
 				EngineUtils.getStartingPieceLocs());
 	}
@@ -539,13 +541,19 @@ public class BoardStateImplV2 implements BoardState
 		EngineUtils.printNbitBoards(s.metaData);
 		System.out.println();
 		System.out.println(256.0 / 24);
-		System.out.println(null instanceof King);
+		System.out.println(0b11111);
 	}
 
 	@Override
 	public void printMoves()
 	{
 		getMoves().stream().forEach(x -> System.out.println(x.toString()));
+	}
+
+	@Override
+	public byte getPiecePhase()
+	{
+		return (byte) ((metaData & PIECE_PHASE_GETTER) >>> 33);
 	}
 }
 
