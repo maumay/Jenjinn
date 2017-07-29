@@ -49,6 +49,10 @@ public class BoardStateImplV2 implements BoardState
 	private static final long HALFMOVE_CLOCK_GETTER = 0b11111100L << (5 * 8);
 
 	private static final long PIECE_PHASE_GETTER = 0b1111100000L << (4 * 8);
+	
+	private static final long MIDGAME_LOC_EVAL_GETTER = 0b1111111111111111L << (2 * 8);
+	
+	private static final long ENDGAME_LOC_EVAL_GETTER = 0b1111111111111111L;
 	//
 
 	/**
@@ -77,6 +81,8 @@ public class BoardStateImplV2 implements BoardState
 			final long enPassantSq,
 			final long halfMoveClock,
 			final long piecePhase,
+			final long midPieceLocEval,
+			final long endPieceLocEval,
 			final long devStatus,
 			final long[] pieceLocations)
 	{
@@ -89,7 +95,9 @@ public class BoardStateImplV2 implements BoardState
 				(enPassantSq << 49) | // 49 = (6 * 8) + 1
 				(friendlySide << 48) | // 48 = 6 * 8
 				(halfMoveClock << 42) | // 42 = (5 * 8) + 2
-				(piecePhase << 33); // 33 = (4 * 8) + 1
+				(piecePhase << 33) | // 33 = (4 * 8) + 1
+				(midPieceLocEval << 16) |
+				(endPieceLocEval); 
 	}
 
 	@Override
@@ -354,7 +362,7 @@ public class BoardStateImplV2 implements BoardState
 	public TerminationType getTerminationState()
 	{
 		if (getClockValue() == 50)
-		{
+		{// 33 = (4 * 8) + 1
 			return TerminationType.DRAW;
 		}
 
@@ -404,7 +412,7 @@ public class BoardStateImplV2 implements BoardState
 		System.arraycopy(pieceLocations, 0, copy, 0, 12);
 		return copy;
 	}
-
+	
 	public static BoardState getStartBoard()
 	{
 		final long startHash = BoardState.HASHER.generateStartHash();
@@ -415,6 +423,8 @@ public class BoardStateImplV2 implements BoardState
 				0b1111,
 				0,
 				BoardState.NO_ENPASSANT,
+				0,
+				0,
 				0,
 				0,
 				getStartingDevStatus(),
