@@ -32,7 +32,7 @@ public interface BoardState
 	 * Static {@link PieceSquareTable} instances for incremental update to the stored evaluations,
 	 * we store two such evaluations in the boardstate, one for midgame and the other for endgame.
 	 */
-	static PieceSquareTable MIDGAME_TABLE = new MiddleGamePSTimplV1(), END_TABLE = new EndGamePSTimplV1();
+	static PieceSquareTable MID_TABLE = new MiddleGamePSTimplV1(), END_TABLE = new EndGamePSTimplV1();
 
 	static byte NO_ENPASSANT = 127;
 
@@ -71,7 +71,7 @@ public interface BoardState
 
 	long getOccupiedSquares();
 
-	long getAttackedSquares(final Side side);
+	long getSquaresAttackedBy(final Side side);
 
 	byte getCastleStatus();
 
@@ -97,5 +97,9 @@ public interface BoardState
 	void print();
 
 	void printMoves();
+	
+	short getMidgamePositionalEval();
+		
+	short getEndgamePositionalEval();
 
 }

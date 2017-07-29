@@ -6,6 +6,9 @@
  */
 package jenjinn.engine.moves;
 
+import static jenjinn.engine.boardstate.BoardState.END_TABLE;
+import static jenjinn.engine.boardstate.BoardState.MID_TABLE;
+
 import jenjinn.engine.boardstate.BoardState;
 import jenjinn.engine.boardstate.BoardStateImplV2;
 import jenjinn.engine.enums.MoveType;
@@ -41,14 +44,29 @@ public class PromotionMove extends AbstractChessMoveImplV2
 
 		final ChessPiece removedPiece = state.getPieceAt(getTarget(), friendlySide.otherSide());
 
+		// Update piece locations ---------------------------------------------
 		final long[] newPieceLocations = state.getPieceLocationsCopy();
 
 		newPieceLocations[friendlySide.index()] &= ~getStartBB();
 		newPieceLocations[friendlySide.index() + 4] |= getTargetBB(); // Add a queen
+		//---------------------------------------------------------------------
 
+		// Update metadata ----------------------------------------------------
 		long newHash = updateGeneralHashFeatures(state, state.getCastleRights(), (byte) -1);
 		newHash ^= BoardState.HASHER.getSquarePieceFeature(getStart(), ChessPiece.get(friendlySide.index()));
 		newHash ^= BoardState.HASHER.getSquarePieceFeature(getTarget(), ChessPiece.get(friendlySide.index() + 4));
+		//---------------------------------------------------------------------
+		
+		// Update positional eval ---------------------------------------------
+		short midPosEval = state.getMidgamePositionalEval(), endPosEval = state.getEndgamePositionalEval();
+		
+		midPosEval += MID_TABLE.getPieceSquareValue((byte) (4 + friendlySide.index()), getTarget());
+		midPosEval -= MID_TABLE.getPieceSquareValue((byte) (friendlySide.index()), getStart());
+		
+		endPosEval += END_TABLE.getPieceSquareValue((byte) (4 + friendlySide.index()), getTarget());
+		endPosEval -= END_TABLE.getPieceSquareValue((byte) (friendlySide.index()), getStart());
+		
+		//---------------------------------------------------------------------
 
 		byte oldPiecePhase = state.getPiecePhase();
 
@@ -57,6 +75,9 @@ public class PromotionMove extends AbstractChessMoveImplV2
 			newPieceLocations[removedPiece.getIndex()] &= ~getTargetBB();
 			newHash ^= BoardState.HASHER.getSquarePieceFeature(getTarget(), ChessPiece.get(removedPiece.getIndex()));
 			oldPiecePhase = updatePiecePhase(oldPiecePhase, removedPiece);
+			
+			midPosEval -= MID_TABLE.getPieceSquareValue(removedPiece.getIndex(), getTarget());
+			endPosEval -= END_TABLE.getPieceSquareValue(removedPiece.getIndex(), getTarget());
 		}
 
 		return new BoardStateImplV2(
@@ -67,6 +88,8 @@ public class PromotionMove extends AbstractChessMoveImplV2
 				BoardState.NO_ENPASSANT,
 				0,
 				Math.max(0, oldPiecePhase - 4), // Putting new queen on the board so piece phase decreases.
+				midPosEval,
+				endPosEval,
 				state.getDevelopmentStatus(),
 				newPieceLocations);
 	}

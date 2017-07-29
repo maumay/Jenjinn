@@ -13,6 +13,9 @@ import jenjinn.engine.enums.MoveType;
 import jenjinn.engine.enums.Side;
 import jenjinn.engine.pieces.ChessPiece;
 
+import static jenjinn.engine.boardstate.BoardState.END_TABLE;
+import static jenjinn.engine.boardstate.BoardState.MID_TABLE;
+
 /**
  * @author ThomasB
  * @since 20 Jul 2017
@@ -79,6 +82,7 @@ public final class CastleMove extends AbstractChessMoveImplV2
 	{
 		final Side moveSide = getMoveSide();
 
+		// Update piece locations-----------------------------------------
 		final long[] newPiecePositions = state.getPieceLocationsCopy();
 
 		newPiecePositions[5 + moveSide.index()] &= ~(1L << kingRemovalSquare);
@@ -86,7 +90,9 @@ public final class CastleMove extends AbstractChessMoveImplV2
 
 		newPiecePositions[3 + moveSide.index()] &= ~(1L << rookRemovalSquare);
 		newPiecePositions[3 + moveSide.index()] |= (1L << rookAdditionSquare);
+		//----------------------------------------------------------------
 
+		// Update metadata------------------------------------------------
 		final byte newCastleRights = updateCastleRights(state.getCastleRights(), moveSide);
 		final byte newCastleStatus = updateCastleStatus(state.getCastleStatus(), moveSide);
 
@@ -95,6 +101,25 @@ public final class CastleMove extends AbstractChessMoveImplV2
 		newHash ^= BoardState.HASHER.getSquarePieceFeature(kingRemovalSquare, ChessPiece.get(5 + moveSide.index()));
 		newHash ^= BoardState.HASHER.getSquarePieceFeature(rookAdditionSquare, ChessPiece.get(3 + moveSide.index()));
 		newHash ^= BoardState.HASHER.getSquarePieceFeature(rookRemovalSquare, ChessPiece.get(3 + moveSide.index()));
+		//-----------------------------------------------------------------
+		
+		// Update positional evaluation------------------------------------
+		
+		short midPosEval = state.getMidgamePositionalEval(), endPosEval = state.getEndgamePositionalEval();
+		
+		midPosEval += MID_TABLE.getPieceSquareValue((byte) (5 + moveSide.index()), kingAdditionSquare);
+		midPosEval -= MID_TABLE.getPieceSquareValue((byte) (5 + moveSide.index()), kingRemovalSquare);
+		
+		endPosEval += END_TABLE.getPieceSquareValue((byte) (5 + moveSide.index()), kingAdditionSquare);
+		endPosEval -= END_TABLE.getPieceSquareValue((byte) (5 + moveSide.index()), kingRemovalSquare);
+		
+		midPosEval += MID_TABLE.getPieceSquareValue((byte) (3 + moveSide.index()), rookAdditionSquare);
+		midPosEval -= MID_TABLE.getPieceSquareValue((byte) (3 + moveSide.index()), rookRemovalSquare);
+		
+		endPosEval += END_TABLE.getPieceSquareValue((byte) (3 + moveSide.index()), rookAdditionSquare);
+		endPosEval -= END_TABLE.getPieceSquareValue((byte) (3 + moveSide.index()), rookRemovalSquare);
+		
+		//-----------------------------------------------------------------
 
 		return new BoardStateImplV2(
 				state.getNewRecentHashings(newHash),
@@ -104,6 +129,8 @@ public final class CastleMove extends AbstractChessMoveImplV2
 				BoardState.NO_ENPASSANT,
 				state.getClockValue() + 1,
 				state.getPiecePhase(),
+				midPosEval,
+				endPosEval,
 				state.getDevelopmentStatus(),
 				newPiecePositions);
 	}

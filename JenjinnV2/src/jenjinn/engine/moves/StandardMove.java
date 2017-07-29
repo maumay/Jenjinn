@@ -17,6 +17,9 @@ import jenjinn.engine.pieces.ChessPiece;
 import jenjinn.engine.pieces.King;
 import jenjinn.engine.pieces.Pawn;
 
+import static jenjinn.engine.boardstate.BoardState.END_TABLE;
+import static jenjinn.engine.boardstate.BoardState.MID_TABLE;
+
 /**
  * @author ThomasB
  * @since 20 Jul 2017
@@ -105,19 +108,33 @@ public class StandardMove extends AbstractChessMoveImplV2
 
 		assert !(removedPiece instanceof King);
 
-		final byte newFriendlySide = (byte) (1 - state.getFriendlySideValue());
+		// Update metadata -----------------------------------------
 		final byte newCastleRights = updateCastleRights(state.getCastleRights());
 		final byte newEnPassantSquare = getNewEnPassantSquare(movingPiece);
 		final byte newClockValue = getNewClockValue(movingPiece, removedPiece, state.getClockValue());
 
 		long newHash = updateGeneralHashFeatures(state, newCastleRights, newEnPassantSquare);
 		newHash ^= BoardState.HASHER.getSquarePieceFeature(getStart(), movingPiece);
+		newHash ^= BoardState.HASHER.getSquarePieceFeature(getTarget(), movingPiece);
+		//-----------------------------------------------------------
 
+		// Update locations -----------------------------------------
 		final long start = getStartBB(), target = getTargetBB();
-
 		final long[] newPieceLocations = state.getPieceLocationsCopy();
 		newPieceLocations[movingPiece.getIndex()] &= ~start;
 		newPieceLocations[movingPiece.getIndex()] |= target;
+		//-----------------------------------------------------------
+		
+		// Update positional evaluations ----------------------------
+		short midPosEval = state.getMidgamePositionalEval(), endPosEval = state.getEndgamePositionalEval();
+		
+		midPosEval += MID_TABLE.getPieceSquareValue(movingPiece.getIndex(), getTarget());
+		midPosEval -= MID_TABLE.getPieceSquareValue(movingPiece.getIndex(), getStart());
+		
+		endPosEval += END_TABLE.getPieceSquareValue(movingPiece.getIndex(), getTarget());
+		endPosEval -= END_TABLE.getPieceSquareValue(movingPiece.getIndex(), getStart());
+		
+		//-----------------------------------------------------------
 
 		byte piecePhase = state.getPiecePhase();
 
@@ -126,18 +143,22 @@ public class StandardMove extends AbstractChessMoveImplV2
 			newPieceLocations[removedPiece.getIndex()] &= ~target;
 			newHash ^= BoardState.HASHER.getSquarePieceFeature(getTarget(), removedPiece);
 			piecePhase = updatePiecePhase(piecePhase, removedPiece);
+			midPosEval -= MID_TABLE.getPieceSquareValue(removedPiece.getIndex(), getTarget());
+			endPosEval -= END_TABLE.getPieceSquareValue(removedPiece.getIndex(), getTarget());
 		}
 
 		final long newDevStatus = state.getDevelopmentStatus() & ~start;
 
 		return new BoardStateImplV2(
 				state.getNewRecentHashings(newHash),
-				newFriendlySide,
+				1 - state.getFriendlySideValue(),
 				newCastleRights,
 				state.getCastleStatus(),
 				newEnPassantSquare,
 				newClockValue,
 				piecePhase,
+				midPosEval,
+				endPosEval,
 				newDevStatus,
 				newPieceLocations);
 	}

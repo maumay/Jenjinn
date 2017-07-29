@@ -39,8 +39,8 @@ public class BoardEvolutionSpeedTest
 		final BufferedReader reader = Files.newBufferedReader(SRC_FILE_PATH, StandardCharsets.ISO_8859_1);
 
 		final TLongList times = new TLongArrayList();
-		String game;// = "1.c4 Nf6 2.Nc3 d6 3.d4 g6 4.e4 Bg7 5.Be2 e5 6.dxe5 dxe5 7.Qxd8+ Kxd8 8.f4 Be6 9.Nf3 Nbd7 10.O-O c6 11.Ng5 h6 12.f5 hxg5 13.fxe6 fxe6
-					// 14.Bxg5 Ke7 15.Rad1 Nf8 16.Rd3 Nh7 17.Be3 Rhd8";
+		String game;// = "1.d4 Nf6 2.c4 e6 3.Nf3 d5 4.Nc3 c6 5.e3 Nbd7 6.Bd3 Bb4 7.a3 Ba5 8.O-O O-O 9.Ne5 Nxe5 10.dxe5 dxc4 11.Bxc4 Nd7 12.f4 Qe7 13.b4 Bb6 14.Qb3 f6 15.Bxe6+ Kh8 16.Ne4 fxe5 17.Kh1 exf4";
+
 		while ((game = reader.readLine()) != null)
 		{
 			final AlgebraicCommand[] commands = ChessGameReader.processSequenceOfCommands(game);
@@ -56,8 +56,8 @@ public class BoardEvolutionSpeedTest
 					final long start = System.nanoTime();
 					state = mv.evolve(state);
 					times.add(System.nanoTime() - start);
-					// System.out.println(state.getEnPassantSq());
-					// state.print();
+//					 System.out.println(state.getEnPassantSq());
+//					 state.print();
 				}
 				catch (final AmbiguousPgnException err)
 				{
@@ -71,6 +71,11 @@ public class BoardEvolutionSpeedTest
 					System.out.println("NPE with game: " + game);
 					System.out.println("at command: " + command.getAsString());
 					break;
+				}
+				catch (AssertionError err)
+				{
+					System.out.println(game);
+					throw err;
 				}
 			}
 		}

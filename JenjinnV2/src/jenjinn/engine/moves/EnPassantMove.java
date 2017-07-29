@@ -6,6 +6,9 @@
  */
 package jenjinn.engine.moves;
 
+import static jenjinn.engine.boardstate.BoardState.END_TABLE;
+import static jenjinn.engine.boardstate.BoardState.MID_TABLE;
+
 import jenjinn.engine.boardstate.BoardState;
 import jenjinn.engine.boardstate.BoardStateImplV2;
 import jenjinn.engine.enums.MoveType;
@@ -50,6 +53,7 @@ public class EnPassantMove extends AbstractChessMoveImplV2
 
 		final Side friendlySide = state.getFriendlySide();
 
+		// Update piece locations ---------------------------------------
 		final long enPassantSquareBB = 1L << getEnPassantSquare();
 
 		final long[] newPieceLocations = state.getPieceLocationsCopy();
@@ -57,12 +61,28 @@ public class EnPassantMove extends AbstractChessMoveImplV2
 		newPieceLocations[friendlySide.index()] &= ~getStartBB();
 		newPieceLocations[friendlySide.index()] |= getTargetBB();
 		newPieceLocations[friendlySide.otherSide().index()] &= ~enPassantSquareBB;
-
+		//---------------------------------------------------------------
+		
+		// Update metadata ----------------------------------------------
 		long newHash = updateGeneralHashFeatures(state, state.getCastleRights(), BoardState.NO_ENPASSANT);
 		newHash ^= BoardState.HASHER.getSquarePieceFeature(getStart(), ChessPiece.get(friendlySide.index()));
 		newHash ^= BoardState.HASHER.getSquarePieceFeature(getTarget(), ChessPiece.get(friendlySide.index()));
 		newHash ^= BoardState.HASHER.getSquarePieceFeature(getEnPassantSquare(), ChessPiece.get(friendlySide.otherSide().index()));
-
+		//---------------------------------------------------------------
+		
+		// Update positional evaluations --------------------------------
+		short midPosEval = state.getMidgamePositionalEval(), endPosEval = state.getEndgamePositionalEval();
+		
+		midPosEval += MID_TABLE.getPieceSquareValue((byte) (friendlySide.index()), getTarget());
+		midPosEval -= MID_TABLE.getPieceSquareValue((byte) (friendlySide.index()), getStart());
+		
+		endPosEval += END_TABLE.getPieceSquareValue((byte) (friendlySide.index()), getTarget());
+		endPosEval -= END_TABLE.getPieceSquareValue((byte) (friendlySide.index()), getStart());
+		
+		midPosEval -= MID_TABLE.getPieceSquareValue((byte) (friendlySide.otherSide().index()), getEnPassantSquare());
+		endPosEval -= END_TABLE.getPieceSquareValue((byte) (friendlySide.otherSide().index()), getEnPassantSquare());
+		//---------------------------------------------------------------
+		
 		return new BoardStateImplV2(
 				state.getNewRecentHashings(newHash),
 				1 - state.getFriendlySideValue(),
@@ -71,6 +91,8 @@ public class EnPassantMove extends AbstractChessMoveImplV2
 				BoardState.NO_ENPASSANT,
 				0,
 				state.getPiecePhase(),
+				midPosEval,
+				endPosEval,
 				state.getDevelopmentStatus(),
 				newPieceLocations);
 	}

@@ -33,6 +33,8 @@ import jenjinn.engine.pieces.ChessPiece;
  */
 public class BoardStateImplV2 implements BoardState
 {
+	
+	private static final long EXCESS_CHOPPER = ~EngineUtils.multipleOr(BBDB.RNK[2], BBDB.RNK[3], BBDB.RNK[4], BBDB.RNK[5], BBDB.RNK[6], BBDB.RNK[7]);
 
 	// Stored in metadata bitboard
 	/*
@@ -89,15 +91,15 @@ public class BoardStateImplV2 implements BoardState
 		this.recentHashings = recentHashings;
 		this.devStatus = devStatus;
 		this.pieceLocations = pieceLocations;
-
+		
 		this.metaData = (castleRights << 60) | // 60 = (7 * 8) + 4
 				(castleStatus << 56) | // 56 = 7 * 8
 				(enPassantSq << 49) | // 49 = (6 * 8) + 1
 				(friendlySide << 48) | // 48 = 6 * 8
 				(halfMoveClock << 42) | // 42 = (5 * 8) + 2
 				(piecePhase << 33) | // 33 = (4 * 8) + 1
-				(midPieceLocEval << 16) |
-				(endPieceLocEval); 
+				((midPieceLocEval & EXCESS_CHOPPER) << 16) |
+				(endPieceLocEval & EXCESS_CHOPPER); 
 	}
 
 	@Override
@@ -206,7 +208,7 @@ public class BoardStateImplV2 implements BoardState
 				if (((0b110L << (getFriendlySideValue() * 56)) & allPieces) == 0)
 				{
 					// if squares are not attacked
-					if (((0b1110L << (getFriendlySideValue() * 56)) & getAttackedSquares(getEnemySide())) == 0)
+					if (((0b1110L << (getFriendlySideValue() * 56)) & getSquaresAttackedBy(getEnemySide())) == 0)
 					{
 						cmvs.add(getFriendlySideValue() == 0 ? CastleMove.WHITE_KINGSIDE : CastleMove.BLACK_KINGSIDE);
 					}
@@ -218,7 +220,7 @@ public class BoardStateImplV2 implements BoardState
 				if (((0b1110000L << (getFriendlySideValue() * 56)) & allPieces) == 0)
 				{
 					// if squares are not attacked
-					if (((0b1111000L << (getFriendlySideValue() * 56)) & getAttackedSquares(getEnemySide())) == 0)
+					if (((0b1111000L << (getFriendlySideValue() * 56)) & getSquaresAttackedBy(getEnemySide())) == 0)
 					{
 						cmvs.add(getFriendlySideValue() == 0 ? CastleMove.WHITE_QUEENSIDE : CastleMove.BLACK_QUEENSIDE);
 					}
@@ -277,7 +279,7 @@ public class BoardStateImplV2 implements BoardState
 	}
 
 	@Override
-	public long getAttackedSquares(final Side side)
+	public long getSquaresAttackedBy(final Side side)
 	{
 		// TODO - Could perform optimisation on pawn attacks
 		final long occupiedSquares = getOccupiedSquares();
@@ -369,7 +371,7 @@ public class BoardStateImplV2 implements BoardState
 		// First check for taking of king
 		final Side friendlySide = getFriendlySide();
 
-		if ((getAttackedSquares(friendlySide) & pieceLocations[friendlySide.otherSide().index() + 6]) != 0)
+		if ((getSquaresAttackedBy(friendlySide) & pieceLocations[friendlySide.otherSide().index() + 6]) != 0)
 		{
 			return friendlySide == Side.W ? TerminationType.WHITE_WIN : TerminationType.BLACK_WIN;
 		}
@@ -551,8 +553,10 @@ public class BoardStateImplV2 implements BoardState
 		final BoardStateImplV2 s = (BoardStateImplV2) state;
 		EngineUtils.printNbitBoards(s.metaData);
 		System.out.println();
-		System.out.println(256.0 / 24);
-		System.out.println(0b11111);
+//		System.out.println(256.0 / 24);
+//		EngineUtils.printNbitBoards(-50);
+//		System.out.println(Long.toBinaryString(-50));
+		System.out.println((short) 0b1111111111001110);
 	}
 
 	@Override
@@ -565,6 +569,18 @@ public class BoardStateImplV2 implements BoardState
 	public byte getPiecePhase()
 	{
 		return (byte) ((metaData & PIECE_PHASE_GETTER) >>> 33);
+	}
+
+	@Override
+	public short getMidgamePositionalEval() 
+	{
+		return (short) ((metaData & MIDGAME_LOC_EVAL_GETTER) >>> 16);
+	}
+
+	@Override
+	public short getEndgamePositionalEval() 
+	{
+		return (short) (metaData & ENDGAME_LOC_EVAL_GETTER);
 	}
 }
 
