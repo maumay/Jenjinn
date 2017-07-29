@@ -61,9 +61,9 @@ public class BoardEvolutionSpeedTest
 				}
 				catch (final AmbiguousPgnException err)
 				{
-					System.out.println("-----------------------------------");
-					System.out.println("APE with game: " + game);
-					System.out.println("-----------------------------------");
+//					System.out.println("-----------------------------------");
+//					System.out.println("APE with game: " + game);
+//					System.out.println("-----------------------------------");
 					break;
 				}
 				catch (final NullPointerException npe)
