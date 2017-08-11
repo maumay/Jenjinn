@@ -71,7 +71,7 @@ public interface BoardState
 
 	long getOccupiedSquares();
 
-	long getAttackedSquares(final Side side);
+	long getSquaresAttackedBy(final Side side);
 
 	byte getCastleStatus();
 

@@ -198,7 +198,7 @@ public class BoardStateImplV2 implements BoardState
 				if (((0b110L << (getFriendlySideValue() * 56)) & allPieces) == 0)
 				{
 					// if squares are not attacked
-					if (((0b1110L << (getFriendlySideValue() * 56)) & getAttackedSquares(getEnemySide())) == 0)
+					if (((0b1110L << (getFriendlySideValue() * 56)) & getSquaresAttackedBy(getEnemySide())) == 0)
 					{
 						cmvs.add(getFriendlySideValue() == 0 ? CastleMove.WHITE_KINGSIDE : CastleMove.BLACK_KINGSIDE);
 					}
@@ -210,7 +210,7 @@ public class BoardStateImplV2 implements BoardState
 				if (((0b1110000L << (getFriendlySideValue() * 56)) & allPieces) == 0)
 				{
 					// if squares are not attacked
-					if (((0b1111000L << (getFriendlySideValue() * 56)) & getAttackedSquares(getEnemySide())) == 0)
+					if (((0b1111000L << (getFriendlySideValue() * 56)) & getSquaresAttackedBy(getEnemySide())) == 0)
 					{
 						cmvs.add(getFriendlySideValue() == 0 ? CastleMove.WHITE_QUEENSIDE : CastleMove.BLACK_QUEENSIDE);
 					}
@@ -269,7 +269,7 @@ public class BoardStateImplV2 implements BoardState
 	}
 
 	@Override
-	public long getAttackedSquares(final Side side)
+	public long getSquaresAttackedBy(final Side side)
 	{
 		// TODO - Could perform optimisation on pawn attacks
 		final long occupiedSquares = getOccupiedSquares();
@@ -361,7 +361,7 @@ public class BoardStateImplV2 implements BoardState
 		// First check for taking of king
 		final Side friendlySide = getFriendlySide();
 
-		if ((getAttackedSquares(friendlySide) & pieceLocations[friendlySide.otherSide().index() + 6]) != 0)
+		if ((getSquaresAttackedBy(friendlySide) & pieceLocations[friendlySide.otherSide().index() + 6]) != 0)
 		{
 			return friendlySide == Side.W ? TerminationType.WHITE_WIN : TerminationType.BLACK_WIN;
 		}
