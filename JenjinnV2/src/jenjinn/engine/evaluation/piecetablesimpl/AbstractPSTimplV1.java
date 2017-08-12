@@ -1,10 +1,10 @@
 /**
- * Copyright © 2017 Lhasa Limited
+ * Copyright ï¿½ 2017 Lhasa Limited
  * File created: 28 Jul 2017 by ThomasB
  * Creator : ThomasB
  * Version : $Id$
  */
-package jenjinn.engine.evaluation.piecetables.impl;
+package jenjinn.engine.evaluation.piecetablesimpl;
 
 import java.util.ArrayList;
 import java.util.List;

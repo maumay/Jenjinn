@@ -1,35 +1,19 @@
 /**
- * Copyright © 2017 Lhasa Limited
+ * Copyright ï¿½ 2017 Lhasa Limited
  * File created: 28 Jul 2017 by ThomasB
  * Creator : ThomasB
  * Version : $Id$
  */
-package jenjinn.engine.evaluation.piecetables.impl;
+package jenjinn.engine.evaluation.piecetablesimpl;
 
 /**
- *
- *
  * @author ThomasB
  * @since 28 Jul 2017
  */
-public class MiddleGamePSTimplV1 extends AbstractPSTimplV1
+public class EndGamePSTimplV1 extends AbstractPSTimplV1
 {
-	private static final short[] PIECE_VALUES = { 90, 330, 320, 490, 900, 0 };
+	private static final short[] PIECE_VALUES = { 120, 335, 305, 510, 910, 0 };
 
-	/**
-	 *
-	 */
-	public MiddleGamePSTimplV1()
-	{
-	}
-
-	/**
-	 * We make no effort to award pawn position bonuses or penalties here, pawn structure
-	 * is too important and is considered separately.
-	 *
-	 * @param s
-	 * @return
-	 */
 	@Override
 	protected short[] getPawnTable()
 	{
@@ -48,7 +32,6 @@ public class MiddleGamePSTimplV1 extends AbstractPSTimplV1
 				-10, 10, 10, 10, 10, 10, 10, -10,
 				-10, 5, 0, 0, 0, 0, 5, -10,
 				-20, -10, -10, -10, -10, -10, -10, -20 };
-
 	}
 
 	@Override
@@ -100,14 +83,14 @@ public class MiddleGamePSTimplV1 extends AbstractPSTimplV1
 	protected short[] getKingTable()
 	{
 		return new short[] {
-				-30, -40, -40, -50, -50, -40, -40, -30,
-				-30, -40, -40, -50, -50, -40, -40, -30,
-				-30, -40, -40, -50, -50, -40, -40, -30,
-				-30, -40, -40, -50, -50, -40, -40, -30,
-				-20, -30, -30, -40, -40, -30, -30, -20,
-				-10, -20, -20, -20, -20, -20, -20, -10,
-				20, 20, 0, 0, 0, 0, 20, 20,
-				20, 30, 10, 0, 0, 10, 30, 20
+				-50, -40, -30, -20, -20, -30, -40, -50,
+				-30, -20, -10, 0, 0, -10, -20, -30,
+				-30, -10, 20, 30, 30, 20, -10, -30,
+				-30, -10, 30, 40, 40, 30, -10, -30,
+				-30, -10, 30, 40, 40, 30, -10, -30,
+				-30, -10, 20, 30, 30, 20, -10, -30,
+				-30, -30, 0, 0, 0, 0, -30, -30,
+				-50, -30, -30, -30, -30, -30, -30, -50
 		};
 	}
 

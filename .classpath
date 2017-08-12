@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" path="JenjinnV2/src"/>
+	<classpathentry kind="lib" path="/home/t/code/java/externaljars/trove4j-3.0.3.jar"/>
+	<classpathentry kind="lib" path="/home/t/code/java/externaljars/junit-4.10.jar"/>
+	<classpathentry kind="lib" path="/home/t/code/java/externaljars/guava-22.0.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/home/t/code/java/externaljars/guava-22.0-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
