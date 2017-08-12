@@ -1,5 +1,5 @@
 /**
- * Copyright © 2017 Lhasa Limited
+ * Copyright ï¿½ 2017 Lhasa Limited
  * File created: 11 Aug 2017 by ThomasB
  * Creator : ThomasB
  * Version : $Id$
@@ -18,12 +18,17 @@ import jenjinn.engine.misc.EngineUtils;
  */
 public class StructureEvalV1 implements PawnStructureEvaluator
 {
+	// Multipliers 
+	static final double SEMIOPEN_FILE = 1.5;
+	
+	static final double OUTSIDE_FILE = 1.5;
+	
 	// PENALTIES
-	static final short DOUBLED_PENALTY = -20;
+	static final short DOUBLED_PENALTY = 20;
 
-	static final short ISOLATED_PENALTY = -30;
+	static final short ISOLATED_PENALTY = 30;
 
-	static final short BACKWARD_PENALTY = -20;
+	static final short BACKWARD_PENALTY = 15;
 
 	// BONUSES
 	static final short PASSED_BONUS = 40;
@@ -36,12 +41,10 @@ public class StructureEvalV1 implements PawnStructureEvaluator
 
 	static final short CHAIN_BONUS = 5;
 
-	static final short ADVANCED_BONUS = 5;
-
 	@Override
 	public short evaluate(final BoardState state)
 	{
-		short overallEval = 0;
+		short overallEval = getIsolatedPawnScore(state.getPieceLocations(0), state.getPieceLocations(6));
 
 		final long whiteAttacks = state.getSquaresAttackedBy(Side.W), blackAttacks = state.getSquaresAttackedBy(Side.B);
 
@@ -58,6 +61,112 @@ public class StructureEvalV1 implements PawnStructureEvaluator
 		eval -= getDoubledPenalty(wPawns);
 		// TODO Auto-generated method stub
 		return 0;
+	}
+	
+	private short getBackwardPawnScore(BoardState state)
+	{
+		short score = 0;
+		
+		final long wPawns = state.getPieceLocations(0), bPawns = state.getPieceLocations(6);
+		final long whiteAttacks = state.getSquaresAttackedBy(Side.W), blackAttacks = state.getSquaresAttackedBy(Side.B);
+		
+		for (int i = 0; i < 8; i++)
+		{
+			byte[] wSetBits = EngineUtils.getSetBits(wPawns & BBDB.FILE[i]);
+			byte[] bSetBits = EngineUtils.getSetBits(bPawns & BBDB.FILE[i]);
+			
+			if (wSetBits.length > 0)
+			{
+				long adjacentPawns = getAdjacentFilePawns(wPawns, i);
+				
+				long lowestBit = Long.lowestOneBit(adjacentPawns);
+				
+				for (byte pawnLoc : wSetBits)
+				{
+					long pLoc = 1L << pawnLoc;
+					
+					if (pLoc < lowestBit && (pLoc << 1) != lowestBit && ((pLoc << 8) & blackAttacks) != 0)
+					{
+						score -= (BBDB.FILE[i] & bPawns) != 0 ? SEMIOPEN_FILE * BACKWARD_PENALTY : BACKWARD_PENALTY;
+					}
+				}
+			}
+			
+			if (bSetBits.length > 0)
+			{
+				long adjacentPawns = getAdjacentFilePawns(bPawns, i);
+				
+				long highestBit = Long.highestOneBit(adjacentPawns);
+				
+				for (byte pawnLoc : bSetBits)
+				{
+					long pLoc = 1L << pawnLoc;
+					
+					if (pLoc > highestBit && (pLoc >>> 1) != highestBit && ((pLoc >>> 8) & whiteAttacks) != 0)
+					{
+						score += (BBDB.FILE[i] & wPawns) != 0 ? SEMIOPEN_FILE * BACKWARD_PENALTY : BACKWARD_PENALTY;
+					}
+				}
+			}
+		}
+		return score;
+	}
+
+	private long getAdjacentFilePawns(long pawns, int fileNumber)
+	{
+		if (fileNumber == 0)
+		{
+			return pawns & BBDB.FILE[1];
+		}
+		else if (fileNumber == 7)
+		{
+			return pawns & BBDB.FILE[6];
+		}
+		else
+		{
+			return pawns & (BBDB.FILE[fileNumber - 1] | BBDB.FILE[fileNumber + 1]);
+		}
+	}
+	
+	/**
+	 * Improed version
+	 * 
+	 * @param whitePawns
+	 * @param blackPawns
+	 * @return
+	 */
+	private short getIsolatedPawnScore2(final long whitePawns, final long blackPawns)
+	{
+		int score = 0;
+		
+		for (int i = 0; i < 8; i++)
+		{
+			long wFilePawns = BBDB.FILE[i] & whitePawns, bFilePawns = BBDB.FILE[i] & blackPawns;
+			
+			if (wFilePawns > 0)
+			{
+				long wAdjPawns = getAdjacentFilePawns(whitePawns, i);
+				
+				if (wAdjPawns == 0)
+				{
+					int penalty = Long.bitCount(wFilePawns) * ISOLATED_PENALTY;
+					score -= bFilePawns == 0 ? SEMIOPEN_FILE * penalty : penalty; 
+				}
+				
+			}
+			if (bFilePawns > 0)
+			{
+				long bAdjPawns = getAdjacentFilePawns(blackPawns, i);
+				
+				if (bAdjPawns == 0)
+				{
+					int penalty = Long.bitCount(bFilePawns) * ISOLATED_PENALTY;
+					score += wFilePawns == 0 ? SEMIOPEN_FILE * penalty : penalty; 
+				}
+			}
+		}
+		
+		return (short) score;
 	}
 
 	private short getIsolatedPawnScore(final long whitePawns, final long blackPawns)
@@ -92,8 +201,7 @@ public class StructureEvalV1 implements PawnStructureEvaluator
 			}
 		}
 
-		final int wIsolated = wIsolatedLeft & wIsolatedRight;
-		final int bIsolated = bIsolatedLeft & bIsolatedRight;
+		final int wIsolated = wIsolatedLeft & wIsolatedRight, bIsolated = bIsolatedLeft & bIsolatedRight;
 
 		for (int i = 0; i < 8; i++)
 		{
@@ -114,6 +222,8 @@ public class StructureEvalV1 implements PawnStructureEvaluator
 			}
 		}
 
+		assert score == (short) score; // Assert no numerical overflow.
+		
 		return (short) score;
 	}
 
@@ -133,7 +243,7 @@ public class StructureEvalV1 implements PawnStructureEvaluator
 				{
 					if (Math.abs(dPawns[j] - dPawns[j + 1]) / 8 == 1)
 					{
-						penalty -= (i == 0) || (i == 7) ? 1.5 * DOUBLED_PENALTY : DOUBLED_PENALTY;
+						penalty -= (i == 0) || (i == 7) ? OUTSIDE_FILE * DOUBLED_PENALTY : DOUBLED_PENALTY;
 					}
 				}
 			}
@@ -145,7 +255,6 @@ public class StructureEvalV1 implements PawnStructureEvaluator
 	{
 		EngineUtils.printNbitBoards(BBDB.FILE[0]);
 	}
-
 }
 
 /* ---------------------------------------------------------------------*
