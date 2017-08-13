@@ -63,6 +63,28 @@ public class StructureEvalV1 implements PawnStructureEvaluator
 		return 0;
 	}
 	
+	private short evaluateIndividualPawnProperties(BoardState state)
+	{
+		short score = 0;
+		
+		final long wPawns = state.getPieceLocations(0), bPawns = state.getPieceLocations(6);
+		final long whiteAttacks = state.getSquaresAttackedBy(Side.W), blackAttacks = state.getSquaresAttackedBy(Side.B);
+		
+		for (int i = 0; i < 8; i++)
+		{
+			long wFilePawns = wPawns & BBDB.FILE[i], bFilePawns = bPawns & BBDB.FILE[i];
+		}
+		
+		return score;
+	}
+	
+	private short getPassedPawnScore(BoardState state)
+	{
+		short score = 0;
+		
+		return score;
+	}
+	
 	private short getBackwardPawnScore(BoardState state)
 	{
 		short score = 0;
