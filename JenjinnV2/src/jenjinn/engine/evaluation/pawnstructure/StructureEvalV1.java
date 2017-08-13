@@ -19,9 +19,11 @@ import jenjinn.engine.misc.EngineUtils;
 public class StructureEvalV1 implements PawnStructureEvaluator
 {
 	// Multipliers 
-	static final double SEMIOPEN_FILE = 1.5;
+	static final double SEMIOPEN_FILE = 1.1;
 	
-	static final double OUTSIDE_FILE = 1.5;
+	static final double OUTSIDE_FILE = 1.1;
+	
+	static final double ENEMY_CENTRAL_TERRITORY = 1.1;
 	
 	// PENALTIES
 	static final short DOUBLED_PENALTY = 20;
@@ -40,6 +42,9 @@ public class StructureEvalV1 implements PawnStructureEvaluator
 	static final short CENTRAL_BONUS = 20;
 
 	static final short CHAIN_BONUS = 5;
+	
+	// Central area
+	static final long CENTRAL_AREA = 0b0011110000111100L << (3 * 8);
 
 	@Override
 	public short evaluate(final BoardState state)
@@ -73,11 +78,130 @@ public class StructureEvalV1 implements PawnStructureEvaluator
 		for (int i = 0; i < 8; i++)
 		{
 			long wFilePawns = wPawns & BBDB.FILE[i], bFilePawns = bPawns & BBDB.FILE[i];
+			
+			if (Long.bitCount(wFilePawns) > 0)
+			{
+				byte[] pLocs = EngineUtils.getSetBits(wFilePawns);
+				
+				long adjFriendlies = getAdjacentFilePawns(wPawns, i);
+				long adjEnemies = getAdjacentFilePawns(bPawns, i);
+				
+				score -= getDoubledPenaltySingle(pLocs, i);
+				score -= getIsolatedPenaltySingle(pLocs, adjFriendlies, bFilePawns, i);
+				score -= getBackwardPenaltySingle(pLocs, adjFriendlies, bFilePawns, blackAttacks, Side.W);
+				
+				score += getPassedBonus(pLocs, adjEnemies, bFilePawns, Side.W);
+				score += getCentralBonus(pLocs, Side.W);
+				
+			}
+			
+			if (Long.bitCount(bFilePawns) > 0)
+			{
+				byte[] pLocs = EngineUtils.getSetBits(bFilePawns);
+				
+				long adjFriendlies = getAdjacentFilePawns(bPawns, i);
+				long adjEnemies = getAdjacentFilePawns(wPawns, i);
+				
+				score += getDoubledPenaltySingle(pLocs, i);
+				score += getIsolatedPenaltySingle(pLocs, adjFriendlies, wFilePawns, i);
+				score += getBackwardPenaltySingle(pLocs, adjFriendlies, wFilePawns, whiteAttacks, Side.B);
+				
+				score -= getPassedBonus(pLocs, adjEnemies, wFilePawns, Side.B);
+				score -= getCentralBonus(pLocs, Side.B);
+			}
 		}
 		
 		return score;
 	}
 	
+	private short getCentralBonus(byte[] pLocs, Side friendlySide) 
+	{
+		short bonus = 0;
+		
+		boolean isWhite = friendlySide.isWhite();
+		
+		for (byte pLoc : pLocs) 
+		{
+			long location = 1L << pLoc;
+			
+			if ((location & CENTRAL_AREA) != 0)
+			{
+				long enemyCentral = 0b111100L << (isWhite ? (4 * 8) : (3 * 8));
+				bonus += (location & enemyCentral) != 0 ? ENEMY_CENTRAL_TERRITORY * CENTRAL_BONUS : CENTRAL_BONUS;
+			}
+		}
+		return bonus;
+	}
+
+	private short getPassedBonus(byte[] pLocs, long adjEnemies, long enemyFilePawns, Side friendlySide)
+	{
+		short bonus = 0;
+		
+		boolean isWhite = friendlySide.isWhite();
+		
+		long opposingEnemies = adjEnemies | enemyFilePawns;
+		
+		long comparisonBit = isWhite ? Long.highestOneBit(opposingEnemies) : Long.lowestOneBit(opposingEnemies);
+		
+		for (byte pLoc : pLocs)
+		{
+			long loc = 1L << pLoc;
+			
+			if ((isWhite && (loc << 1) >= comparisonBit) || (!isWhite && (loc >>> 1) <= comparisonBit))
+			{
+				bonus += PASSED_BONUS;
+			}
+		}
+		
+		return bonus;
+	}
+	
+	private short getBackwardPenaltySingle(byte[] pLocs, long adjFriendlies, long enemyFilePawns, long enemyAttacks, Side friendlySide) 
+	{
+		short score = 0;
+		
+		boolean isWhite = friendlySide.isWhite();
+		
+		long compareBit = isWhite ? Long.lowestOneBit(adjFriendlies) : Long.highestOneBit(adjFriendlies);
+		
+		for (byte pawnLoc : pLocs)
+		{
+			long pLoc = 1L << pawnLoc;
+			
+			if ((isWhite && pLoc < compareBit && (pLoc << 1) != compareBit && ((pLoc << 8) & enemyAttacks) != 0) ||
+					(!isWhite && compareBit > 0 && pLoc > compareBit && (pLoc >>> 1) != compareBit && ((pLoc >>> 8) & enemyAttacks) != 0))
+			{
+				score += enemyFilePawns == 0 ? SEMIOPEN_FILE * BACKWARD_PENALTY : BACKWARD_PENALTY;
+			}
+		}
+		return score;
+	}
+
+	private short getIsolatedPenaltySingle(byte[] pLocs, long adjFriendlies, long enemyFilePawns, int fileIdx) 
+	{
+		short score = 0;
+		if (adjFriendlies == 0)
+		{
+			int penalty = pLocs.length * ISOLATED_PENALTY;
+			score += enemyFilePawns == 0 ? SEMIOPEN_FILE * penalty : penalty; 
+		}
+		return score;
+	}
+
+	private short getDoubledPenaltySingle(byte[] dPawns, int fileIdx) 
+	{
+		short penalty = 0;
+		
+		for (int j = 0; j < dPawns.length - 1; j++)
+		{
+			if (Math.abs(dPawns[j] - dPawns[j + 1]) / 8 == 1)
+			{
+				penalty += (fileIdx == 0) || (fileIdx == 7) ? OUTSIDE_FILE * DOUBLED_PENALTY : DOUBLED_PENALTY;
+			}
+		}
+		return penalty;
+	}
+
 	private short getPassedPawnScore(BoardState state)
 	{
 		short score = 0;
