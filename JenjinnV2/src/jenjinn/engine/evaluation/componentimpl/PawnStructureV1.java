@@ -4,19 +4,21 @@
  * Creator : ThomasB
  * Version : $Id$
  */
-package jenjinn.engine.evaluation.pawnstructure;
+package jenjinn.engine.evaluation.componentimpl;
+
+import static jenjinn.engine.bitboarddatabase.BBDB.FILE;
 
 import jenjinn.engine.bitboarddatabase.BBDB;
 import jenjinn.engine.boardstate.BoardState;
 import jenjinn.engine.enums.Side;
-import jenjinn.engine.evaluation.PawnStructureEvaluator;
+import jenjinn.engine.evaluation.EvaluatingComponent;
 import jenjinn.engine.misc.EngineUtils;
 
 /**
  * @author ThomasB
  * @since 11 Aug 2017
  */
-public class StructureEvalV1 implements PawnStructureEvaluator
+public class PawnStructureV1 implements EvaluatingComponent
 {
 	// Multipliers 
 	static final double SEMIOPEN_FILE = 1.1;
@@ -41,7 +43,9 @@ public class StructureEvalV1 implements PawnStructureEvaluator
 
 	static final short CENTRAL_BONUS = 20;
 
-	static final short CHAIN_BONUS = 5;
+	static final short CHAIN_BONUS = 4;
+	
+	static final short[] PHALANX_BONUSES = {0, 20, 25, 0 ,0, 0, 0};
 	
 	// Central area
 	static final long CENTRAL_AREA = 0b0011110000111100L << (3 * 8);
@@ -51,23 +55,27 @@ public class StructureEvalV1 implements PawnStructureEvaluator
 	{
 		short overallEval = getIsolatedPawnScore(state.getPieceLocations(0), state.getPieceLocations(6));
 
-		final long whiteAttacks = state.getSquaresAttackedBy(Side.W), blackAttacks = state.getSquaresAttackedBy(Side.B);
-
-		overallEval += evaluateWhiteStructure(state, blackAttacks);
-
-		return 0;
-	}
-
-	private short evaluateWhiteStructure(final BoardState state, final long blackAttacks)
-	{
-		final long wPawns = state.getPieceLocations(0);
-		short eval = 0;
-
-		eval -= getDoubledPenalty(wPawns);
-		// TODO Auto-generated method stub
-		return 0;
+		overallEval += evaluateIndividualPawnProperties(state);
+		overallEval += evaluateGlobalPawnProperties(state);
+		
+		return overallEval;
 	}
 	
+	private short evaluateGlobalPawnProperties(BoardState state)
+	{
+		short score = 0;
+		
+		long wPawns = state.getPieceLocations(0), bPawns = state.getPieceLocations(6);
+		
+		score += getChainBonus(wPawns, Side.W);
+		score -= getChainBonus(bPawns, Side.B);
+		
+		score += getPhalanxBonus(wPawns);
+		score -= getPhalanxBonus(bPawns);
+		
+		return score;
+	}
+
 	private short evaluateIndividualPawnProperties(BoardState state)
 	{
 		short score = 0;
@@ -110,8 +118,44 @@ public class StructureEvalV1 implements PawnStructureEvaluator
 				score -= getCentralBonus(pLocs, Side.B);
 			}
 		}
-		
 		return score;
+	}
+	
+	private short getChainBonus(final long pawns, final Side side)
+	{
+		long pawnAttacks = EngineUtils.multipleOr(getPawnAttacksFromLocs(pawns, side));
+		return (short) (Long.bitCount(pawnAttacks & pawns) * CHAIN_BONUS); 
+	}
+	
+	private static short getPhalanxBonus(final long pawns)
+	{
+		short bonus = 0;
+		long pawnsLeft = pawns;
+		
+		for (int i = 0; i < 8; i++)
+		{
+			long filePawns = pawnsLeft & BBDB.FILE[7 - i];
+			
+			if (filePawns > 0)
+			{
+				byte[] positions = EngineUtils.getSetBits(filePawns);
+				
+				for (byte position : positions)
+				{
+					int counter = 0;
+					long pos = 1L << position;
+					
+					while (((pos <<= 1) & pawnsLeft) != 0)
+					{
+						pawnsLeft &= ~pos;
+						counter++;
+					}
+					bonus += PHALANX_BONUSES[counter];
+				}
+			}
+		}
+		
+		return bonus;
 	}
 	
 	private short getCentralBonus(byte[] pLocs, Side friendlySide) 
@@ -396,10 +440,27 @@ public class StructureEvalV1 implements PawnStructureEvaluator
 		}
 		return (short) penalty;
 	}
+	
+	private static long[] getPawnAttacksFromLocs(final long locs, final Side pawnSide)
+	{
+		boolean areWhitePawns = pawnSide.isWhite();
+		long rightSideAttacks, leftSideAttacks;
+		final long piecesToRemoveForLHS = areWhitePawns ? FILE[0] : FILE[7];
+		final long piecesToRemoveForRHS = areWhitePawns ? FILE[7] : FILE[0];
+
+		long relevantPiecesForLHS = locs & ~piecesToRemoveForLHS;
+		long relevantPiecesForRHS = locs & ~piecesToRemoveForRHS;
+
+		leftSideAttacks = areWhitePawns ? (relevantPiecesForLHS << 9) : (relevantPiecesForLHS >>> 7);
+		rightSideAttacks = areWhitePawns ? (relevantPiecesForRHS << 7) : (relevantPiecesForRHS >>> 9);
+
+		return new long[]{leftSideAttacks , rightSideAttacks};
+	}
 
 	public static void main(final String[] args)
 	{
-		EngineUtils.printNbitBoards(BBDB.FILE[0]);
+		long testPawns = 0b1100111000111010L;
+		System.out.println(getPhalanxBonus(testPawns));
 	}
 }
 

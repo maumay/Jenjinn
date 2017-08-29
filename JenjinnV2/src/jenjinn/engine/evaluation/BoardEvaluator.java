@@ -1,10 +1,12 @@
 /**
- * Copyright © 2017 Lhasa Limited
+ * Copyright ï¿½ 2017 Lhasa Limited
  * File created: 27 Jul 2017 by ThomasB
  * Creator : ThomasB
  * Version : $Id$
  */
 package jenjinn.engine.evaluation;
+
+import java.util.List;
 
 import jenjinn.engine.boardstate.BoardState;
 
@@ -28,6 +30,12 @@ public interface BoardEvaluator
 	 * @return the evaluation value
 	 */
 	short evaluate(BoardState state);
+	
+	/**
+	 * Allows us to set which features of the board we will evaluate.
+	 * @param components
+	 */
+	void setEvaluationComponents(List<EvaluatingComponent> components);
 }
 
 /* ---------------------------------------------------------------------*
