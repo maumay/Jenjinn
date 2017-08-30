@@ -20,13 +20,13 @@ import jenjinn.engine.misc.EngineUtils;
  */
 public class PawnStructureV1 implements EvaluatingComponent
 {
-	// Multipliers 
+	// Multipliers
 	static final double SEMIOPEN_FILE = 1.1;
-	
+
 	static final double OUTSIDE_FILE = 1.1;
-	
+
 	static final double ENEMY_CENTRAL_TERRITORY = 1.1;
-	
+
 	// PENALTIES
 	static final short DOUBLED_PENALTY = 20;
 
@@ -44,9 +44,9 @@ public class PawnStructureV1 implements EvaluatingComponent
 	static final short CENTRAL_BONUS = 20;
 
 	static final short CHAIN_BONUS = 4;
-	
-	static final short[] PHALANX_BONUSES = {0, 20, 25, 0 ,0, 0, 0};
-	
+
+	static final short[] PHALANX_BONUSES = { 0, 20, 25, 0, 0, 0, 0 };
+
 	// Central area
 	static final long CENTRAL_AREA = 0b0011110000111100L << (3 * 8);
 
@@ -57,94 +57,94 @@ public class PawnStructureV1 implements EvaluatingComponent
 
 		overallEval += evaluateIndividualPawnProperties(state);
 		overallEval += evaluateGlobalPawnProperties(state);
-		
+
 		return overallEval;
 	}
-	
-	private short evaluateGlobalPawnProperties(BoardState state)
+
+	private short evaluateGlobalPawnProperties(final BoardState state)
 	{
 		short score = 0;
-		
-		long wPawns = state.getPieceLocations(0), bPawns = state.getPieceLocations(6);
-		
+
+		final long wPawns = state.getPieceLocations(0), bPawns = state.getPieceLocations(6);
+
 		score += getChainBonus(wPawns, Side.W);
 		score -= getChainBonus(bPawns, Side.B);
-		
+
 		score += getPhalanxBonus(wPawns);
 		score -= getPhalanxBonus(bPawns);
-		
+
 		return score;
 	}
 
-	private short evaluateIndividualPawnProperties(BoardState state)
+	private short evaluateIndividualPawnProperties(final BoardState state)
 	{
 		short score = 0;
-		
+
 		final long wPawns = state.getPieceLocations(0), bPawns = state.getPieceLocations(6);
 		final long whiteAttacks = state.getSquaresAttackedBy(Side.W), blackAttacks = state.getSquaresAttackedBy(Side.B);
-		
+
 		for (int i = 0; i < 8; i++)
 		{
-			long wFilePawns = wPawns & BBDB.FILE[i], bFilePawns = bPawns & BBDB.FILE[i];
-			
+			final long wFilePawns = wPawns & BBDB.FILE[i], bFilePawns = bPawns & BBDB.FILE[i];
+
 			if (Long.bitCount(wFilePawns) > 0)
 			{
-				byte[] pLocs = EngineUtils.getSetBits(wFilePawns);
-				
-				long adjFriendlies = getAdjacentFilePawns(wPawns, i);
-				long adjEnemies = getAdjacentFilePawns(bPawns, i);
-				
+				final byte[] pLocs = EngineUtils.getSetBits(wFilePawns);
+
+				final long adjFriendlies = getAdjacentFilePawns(wPawns, i);
+				final long adjEnemies = getAdjacentFilePawns(bPawns, i);
+
 				score -= getDoubledPenaltySingle(pLocs, i);
 				score -= getIsolatedPenaltySingle(pLocs, adjFriendlies, bFilePawns, i);
 				score -= getBackwardPenaltySingle(pLocs, adjFriendlies, bFilePawns, blackAttacks, Side.W);
-				
+
 				score += getPassedBonus(pLocs, adjEnemies, bFilePawns, Side.W);
 				score += getCentralBonus(pLocs, Side.W);
-				
+
 			}
-			
+
 			if (Long.bitCount(bFilePawns) > 0)
 			{
-				byte[] pLocs = EngineUtils.getSetBits(bFilePawns);
-				
-				long adjFriendlies = getAdjacentFilePawns(bPawns, i);
-				long adjEnemies = getAdjacentFilePawns(wPawns, i);
-				
+				final byte[] pLocs = EngineUtils.getSetBits(bFilePawns);
+
+				final long adjFriendlies = getAdjacentFilePawns(bPawns, i);
+				final long adjEnemies = getAdjacentFilePawns(wPawns, i);
+
 				score += getDoubledPenaltySingle(pLocs, i);
 				score += getIsolatedPenaltySingle(pLocs, adjFriendlies, wFilePawns, i);
 				score += getBackwardPenaltySingle(pLocs, adjFriendlies, wFilePawns, whiteAttacks, Side.B);
-				
+
 				score -= getPassedBonus(pLocs, adjEnemies, wFilePawns, Side.B);
 				score -= getCentralBonus(pLocs, Side.B);
 			}
 		}
 		return score;
 	}
-	
+
 	private short getChainBonus(final long pawns, final Side side)
 	{
-		long pawnAttacks = EngineUtils.multipleOr(getPawnAttacksFromLocs(pawns, side));
-		return (short) (Long.bitCount(pawnAttacks & pawns) * CHAIN_BONUS); 
+		final long pawnAttacks = EngineUtils.multipleOr(getPawnAttacksFromLocs(pawns, side));
+		return (short) (Long.bitCount(pawnAttacks & pawns) * CHAIN_BONUS);
 	}
-	
+
 	private static short getPhalanxBonus(final long pawns)
 	{
 		short bonus = 0;
 		long pawnsLeft = pawns;
-		
+
 		for (int i = 0; i < 8; i++)
 		{
-			long filePawns = pawnsLeft & BBDB.FILE[7 - i];
-			
+			final long filePawns = pawnsLeft & BBDB.FILE[7 - i];
+
 			if (filePawns > 0)
 			{
-				byte[] positions = EngineUtils.getSetBits(filePawns);
-				
-				for (byte position : positions)
+				final byte[] positions = EngineUtils.getSetBits(filePawns);
+
+				for (final byte position : positions)
 				{
 					int counter = 0;
 					long pos = 1L << position;
-					
+
 					while (((pos <<= 1) & pawnsLeft) != 0)
 					{
 						pawnsLeft &= ~pos;
@@ -154,64 +154,65 @@ public class PawnStructureV1 implements EvaluatingComponent
 				}
 			}
 		}
-		
+
 		return bonus;
 	}
-	
-	private short getCentralBonus(byte[] pLocs, Side friendlySide) 
+
+	private short getCentralBonus(final byte[] pLocs, final Side friendlySide)
 	{
 		short bonus = 0;
-		
-		boolean isWhite = friendlySide.isWhite();
-		
-		for (byte pLoc : pLocs) 
+
+		final boolean isWhite = friendlySide.isWhite();
+
+		for (final byte pLoc : pLocs)
 		{
-			long location = 1L << pLoc;
-			
+			final long location = 1L << pLoc;
+
 			if ((location & CENTRAL_AREA) != 0)
 			{
-				long enemyCentral = 0b111100L << (isWhite ? (4 * 8) : (3 * 8));
+				final long enemyCentral = 0b111100L << (isWhite ? (4 * 8) : (3 * 8));
 				bonus += (location & enemyCentral) != 0 ? ENEMY_CENTRAL_TERRITORY * CENTRAL_BONUS : CENTRAL_BONUS;
 			}
 		}
 		return bonus;
 	}
 
-	private short getPassedBonus(byte[] pLocs, long adjEnemies, long enemyFilePawns, Side friendlySide)
+	private short getPassedBonus(final byte[] pLocs, final long adjEnemies, final long enemyFilePawns, final Side friendlySide)
 	{
 		short bonus = 0;
-		
-		boolean isWhite = friendlySide.isWhite();
-		
-		long opposingEnemies = adjEnemies | enemyFilePawns;
-		
-		long comparisonBit = isWhite ? Long.highestOneBit(opposingEnemies) : Long.lowestOneBit(opposingEnemies);
-		
-		for (byte pLoc : pLocs)
+
+		final boolean isWhite = friendlySide.isWhite();
+
+		final long opposingEnemies = adjEnemies | enemyFilePawns;
+
+		final long comparisonBit = isWhite ? Long.highestOneBit(opposingEnemies) : Long.lowestOneBit(opposingEnemies);
+
+		for (final byte pLoc : pLocs)
 		{
-			long loc = 1L << pLoc;
-			
+			final long loc = 1L << pLoc;
+
 			if ((isWhite && (loc << 1) >= comparisonBit) || (!isWhite && (loc >>> 1) <= comparisonBit))
 			{
 				bonus += PASSED_BONUS;
 			}
 		}
-		
+
 		return bonus;
 	}
-	
-	private short getBackwardPenaltySingle(byte[] pLocs, long adjFriendlies, long enemyFilePawns, long enemyAttacks, Side friendlySide) 
+
+	private short getBackwardPenaltySingle(final byte[] pLocs, final long adjFriendlies, final long enemyFilePawns, final long enemyAttacks,
+			final Side friendlySide)
 	{
 		short score = 0;
-		
-		boolean isWhite = friendlySide.isWhite();
-		
-		long compareBit = isWhite ? Long.lowestOneBit(adjFriendlies) : Long.highestOneBit(adjFriendlies);
-		
-		for (byte pawnLoc : pLocs)
+
+		final boolean isWhite = friendlySide.isWhite();
+
+		final long compareBit = isWhite ? Long.lowestOneBit(adjFriendlies) : Long.highestOneBit(adjFriendlies);
+
+		for (final byte pawnLoc : pLocs)
 		{
-			long pLoc = 1L << pawnLoc;
-			
+			final long pLoc = 1L << pawnLoc;
+
 			if ((isWhite && pLoc < compareBit && (pLoc << 1) != compareBit && ((pLoc << 8) & enemyAttacks) != 0) ||
 					(!isWhite && compareBit > 0 && pLoc > compareBit && (pLoc >>> 1) != compareBit && ((pLoc >>> 8) & enemyAttacks) != 0))
 			{
@@ -221,21 +222,21 @@ public class PawnStructureV1 implements EvaluatingComponent
 		return score;
 	}
 
-	private short getIsolatedPenaltySingle(byte[] pLocs, long adjFriendlies, long enemyFilePawns, int fileIdx) 
+	private short getIsolatedPenaltySingle(final byte[] pLocs, final long adjFriendlies, final long enemyFilePawns, final int fileIdx)
 	{
 		short score = 0;
 		if (adjFriendlies == 0)
 		{
-			int penalty = pLocs.length * ISOLATED_PENALTY;
-			score += enemyFilePawns == 0 ? SEMIOPEN_FILE * penalty : penalty; 
+			final int penalty = pLocs.length * ISOLATED_PENALTY;
+			score += enemyFilePawns == 0 ? SEMIOPEN_FILE * penalty : penalty;
 		}
 		return score;
 	}
 
-	private short getDoubledPenaltySingle(byte[] dPawns, int fileIdx) 
+	private short getDoubledPenaltySingle(final byte[] dPawns, final int fileIdx)
 	{
 		short penalty = 0;
-		
+
 		for (int j = 0; j < dPawns.length - 1; j++)
 		{
 			if (Math.abs(dPawns[j] - dPawns[j + 1]) / 8 == 1)
@@ -246,52 +247,52 @@ public class PawnStructureV1 implements EvaluatingComponent
 		return penalty;
 	}
 
-	private short getPassedPawnScore(BoardState state)
+	private short getPassedPawnScore(final BoardState state)
 	{
-		short score = 0;
-		
+		final short score = 0;
+
 		return score;
 	}
-	
-	private short getBackwardPawnScore(BoardState state)
+
+	private short getBackwardPawnScore(final BoardState state)
 	{
 		short score = 0;
-		
+
 		final long wPawns = state.getPieceLocations(0), bPawns = state.getPieceLocations(6);
 		final long whiteAttacks = state.getSquaresAttackedBy(Side.W), blackAttacks = state.getSquaresAttackedBy(Side.B);
-		
+
 		for (int i = 0; i < 8; i++)
 		{
-			byte[] wSetBits = EngineUtils.getSetBits(wPawns & BBDB.FILE[i]);
-			byte[] bSetBits = EngineUtils.getSetBits(bPawns & BBDB.FILE[i]);
-			
+			final byte[] wSetBits = EngineUtils.getSetBits(wPawns & BBDB.FILE[i]);
+			final byte[] bSetBits = EngineUtils.getSetBits(bPawns & BBDB.FILE[i]);
+
 			if (wSetBits.length > 0)
 			{
-				long adjacentPawns = getAdjacentFilePawns(wPawns, i);
-				
-				long lowestBit = Long.lowestOneBit(adjacentPawns);
-				
-				for (byte pawnLoc : wSetBits)
+				final long adjacentPawns = getAdjacentFilePawns(wPawns, i);
+
+				final long lowestBit = Long.lowestOneBit(adjacentPawns);
+
+				for (final byte pawnLoc : wSetBits)
 				{
-					long pLoc = 1L << pawnLoc;
-					
+					final long pLoc = 1L << pawnLoc;
+
 					if (pLoc < lowestBit && (pLoc << 1) != lowestBit && ((pLoc << 8) & blackAttacks) != 0)
 					{
 						score -= (BBDB.FILE[i] & bPawns) != 0 ? SEMIOPEN_FILE * BACKWARD_PENALTY : BACKWARD_PENALTY;
 					}
 				}
 			}
-			
+
 			if (bSetBits.length > 0)
 			{
-				long adjacentPawns = getAdjacentFilePawns(bPawns, i);
-				
-				long highestBit = Long.highestOneBit(adjacentPawns);
-				
-				for (byte pawnLoc : bSetBits)
+				final long adjacentPawns = getAdjacentFilePawns(bPawns, i);
+
+				final long highestBit = Long.highestOneBit(adjacentPawns);
+
+				for (final byte pawnLoc : bSetBits)
 				{
-					long pLoc = 1L << pawnLoc;
-					
+					final long pLoc = 1L << pawnLoc;
+
 					if (pLoc > highestBit && (pLoc >>> 1) != highestBit && ((pLoc >>> 8) & whiteAttacks) != 0)
 					{
 						score += (BBDB.FILE[i] & wPawns) != 0 ? SEMIOPEN_FILE * BACKWARD_PENALTY : BACKWARD_PENALTY;
@@ -302,7 +303,7 @@ public class PawnStructureV1 implements EvaluatingComponent
 		return score;
 	}
 
-	private long getAdjacentFilePawns(long pawns, int fileNumber)
+	private long getAdjacentFilePawns(final long pawns, final int fileNumber)
 	{
 		if (fileNumber == 0)
 		{
@@ -317,10 +318,10 @@ public class PawnStructureV1 implements EvaluatingComponent
 			return pawns & (BBDB.FILE[fileNumber - 1] | BBDB.FILE[fileNumber + 1]);
 		}
 	}
-	
+
 	/**
 	 * Improed version
-	 * 
+	 *
 	 * @param whitePawns
 	 * @param blackPawns
 	 * @return
@@ -328,34 +329,34 @@ public class PawnStructureV1 implements EvaluatingComponent
 	private short getIsolatedPawnScore2(final long whitePawns, final long blackPawns)
 	{
 		int score = 0;
-		
+
 		for (int i = 0; i < 8; i++)
 		{
-			long wFilePawns = BBDB.FILE[i] & whitePawns, bFilePawns = BBDB.FILE[i] & blackPawns;
-			
+			final long wFilePawns = BBDB.FILE[i] & whitePawns, bFilePawns = BBDB.FILE[i] & blackPawns;
+
 			if (wFilePawns > 0)
 			{
-				long wAdjPawns = getAdjacentFilePawns(whitePawns, i);
-				
+				final long wAdjPawns = getAdjacentFilePawns(whitePawns, i);
+
 				if (wAdjPawns == 0)
 				{
-					int penalty = Long.bitCount(wFilePawns) * ISOLATED_PENALTY;
-					score -= bFilePawns == 0 ? SEMIOPEN_FILE * penalty : penalty; 
+					final int penalty = Long.bitCount(wFilePawns) * ISOLATED_PENALTY;
+					score -= bFilePawns == 0 ? SEMIOPEN_FILE * penalty : penalty;
 				}
-				
+
 			}
 			if (bFilePawns > 0)
 			{
-				long bAdjPawns = getAdjacentFilePawns(blackPawns, i);
-				
+				final long bAdjPawns = getAdjacentFilePawns(blackPawns, i);
+
 				if (bAdjPawns == 0)
 				{
-					int penalty = Long.bitCount(bFilePawns) * ISOLATED_PENALTY;
-					score += wFilePawns == 0 ? SEMIOPEN_FILE * penalty : penalty; 
+					final int penalty = Long.bitCount(bFilePawns) * ISOLATED_PENALTY;
+					score += wFilePawns == 0 ? SEMIOPEN_FILE * penalty : penalty;
 				}
 			}
 		}
-		
+
 		return (short) score;
 	}
 
@@ -413,7 +414,7 @@ public class PawnStructureV1 implements EvaluatingComponent
 		}
 
 		assert score == (short) score; // Assert no numerical overflow.
-		
+
 		return (short) score;
 	}
 
@@ -440,26 +441,26 @@ public class PawnStructureV1 implements EvaluatingComponent
 		}
 		return (short) penalty;
 	}
-	
-	private static long[] getPawnAttacksFromLocs(final long locs, final Side pawnSide)
+
+	public static long[] getPawnAttacksFromLocs(final long locs, final Side pawnSide)
 	{
-		boolean areWhitePawns = pawnSide.isWhite();
+		final boolean areWhitePawns = pawnSide.isWhite();
 		long rightSideAttacks, leftSideAttacks;
 		final long piecesToRemoveForLHS = areWhitePawns ? FILE[0] : FILE[7];
 		final long piecesToRemoveForRHS = areWhitePawns ? FILE[7] : FILE[0];
 
-		long relevantPiecesForLHS = locs & ~piecesToRemoveForLHS;
-		long relevantPiecesForRHS = locs & ~piecesToRemoveForRHS;
+		final long relevantPiecesForLHS = locs & ~piecesToRemoveForLHS;
+		final long relevantPiecesForRHS = locs & ~piecesToRemoveForRHS;
 
 		leftSideAttacks = areWhitePawns ? (relevantPiecesForLHS << 9) : (relevantPiecesForLHS >>> 7);
 		rightSideAttacks = areWhitePawns ? (relevantPiecesForRHS << 7) : (relevantPiecesForRHS >>> 9);
 
-		return new long[]{leftSideAttacks , rightSideAttacks};
+		return new long[] { leftSideAttacks, rightSideAttacks };
 	}
 
 	public static void main(final String[] args)
 	{
-		long testPawns = 0b1100111000111010L;
+		final long testPawns = 0b1100111000111010L;
 		System.out.println(getPhalanxBonus(testPawns));
 	}
 }

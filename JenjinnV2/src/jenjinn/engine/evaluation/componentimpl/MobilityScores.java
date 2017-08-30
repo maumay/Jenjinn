@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package jenjinn.engine.evaluation.componentimpl;
 
@@ -7,25 +7,25 @@ package jenjinn.engine.evaluation.componentimpl;
  * @author t
  *
  */
-public class MobilityScores 
+public class MobilityScores
 {
 	private final short bishop, knight, queen, rookH, rookV;
 
-	public MobilityScores(short bishop, short knight, short queen, short rookH, short rookV) 
+	public MobilityScores(final int bishop, final int knight, final int queen, final int rookH, final int rookV)
 	{
-		this.bishop = bishop;
-		this.knight = knight;
-		this.queen = queen;
-		this.rookH = rookH;
-		this.rookV = rookV;
+		this.bishop = (short) bishop;
+		this.knight = (short) knight;
+		this.queen = (short) queen;
+		this.rookH = (short) rookH;
+		this.rookV = (short) rookV;
 	}
-	
-	public short getBishop() 
+
+	public short getBishop()
 	{
 		return bishop;
 	}
 
-	public short getKnight() 
+	public short getKnight()
 	{
 		return knight;
 	}
@@ -35,12 +35,12 @@ public class MobilityScores
 		return queen;
 	}
 
-	public short getRookH() 
+	public short getRookH()
 	{
 		return rookH;
 	}
 
-	public short getRookV() 
+	public short getRookV()
 	{
 		return rookV;
 	}
