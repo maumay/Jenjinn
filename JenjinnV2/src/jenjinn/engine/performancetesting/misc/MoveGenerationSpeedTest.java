@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package jenjinn.engine.performancetesting.misc;
 
@@ -25,16 +25,17 @@ import jenjinn.engine.pgnutils.ChessGameReader;
  * @author t
  *
  */
-public class MoveGenerationSpeedTest 
+public class MoveGenerationSpeedTest
 {
 
-	private static final Path SRC_FILE_PATH = Paths.get("JenjinnV2","positionproviders", "talprovider500.txt");//Paths.get("positionproviders", "talprovider500.txt");// ,
+	private static final Path SRC_FILE_PATH = Paths.get("JenjinnV2", "positionproviders", "talprovider500.txt");// Paths.get("positionproviders",
+																												// "talprovider500.txt");// ,
 
 	/**
-	 * @throws IOException 
-	 * 
+	 * @throws IOException
+	 *
 	 */
-	public static void main(String[] args) throws IOException 
+	public static void main(final String[] args) throws IOException
 	{
 		final BufferedReader reader = Files.newBufferedReader(SRC_FILE_PATH, StandardCharsets.ISO_8859_1);
 
@@ -62,9 +63,9 @@ public class MoveGenerationSpeedTest
 				}
 				catch (final AmbiguousPgnException err)
 				{
-//					System.out.println("-----------------------------------");
-//					System.out.println("APE with game: " + game);
-//					System.out.println("-----------------------------------");
+					// System.out.println("-----------------------------------");
+					// System.out.println("APE with game: " + game);
+					// System.out.println("-----------------------------------");
 					break;
 				}
 				catch (final NullPointerException npe)
@@ -78,6 +79,5 @@ public class MoveGenerationSpeedTest
 
 		System.out.println(EngineUtils.average(Arrays.asList(times)).get(0));
 	}
-	
 
 }

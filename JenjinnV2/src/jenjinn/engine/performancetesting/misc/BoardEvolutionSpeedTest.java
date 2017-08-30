@@ -27,8 +27,9 @@ import jenjinn.engine.pgnutils.ChessGameReader;
  */
 public class BoardEvolutionSpeedTest
 {
-	private static final Path SRC_FILE_PATH = Paths.get("JenjinnV2","positionproviders", "talprovider500.txt");//Paths.get("positionproviders", "talprovider500.txt");// ,
-																									// 
+	private static final Path SRC_FILE_PATH = Paths.get("JenjinnV2", "positionproviders", "talprovider500.txt");// Paths.get("positionproviders",
+																												// "talprovider500.txt");// ,
+	//
 
 	/**
 	 * @param args
@@ -39,7 +40,8 @@ public class BoardEvolutionSpeedTest
 		final BufferedReader reader = Files.newBufferedReader(SRC_FILE_PATH, StandardCharsets.ISO_8859_1);
 
 		final TLongList times = new TLongArrayList();
-		String game;// = "1.d4 Nf6 2.c4 e6 3.Nf3 d5 4.Nc3 c6 5.e3 Nbd7 6.Bd3 Bb4 7.a3 Ba5 8.O-O O-O 9.Ne5 Nxe5 10.dxe5 dxc4 11.Bxc4 Nd7 12.f4 Qe7 13.b4 Bb6 14.Qb3 f6 15.Bxe6+ Kh8 16.Ne4 fxe5 17.Kh1 exf4";
+		String game;// = "1.d4 Nf6 2.c4 e6 3.Nf3 d5 4.Nc3 c6 5.e3 Nbd7 6.Bd3 Bb4 7.a3 Ba5 8.O-O O-O 9.Ne5 Nxe5 10.dxe5 dxc4 11.Bxc4 Nd7 12.f4 Qe7 13.b4 Bb6
+					// 14.Qb3 f6 15.Bxe6+ Kh8 16.Ne4 fxe5 17.Kh1 exf4";
 
 		while ((game = reader.readLine()) != null)
 		{
@@ -56,14 +58,14 @@ public class BoardEvolutionSpeedTest
 					final long start = System.nanoTime();
 					state = mv.evolve(state);
 					times.add(System.nanoTime() - start);
-//					 System.out.println(state.getEnPassantSq());
-//					 state.print();
+					// System.out.println(state.getEnPassantSq());
+					// state.print();
 				}
 				catch (final AmbiguousPgnException err)
 				{
-//					System.out.println("-----------------------------------");
-//					System.out.println("APE with game: " + game);
-//					System.out.println("-----------------------------------");
+					// System.out.println("-----------------------------------");
+					// System.out.println("APE with game: " + game);
+					// System.out.println("-----------------------------------");
 					break;
 				}
 				catch (final NullPointerException npe)
@@ -72,7 +74,7 @@ public class BoardEvolutionSpeedTest
 					System.out.println("at command: " + command.getAsString());
 					break;
 				}
-				catch (AssertionError err)
+				catch (final AssertionError err)
 				{
 					System.out.println(game);
 					throw err;
