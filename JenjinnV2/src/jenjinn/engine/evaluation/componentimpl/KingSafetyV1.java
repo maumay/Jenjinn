@@ -20,7 +20,7 @@ public class KingSafetyV1 implements EvaluatingComponent
 	private static final short MID_PAWN_SHIELD_BONUS = 10, END_PAWN_SHIELD_BONUS = 7;
 	private static final short MID_DIRECT_SHIELD_BONUS = 12, END_DIRECT_SHIELD_BONUS = 0;
 
-	private static final short MID_OPEN_FILE_PENALTY = 35, END_OPEN_FILE_PENALTY = 5;
+	private static final short MID_OPEN_FILE_PENALTY = 35, END_OPEN_FILE_PENALTY = 2;
 
 	/**
 	 * Working variables.
@@ -42,17 +42,6 @@ public class KingSafetyV1 implements EvaluatingComponent
 		final byte castleStatus = state.getCastleStatus();
 		whiteCastled = (castleStatus & 0b11) != 0;
 		blackCastled = (castleStatus & 0b1100) != 0;
-		//
-		// if (!whiteCastled)
-		// {
-		// midEval -= NOT_CASTLED_PENALTY;
-		// endEval -= NOT_CASTLED_PENALTY;
-		// }
-		// if (!blackCastled)
-		// {
-		// midEval += NOT_CASTLED_PENALTY;
-		// endEval += NOT_CASTLED_PENALTY;
-		// }
 
 		// TODO Auto-generated method stub
 		evaluateKingSafety(Side.W);
@@ -64,30 +53,56 @@ public class KingSafetyV1 implements EvaluatingComponent
 	private void evaluateKingSafety(final Side side)
 	{
 		final boolean isWhite = side.isWhite();
+		final int orientation = side.orientation();
 
 		if (isWhite ? whiteCastled : blackCastled)
 		{
 			final byte kingLoc = EngineUtils.getSetBits(state.getPieceLocations(5 + side.index()))[0];
-			final int rankNum = kingLoc / 8, fileNum = 7 - (kingLoc % 8);
+			// final int rankNum = kingLoc / 8, fileNum = 7 - (kingLoc % 8);
 
-			final long immediateShieldArea = isWhite ? EngineUtils.multipleOr(1L << (kingLoc + 8), fileNum == 0 ? 0L : 1L << (kingLoc + 9),
-					fileNum == 7 ? 0L : 1L << (kingLoc + 7)) :
-
-					EngineUtils.multipleOr(1L >>> (kingLoc + 8), fileNum == 0 ? 0L : 1L >>> (kingLoc + 9),
-							fileNum == 7 ? 0L : 1L >>> (kingLoc + 7));
-
+			final long immediateShieldArea = getImmediateShieldArea(kingLoc, side);
 			final long outerShieldArea = isWhite ? immediateShieldArea << 8 : immediateShieldArea >>> 8;
+
+			final long pawns = state.getPieceLocations(side.index());
+
+			midEval += orientation * Long.bitCount(outerShieldArea & pawns) * MID_PAWN_SHIELD_BONUS;
+			midEval += orientation * Long.bitCount(immediateShieldArea & pawns) * (MID_PAWN_SHIELD_BONUS + MID_DIRECT_SHIELD_BONUS);
+
+			endEval += orientation * Long.bitCount(outerShieldArea & pawns) * END_PAWN_SHIELD_BONUS;
+			endEval += orientation * Long.bitCount(immediateShieldArea & pawns) * (END_PAWN_SHIELD_BONUS + END_DIRECT_SHIELD_BONUS);
 		}
 		else
 		{
-
+			midEval += 3 * orientation * MID_OPEN_FILE_PENALTY;
+			endEval += 3 * orientation * END_OPEN_FILE_PENALTY;
 		}
 
+	}
+
+	private static long getImmediateShieldArea(final byte kingLoc, final Side side)
+	{
+		final long[] components = new long[3];
+
+		final int orientation = side.orientation();
+		final int rankNum = kingLoc / 8;
+
+		final int shiftStart = kingLoc + orientation * 7;
+		for (int i = 0; i < 3; i++)
+		{
+			final int shifted = Math.min(Math.max(shiftStart + orientation * i, 0), 64);
+			if (shifted / 8 == rankNum + orientation)
+			{
+				components[i] = 1L << shifted;
+			}
+		}
+		return EngineUtils.multipleOr(components);
 	}
 
 	public static void main(final String[] args)
 	{
 		System.out.println(0b110 >>> 8);
+
+		EngineUtils.printNbitBoards(getImmediateShieldArea((byte) 48, Side.W));
 	}
 
 }
