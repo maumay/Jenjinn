@@ -1,22 +1,26 @@
 /**
- * Copyright © 2017 Lhasa Limited
+ * Copyright ï¿½ 2017 Lhasa Limited
  * File created: 19 Sep 2017 by ThomasB
  * Creator : ThomasB
  * Version : $Id$
  */
 package jenjinn.testingengine.boardstate;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
 
 import jenjinn.engine.boardstate.BoardState;
 import jenjinn.engine.enums.Side;
+import jenjinn.engine.enums.Sq;
 import jenjinn.engine.enums.TerminationType;
 import jenjinn.engine.exceptions.AmbiguousPgnException;
 import jenjinn.engine.misc.EngineUtils;
 import jenjinn.engine.moves.ChessMove;
 import jenjinn.engine.openingdatabase.AlgebraicCommand;
 import jenjinn.engine.pieces.ChessPiece;
+import jenjinn.engine.zobristhashing.ZobristHasher;
+import jenjinn.testingengine.enums.CastleArea;
 import jenjinn.testingengine.pieces.TChessPiece;
 
 /**
@@ -31,7 +35,15 @@ public class TBoardState implements BoardState
 
 	private TChessPiece[] board;
 
-	// private byte castleStatus
+	private CastleArea[] castleStatus;
+	
+	private List<CastleArea> castleRights;
+	
+	private Sq enPassantSq;
+	
+	private long devStatus;
+	
+	private byte clockValue;
 
 	/**
 	 *
@@ -62,14 +74,53 @@ public class TBoardState implements BoardState
 	@Override
 	public TerminationType getTerminationState()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		if (getClockValue() == 50)
+		{
+			return TerminationType.DRAW;
+		}
+		
+		int kId = 5 + friendlySide.otherSide().index();
+		Sq kLoc = null;
+		for (int i = 0; i < 64; i++)
+		{
+			if (board[i] != null && board[i].getIndex() == kId)
+			{
+				kLoc = Sq.getSq((byte) i);
+				break;
+			}
+		}
+		assert kLoc != null;
+		
+		long friendlyAttacks = getSquaresAttackedBy(friendlySide);
+		if ((friendlyAttacks & kLoc.getAsBB()) != 0)
+		{
+			return friendlySide.isWhite() ? TerminationType.WHITE_WIN : TerminationType.BLACK_WIN;
+		}
+		
+		// Check for repetition draw // TODO - Remove stream to increase performance?
+		final int uniqueHashings = (int) Arrays.stream(recentHashes).distinct().count();
+
+		assert uniqueHashings >= 2;
+
+		if (uniqueHashings == 2 && Arrays.stream(recentHashes).filter(x -> x == recentHashes[0]).count() != 2)
+		{
+			return TerminationType.DRAW;
+		}
+
+		return TerminationType.NOT_TERMINAL;
 	}
 
 	@Override
 	public List<ChessMove> getMoves()
 	{
 		// TODO Auto-generated method stub
+//		List<ChessMove>
+		
+		return null;
+	}
+	
+	private List<ChessMove> getCastleMoves()
+	{
 		return null;
 	}
 
@@ -90,8 +141,29 @@ public class TBoardState implements BoardState
 	@Override
 	public long zobristHash()
 	{
-		// TODO Auto-generated method stub
-		return 0;
+		ZobristHasher hasher = BoardState.HASHER;
+		long hash = EngineUtils.multipleXor(
+				IntStream.range(0, 64)
+					.filter(i -> board[i] != null)
+					.mapToLong(i -> hasher.getSquarePieceFeature((byte) i, board[i]))
+					.toArray());
+		
+		if (enPassantSq != null)
+		{
+			hash ^= hasher.getEnpassantFeature(enPassantSq.ordinal() % 8);
+		}
+		
+		for (CastleArea area : castleRights)
+		{
+			hash ^= hasher.getCastleFeature(area.hashingIndex);
+		}
+		
+		if (!friendlySide.isWhite())
+		{
+			hash ^= hasher.getBlackToMove();
+		}
+		
+		return hash;
 	}
 
 	@Override
@@ -162,57 +234,92 @@ public class TBoardState implements BoardState
 	@Override
 	public byte getCastleStatus()
 	{
-		// TODO Auto-generated method stub
-		return 0;
+		return (byte) EngineUtils.multipleOr(
+				Arrays.stream(castleStatus)
+				.mapToLong(x -> x.byteRep)
+				.toArray());
 	}
 
 	@Override
 	public byte getCastleRights()
 	{
-		// TODO Auto-generated method stub
-		return 0;
+		return (byte) EngineUtils.multipleOr(
+				castleRights.stream()
+				.mapToLong(x -> x.byteRep)
+				.toArray());
 	}
 
 	@Override
 	public byte getClockValue()
 	{
-		// TODO Auto-generated method stub
-		return 0;
+		return clockValue;
 	}
 
 	@Override
 	public byte getPiecePhase()
 	{
-		// TODO Auto-generated method stub
-		return 0;
+		int totalPhase = 4*1 + 4*1 + 4*2 + 2*4;// From chessprogramming
+		final int[] pieceCounts = new int[6];
+		IntStream.range(0, 64).forEach(i -> {
+			if (board[i] != null)
+			{
+				pieceCounts[board[i].getIndex() % 6]++;
+			}
+		});
+		return (byte) (totalPhase 
+				- (pieceCounts[1] + pieceCounts[2] + pieceCounts[3]*2 + pieceCounts[4]*4));
 	}
 
 	@Override
 	public long getDevelopmentStatus()
 	{
-		// TODO Auto-generated method stub
-		return 0;
+		return devStatus;
 	}
 
 	@Override
 	public long getHashing()
 	{
-		// TODO Auto-generated method stub
-		return 0;
+		ZobristHasher hasher = BoardState.HASHER;
+		long hash = EngineUtils.multipleXor(
+				IntStream.range(0, 64)
+					.filter(i -> board[i] != null)
+					.mapToLong(i -> hasher.getSquarePieceFeature((byte) i, board[i]))
+					.toArray());
+		
+		if (enPassantSq != null)
+		{
+			hash ^= hasher.getEnpassantFeature(enPassantSq.ordinal() % 8);
+		}
+		
+		for (CastleArea area : castleRights)
+		{
+			hash ^= hasher.getCastleFeature(area.hashingIndex);
+		}
+		
+		if (!friendlySide.isWhite())
+		{
+			hash ^= hasher.getBlackToMove();
+		}
+		
+		return hash;
 	}
 
 	@Override
 	public byte getEnPassantSq()
 	{
-		// TODO Auto-generated method stub
-		return 0;
+		return (byte) enPassantSq.ordinal();
 	}
 
 	@Override
 	public long[] getNewRecentHashings(final long newHash)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		long[] newHashings = new long[4];
+		for (int i = 0; i < 3; i++)
+		{
+			newHashings[i + 1] = recentHashes[i];
+		}
+		newHashings[0] = newHash;
+		return newHashings;
 	}
 
 	@Override
@@ -232,15 +339,33 @@ public class TBoardState implements BoardState
 	@Override
 	public short getMidgamePositionalEval()
 	{
-		// TODO Auto-generated method stub
-		return 0;
+		return (short) IntStream.range(0, 64)
+				.filter(i -> board[i] != null).map(i -> 
+				{
+					TChessPiece p = board[i];
+					return BoardState.MID_TABLE.getPieceSquareValue(p.getIndex(), (byte) i);
+				}).sum();
 	}
 
 	@Override
 	public short getEndgamePositionalEval()
 	{
-		// TODO Auto-generated method stub
-		return 0;
+		return (short) IntStream.range(0, 64)
+				.filter(i -> board[i] != null).map(i -> 
+				{
+					TChessPiece p = board[i];
+					return BoardState.END_TABLE.getPieceSquareValue(p.getIndex(), (byte) i);
+				}).sum();
+	}
+	
+	public static void main(String[] args)
+	{
+		CastleArea[] cRights = {};
+		
+		System.out.println( (byte) EngineUtils.multipleOr(
+				Arrays.stream(cRights)
+				.mapToLong(x -> x.byteRep)
+				.toArray()));
 	}
 }
 /* ---------------------------------------------------------------------*
