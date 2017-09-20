@@ -1,9 +1,8 @@
 /**
- * 
+ *
  */
 package jenjinn.testingengine.moves;
 
-import jenjinn.engine.boardstate.BoardState;
 import jenjinn.engine.enums.MoveType;
 import jenjinn.engine.moves.ChessMove;
 
@@ -11,9 +10,8 @@ import jenjinn.engine.moves.ChessMove;
  * @author t
  *
  */
-public abstract class TAbstractChessMove implements ChessMove 
+public abstract class TAbstractChessMove implements ChessMove
 {
-
 	private final byte start, target;
 
 	private final MoveType type;

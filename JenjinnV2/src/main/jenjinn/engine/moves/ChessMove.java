@@ -21,6 +21,8 @@ public interface ChessMove
 
 	BoardState evolve(BoardState state);
 
+	byte getTarget();
+
 	long getTargetBB();
 
 	default String toRecordString()

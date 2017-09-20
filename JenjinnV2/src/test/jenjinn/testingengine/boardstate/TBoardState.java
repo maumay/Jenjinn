@@ -8,11 +8,14 @@ package jenjinn.testingengine.boardstate;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import jenjinn.engine.bitboarddatabase.BBDB;
 import jenjinn.engine.boardstate.BoardState;
 import jenjinn.engine.enums.Side;
 import jenjinn.engine.enums.Sq;
@@ -25,14 +28,18 @@ import jenjinn.engine.pieces.ChessPiece;
 import jenjinn.engine.zobristhashing.ZobristHasher;
 import jenjinn.testingengine.enums.CastleArea;
 import jenjinn.testingengine.moves.TCastleMove;
+import jenjinn.testingengine.moves.TEnPassantMove;
+import jenjinn.testingengine.moves.TPromotionMove;
 import jenjinn.testingengine.moves.TStandardMove;
 import jenjinn.testingengine.pieces.TChessPiece;
+import jenjinn.testingengine.pieces.TKing;
+import jenjinn.testingengine.pieces.TPawn;
 
 /**
  * @author ThomasB
  * @since 19 Sep 2017
  */
-public class TBoardState implements BoardState
+public final class TBoardState implements BoardState
 {
 	private long[] recentHashes;
 
@@ -89,6 +96,17 @@ public class TBoardState implements BoardState
 		this.enPassantSq = Sq.get(enPassantSq);
 	}
 
+	public static TBoardState getStartBoard()
+	{
+		return new TBoardState(Side.W,
+				EngineUtils.getStartingPieceLocs(),
+				(byte) 0b1111,
+				(byte) 0,
+				EngineUtils.getStartingDevStatus(),
+				BoardState.NO_ENPASSANT,
+				(byte) 0);
+	}
+
 	@Override
 	public byte getFriendlySideValue()
 	{
@@ -108,7 +126,7 @@ public class TBoardState implements BoardState
 	}
 
 	@Override
-	public TerminationType getTerminationState()
+	public final TerminationType getTerminationState()
 	{
 		if (getClockValue() == 50)
 		{
@@ -146,7 +164,7 @@ public class TBoardState implements BoardState
 	}
 
 	@Override
-	public List<ChessMove> getMoves()
+	public final List<ChessMove> getMoves()
 	{
 		final List<ChessMove> mvs = new ArrayList<>();
 		mvs.addAll(getCastleMoves());
@@ -156,7 +174,28 @@ public class TBoardState implements BoardState
 		IntStream.range(0, 64).forEach(i ->
 		{
 			final TChessPiece p = board[i];
-			if (p != null && p.getSide() == friendlySide)
+			if (p instanceof TPawn && p.getSide() == friendlySide)
+			{
+				long mvSquares = p.getMoveset((byte) i, friendly, enemy);
+				final long attackSqs = p.getAttackset((byte) i, friendly | enemy);
+				final long backRankMvSqs = mvSquares & (friendlySide.isWhite() ? BBDB.RNK[7] : BBDB.RNK[0]);
+				mvSquares &= ~backRankMvSqs;
+
+				for (final byte targ : EngineUtils.getSetBits(mvSquares))
+				{
+					mvs.add(TStandardMove.get(i, targ));
+				}
+				for (final byte targ : EngineUtils.getSetBits(backRankMvSqs))
+				{
+					mvs.add(new TPromotionMove(i, targ));
+				}
+
+				if (enPassantSq.ordinal() != BoardState.NO_ENPASSANT && (attackSqs & enPassantSq.getAsBB()) != 0)
+				{
+					mvs.add(new TEnPassantMove(i, enPassantSq.ordinal()));
+				}
+			}
+			else if (p != null && p.getSide() == friendlySide)
 			{
 				final long mvSquares = p.getMoveset((byte) i, friendly, enemy);
 				for (final byte targ : EngineUtils.getSetBits(mvSquares))
@@ -164,13 +203,12 @@ public class TBoardState implements BoardState
 					mvs.add(TStandardMove.get(i, targ));
 				}
 			}
-
 		});
 
-		return null;
+		return mvs;
 	}
 
-	private List<ChessMove> getCastleMoves()
+	public final List<ChessMove> getCastleMoves()
 	{
 		final List<ChessMove> cmvs = new ArrayList<>();
 
@@ -223,17 +261,9 @@ public class TBoardState implements BoardState
 	}
 
 	@Override
-	public List<ChessMove> getAttackMoves()
+	public final List<ChessMove> getAttackMoves()
 	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public ChessMove generateMove(final AlgebraicCommand com) throws AmbiguousPgnException
-	{
-		// TODO Auto-generated method stub
-		return null;
+		return getMoves().stream().filter(x -> board[x.getTarget()] != null).collect(Collectors.toList());
 	}
 
 	@Override
@@ -455,6 +485,127 @@ public class TBoardState implements BoardState
 					final TChessPiece p = board[i];
 					return BoardState.END_TABLE.getPieceSquareValue(p.getIndex(), (byte) i);
 				}).sum();
+	}
+
+	@Override
+	public ChessMove generateMove(final AlgebraicCommand com) throws AmbiguousPgnException
+	{
+		if (com.isPromotionOrder())
+		{
+			throw new RuntimeException("Not yet implemented.");
+		}
+
+		final String castleOrder = com.getCastleOrder();
+
+		if (castleOrder != null)
+		{
+			return TCastleMove.get(getFriendlySide().isWhite() ? "WHITE" + castleOrder : "BLACK" + castleOrder);
+		}
+
+		final Sq targSq = com.getTargetSq();
+		final byte targ = (byte) com.getTargetSq().ordinal();
+
+		if (com.isAttackOrder() && getPieceAt(targ, getEnemySide()) == null)
+		{
+			final int startFile = com.getStartFile();
+			final Sq start = Sq.getSq(startFile, targ / 8 - getFriendlySide().orientation());
+			return new TEnPassantMove(start.ordinal(), targSq.ordinal());
+		}
+
+		final int startRnk = com.getStartRow();
+		final int startFle = com.getStartFile();
+
+		final List<TStandardMove> possibleStandardMoves = getMoves().stream()
+				.filter(x -> x instanceof TStandardMove)
+				.map(x -> (TStandardMove) x)
+				.collect(Collectors.toList());
+
+		final List<TStandardMove> possibleMoves = new ArrayList<>();
+
+		for (final TStandardMove mv : possibleStandardMoves)
+		{
+			final ChessPiece p = getPieceAt(mv.getStart(), getFriendlySide());
+			if (p == null)
+			{
+				System.out.println();
+				System.out.println(getFriendlySide().name());
+				System.out.println(mv.toString());
+				throw new RuntimeException();
+			}
+			if (mv.getTarget() == targ && p.getPieceType() == com.getPieceToMove())
+			{
+				if (startRnk < 0 && startFle < 0)
+				{
+					possibleMoves.add(mv);
+				}
+				else if (startFle >= 0 && startRnk < 0)
+				{
+					if (startFle == (7 - mv.getStart() % 8))
+					{
+						possibleMoves.add(mv);
+					}
+				}
+				else if (startRnk >= 0 && startFle < 0)
+				{
+					if (startRnk == mv.getStart() / 8)
+					{
+						possibleMoves.add(mv);
+					}
+				}
+				else if (startFle == (7 - mv.getStart() % 8) && startRnk == mv.getStart() / 8)
+				{
+					possibleMoves.add(mv);
+				}
+			}
+		}
+		if (possibleMoves.isEmpty() || possibleMoves.size() > 2)
+		{
+			System.out.println(com.getAsString());
+			System.out.println(getFriendlySide().name());
+			throw new AssertionError("Not found a move correctly.");
+		}
+		else if (possibleMoves.size() == 2)
+		{
+			final BitSet pinned = new BitSet();
+			for (final int i : new int[] { 1, 2 })
+			{
+				final byte startLoc = possibleMoves.get(i).getStart();
+				final TChessPiece p = (TChessPiece) getPieceAt(startLoc, getFriendlySide());
+				assert p != null;
+
+				board[startLoc] = null;
+				if ((getSquaresAttackedBy(getEnemySide()) & getKingLoc(friendlySide)) != 0)
+				{
+					pinned.set(i);
+				}
+				board[startLoc] = p;
+			}
+			final int pCard = pinned.cardinality();
+			if (pCard == 0 || pCard == 2)
+			{
+				throw new AmbiguousPgnException();
+			}
+			else
+			{
+				return possibleMoves.get(pinned.nextClearBit(0));
+			}
+		}
+		else
+		{
+			return possibleMoves.get(0);
+		}
+	}
+
+	private long getKingLoc(final Side s)
+	{
+		for (int i = 0; i < 64; i++)
+		{
+			if (board[i] instanceof TKing && board[i].getSide() == s)
+			{
+				return (1L << i);
+			}
+		}
+		throw new AssertionError("No king");
 	}
 
 	public static void main(final String[] args)

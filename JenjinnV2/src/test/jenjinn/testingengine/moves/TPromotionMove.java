@@ -24,9 +24,9 @@ public class TPromotionMove extends TAbstractChessMove
 	 * @param start
 	 * @param target
 	 */
-	public TPromotionMove(final MoveType type, final int start, final int target)
+	public TPromotionMove(final int start, final int target)
 	{
-		super(type, start, target);
+		super(MoveType.PROMOTION, start, target);
 	}
 
 	@Override
@@ -51,7 +51,7 @@ public class TPromotionMove extends TAbstractChessMove
 				state.getCastleRights(),
 				state.getCastleStatus(),
 				state.getDevelopmentStatus(),
-				(byte) -1,
+				BoardState.NO_ENPASSANT,
 				(byte) 0);
 	}
 

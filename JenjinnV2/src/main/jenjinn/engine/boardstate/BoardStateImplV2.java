@@ -8,6 +8,7 @@ package jenjinn.engine.boardstate;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -268,7 +269,7 @@ public class BoardStateImplV2 implements BoardState
 	public long zobristHash()
 	{
 		// TODO Auto-generated method stub
-		return 0;
+		throw new RuntimeException("Not yet impl");
 	}
 
 	@Override
@@ -456,16 +457,8 @@ public class BoardStateImplV2 implements BoardState
 				0,
 				0,
 				0,
-				getStartingDevStatus(),
+				EngineUtils.getStartingDevStatus(),
 				EngineUtils.getStartingPieceLocs());
-	}
-
-	private static long getStartingDevStatus()
-	{
-		final long[] startLocs = EngineUtils.getStartingPieceLocs();
-
-		return startLocs[1] | startLocs[2] | startLocs[7] | startLocs[8] |
-				((startLocs[0] | startLocs[6]) & (BBDB.FILE[3] | BBDB.FILE[4]));
 	}
 
 	@Override
@@ -501,7 +494,8 @@ public class BoardStateImplV2 implements BoardState
 				.map(x -> (StandardMove) x)
 				.collect(Collectors.toList());
 
-		StandardMove uniquePossibleMove = null;
+		final List<StandardMove> possibleMoves = new ArrayList<>();
+
 		for (final StandardMove mv : possibleStandardMoves)
 		{
 			final ChessPiece p = getPieceAt(mv.getStart(), getFriendlySide());
@@ -516,50 +510,64 @@ public class BoardStateImplV2 implements BoardState
 			{
 				if (startRnk < 0 && startFle < 0)
 				{
-					if (uniquePossibleMove != null)
-					{
-						throw new AmbiguousPgnException();
-					}
-					uniquePossibleMove = mv;
+					possibleMoves.add(mv);
 				}
 				else if (startFle >= 0 && startRnk < 0)
 				{
 					if (startFle == (7 - mv.getStart() % 8))
 					{
-						return mv;
+						possibleMoves.add(mv);
 					}
 				}
 				else if (startRnk >= 0 && startFle < 0)
 				{
 					if (startRnk == mv.getStart() / 8)
 					{
-						if (uniquePossibleMove != null)
-						{
-							throw new AmbiguousPgnException();
-						}
-						uniquePossibleMove = mv;
+						possibleMoves.add(mv);
 					}
 				}
-				else
+				else if (startFle == (7 - mv.getStart() % 8) && startRnk == mv.getStart() / 8)
 				{
-					if (startFle == (7 - mv.getStart() % 8) && startRnk == mv.getStart() / 8)
-					{
-						if (uniquePossibleMove != null)
-						{
-							throw new AmbiguousPgnException();
-						}
-						uniquePossibleMove = mv;
-					}
+					possibleMoves.add(mv);
 				}
 			}
 		}
-		if (uniquePossibleMove == null)
+		if (possibleMoves.isEmpty() || possibleMoves.size() > 2)
 		{
 			System.out.println(com.getAsString());
 			System.out.println(getFriendlySide().name());
 			throw new AssertionError("Not found a move correctly.");
 		}
-		return uniquePossibleMove;
+		else if (possibleMoves.size() == 2)
+		{
+			final BitSet pinned = new BitSet();
+			for (final int i : new int[] { 1, 2 })
+			{
+				final byte startLoc = possibleMoves.get(i).getStart();
+				final ChessPiece p = getPieceAt(startLoc, getFriendlySide());
+				assert p != null;
+
+				pieceLocations[p.getIndex()] &= ~(1L << startLoc);
+				if ((getSquaresAttackedBy(getEnemySide()) & pieceLocations[5 + getFriendlySide().index()]) != 0)
+				{
+					pinned.set(i);
+				}
+				pieceLocations[p.getIndex()] |= (1L << startLoc);
+			}
+			final int pCard = pinned.cardinality();
+			if (pCard == 0 || pCard == 2)
+			{
+				throw new AmbiguousPgnException();
+			}
+			else
+			{
+				return possibleMoves.get(pinned.nextClearBit(0));
+			}
+		}
+		else
+		{
+			return possibleMoves.get(0);
+		}
 	}
 
 	@Override

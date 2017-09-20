@@ -28,6 +28,23 @@ public class TCastleMove extends TAbstractChessMove
 
 	public static final TCastleMove BLACK_QUEENSIDE = new TCastleMove(59, 61, new int[] { 59, 61, 63, 60 });
 
+	public static TCastleMove get(final String name)
+	{
+		switch (name)
+		{
+			case "WHITE_KINGSIDE":
+				return WHITE_KINGSIDE;
+			case "WHITE_QUEENSIDE":
+				return WHITE_QUEENSIDE;
+			case "BLACK_KINGSIDE":
+				return BLACK_KINGSIDE;
+			case "BLACK_QUEENSIDE":
+				return BLACK_QUEENSIDE;
+			default:
+				throw new IllegalArgumentException();
+		}
+	}
+
 	public static TCastleMove get(final CastleArea area)
 	{
 		switch (area)
@@ -92,7 +109,7 @@ public class TCastleMove extends TAbstractChessMove
 				newCastleRights,
 				newCastleStatus,
 				state.getDevelopmentStatus(),
-				(byte) -1,
+				BoardState.NO_ENPASSANT,
 				(byte) (state.getClockValue() + 1));
 	}
 

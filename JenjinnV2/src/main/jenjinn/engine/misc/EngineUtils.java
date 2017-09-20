@@ -69,7 +69,7 @@ public class EngineUtils
 			System.out.println(builder.toString());
 		}
 	}
-	
+
 	/** Performs bitwise or operation of all entries in the parameter array */
 	public static long multipleOr(final long... args)
 	{
@@ -80,7 +80,7 @@ public class EngineUtils
 		}
 		return ans;
 	}
-	
+
 	/** Performs bitwise xor operation of all entries in the parameter array */
 	public static long multipleXor(final long... args)
 	{
@@ -324,7 +324,7 @@ public class EngineUtils
 
 		return mvs;
 	}
-	
+
 	public static long[] getStartingPieceLocs()
 	{
 		final long[] start = new long[12];
@@ -335,6 +335,14 @@ public class EngineUtils
 		}
 
 		return start;
+	}
+
+	public static long getStartingDevStatus()
+	{
+		final long[] startLocs = EngineUtils.getStartingPieceLocs();
+
+		return startLocs[1] | startLocs[2] | startLocs[7] | startLocs[8] |
+				((startLocs[0] | startLocs[6]) & (BBDB.FILE[3] | BBDB.FILE[4]));
 	}
 
 	public static void main(final String[] args)
