@@ -41,7 +41,7 @@ public class TPawn extends TChessPiece
 	public long getAttackset(final byte loc, final long occupiedSquares)
 	{
 		final List<Sq> attcks = new ArrayList<>();
-		final Sq start = Sq.getSq(loc);
+		final Sq start = Sq.get(loc);
 		attackDirections.stream().forEach(x ->
 		{
 			final Sq next = start.getNextSqInDirection(x);

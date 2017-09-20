@@ -46,7 +46,7 @@ public class BBDBInitialisationUtilsSection1
           final Direction west = Direction.W;
           for (byte i = 0; i < 8; i++)
           {
-               final Sq start = Sq.getSq((byte) (8 * i));
+               final Sq start = Sq.get((byte) (8 * i));
                final Sq[] allConstituents = start.getAllSqInDirection(west, true);
                ans[i] = EngineUtils.multipleOr(allConstituents);
           }
@@ -59,7 +59,7 @@ public class BBDBInitialisationUtilsSection1
           final Direction north = Direction.N;
           for (byte i = 0; i < 8; i++)
           {
-               final Sq start = Sq.getSq((byte) (7 - i));
+               final Sq start = Sq.get((byte) (7 - i));
                final Sq[] allConstituents = start.getAllSqInDirection(north, true);
                ans[i] = EngineUtils.multipleOr(allConstituents);
           }
@@ -72,7 +72,7 @@ public class BBDBInitialisationUtilsSection1
           final Direction nEast = Direction.NE;
           for (byte i = 0; i < 15; i++)
           {
-               final Sq start = (i < 8) ? Sq.getSq(i) : Sq.getSq((byte) 0, (byte) (i - 7));
+               final Sq start = (i < 8) ? Sq.get(i) : Sq.getSq((byte) 0, (byte) (i - 7));
                final Sq[] allConstituents = start.getAllSqInDirection(nEast, true);
                ans[i] = EngineUtils.multipleOr(allConstituents);
           }
@@ -85,7 +85,7 @@ public class BBDBInitialisationUtilsSection1
           final Direction nWest = Direction.NW;
           for (byte i = 0; i < 15; i++)
           {
-               final Sq start = (i < 8) ? Sq.getSq((byte) (7 - i)) : Sq.getSq((byte) 7, (byte) (i - 7));
+               final Sq start = (i < 8) ? Sq.get((byte) (7 - i)) : Sq.getSq((byte) 7, (byte) (i - 7));
                final Sq[] allConstituents = start.getAllSqInDirection(nWest, true);
                ans[i] = EngineUtils.multipleOr(allConstituents);
           }

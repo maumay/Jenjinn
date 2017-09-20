@@ -97,7 +97,7 @@ public class PromotionMove extends AbstractChessMoveImplV2
 	@Override
 	public String toString()
 	{
-		return "P" + "[" + Sq.getSq(getStart()).name() + ", " + Sq.getSq(getTarget()).name() + "]";
+		return "P" + "[" + Sq.get(getStart()).name() + ", " + Sq.get(getTarget()).name() + "]";
 	}
 }
 

@@ -8,7 +8,9 @@ package jenjinn.testingengine.boardstate;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.IntStream;
 
 import jenjinn.engine.boardstate.BoardState;
@@ -22,6 +24,8 @@ import jenjinn.engine.openingdatabase.AlgebraicCommand;
 import jenjinn.engine.pieces.ChessPiece;
 import jenjinn.engine.zobristhashing.ZobristHasher;
 import jenjinn.testingengine.enums.CastleArea;
+import jenjinn.testingengine.moves.TCastleMove;
+import jenjinn.testingengine.moves.TStandardMove;
 import jenjinn.testingengine.pieces.TChessPiece;
 
 /**
@@ -37,28 +41,52 @@ public class TBoardState implements BoardState
 	private TChessPiece[] board = new TChessPiece[64];
 
 	private CastleArea[] castleStatus = new CastleArea[2];
-	
-	private List<CastleArea> castleRights = new ArrayList<>();
-	
+
+	private Set<CastleArea> castleRights = EnumSet.noneOf(CastleArea.class);
+
 	private Sq enPassantSq;
-	
+
 	private long devStatus;
-	
+
 	private byte clockValue;
 
 	/**
 	 *
 	 */
-	public TBoardState(Side friendlySide, 
-			long[] pieceLocations, 
-			byte castleRights,
-			byte castleStatus,
-			long devStatus,
-			byte enPassantSq,
-			byte clockValue)
+	public TBoardState(final Side friendlySide,
+			final long[] pieceLocations,
+			final byte castleRights,
+			final byte castleStatus,
+			final long devStatus,
+			final byte enPassantSq,
+			final byte clockValue)
 	{
 		this.friendlySide = friendlySide;
-		
+		IntStream.range(0, 12).forEach(i ->
+		{
+			final long locs = pieceLocations[i];
+			for (final byte loc : EngineUtils.getSetBits(locs))
+			{
+				board[loc] = TChessPiece.get(i);
+			}
+		});
+
+		int idxCtr = 0;
+		for (final CastleArea area : CastleArea.values())
+		{
+			if ((area.byteRep & castleRights) != 0)
+			{
+				this.castleRights.add(area);
+			}
+			if ((area.byteRep & castleStatus) != 0)
+			{
+				this.castleStatus[idxCtr++] = area;
+			}
+		}
+
+		this.clockValue = clockValue;
+		this.devStatus = devStatus;
+		this.enPassantSq = Sq.get(enPassantSq);
 	}
 
 	@Override
@@ -86,26 +114,25 @@ public class TBoardState implements BoardState
 		{
 			return TerminationType.DRAW;
 		}
-		
-		int kId = 5 + friendlySide.otherSide().index();
+
+		final int kId = 5 + friendlySide.otherSide().index();
 		Sq kLoc = null;
 		for (int i = 0; i < 64; i++)
 		{
 			if (board[i] != null && board[i].getIndex() == kId)
 			{
-				kLoc = Sq.getSq((byte) i);
+				kLoc = Sq.get((byte) i);
 				break;
 			}
 		}
 		assert kLoc != null;
-		
-		long friendlyAttacks = getSquaresAttackedBy(friendlySide);
+
+		final long friendlyAttacks = getSquaresAttackedBy(friendlySide);
 		if ((friendlyAttacks & kLoc.getAsBB()) != 0)
 		{
 			return friendlySide.isWhite() ? TerminationType.WHITE_WIN : TerminationType.BLACK_WIN;
 		}
-		
-		// Check for repetition draw // TODO - Remove stream to increase performance?
+
 		final int uniqueHashings = (int) Arrays.stream(recentHashes).distinct().count();
 
 		assert uniqueHashings >= 2;
@@ -121,15 +148,78 @@ public class TBoardState implements BoardState
 	@Override
 	public List<ChessMove> getMoves()
 	{
-		// TODO Auto-generated method stub
-//		List<ChessMove>
-		
+		final List<ChessMove> mvs = new ArrayList<>();
+		mvs.addAll(getCastleMoves());
+
+		final long friendly = getSideLocations(friendlySide), enemy = getSideLocations(getEnemySide());
+
+		IntStream.range(0, 64).forEach(i ->
+		{
+			final TChessPiece p = board[i];
+			if (p != null && p.getSide() == friendlySide)
+			{
+				final long mvSquares = p.getMoveset((byte) i, friendly, enemy);
+				for (final byte targ : EngineUtils.getSetBits(mvSquares))
+				{
+					mvs.add(TStandardMove.get(i, targ));
+				}
+			}
+
+		});
+
 		return null;
 	}
-	
+
 	private List<ChessMove> getCastleMoves()
 	{
-		return null;
+		final List<ChessMove> cmvs = new ArrayList<>();
+
+		final byte sideShift = (byte) (friendlySide.isWhite() ? 0 : 56);
+		final long enemyAttacks = getSquaresAttackedBy(getEnemySide()), occupied = getOccupiedSquares();
+
+		final CastleArea kSideArea = CastleArea.getKingside(friendlySide), qSideArea = CastleArea.getQueenside(friendlySide);
+
+		if (castleRights.contains(kSideArea))
+		{
+			final List<Sq> kSide = Arrays.asList(Sq.get(1 + sideShift), Sq.get(2 + sideShift), Sq.get(3 + sideShift));
+			boolean allowed = true;
+			for (int i = 0; i < 3; i++)
+			{
+				final long sqBB = kSide.get(i).getAsBB();
+
+				if ((i < 2 && ((sqBB & occupied) != 0)) || (sqBB & enemyAttacks) != 0)
+				{
+					allowed = false;
+					break;
+				}
+			}
+
+			if (allowed)
+			{
+				cmvs.add(TCastleMove.get(kSideArea));
+			}
+		}
+		if (castleRights.contains(qSideArea))
+		{
+			final List<Sq> qSide = Arrays.asList(Sq.get(6 + sideShift), Sq.get(5 + sideShift), Sq.get(4 + sideShift), Sq.get(3 + sideShift));
+			boolean allowed = true;
+			for (int i = 0; i < 3; i++)
+			{
+				final long sqBB = qSide.get(i).getAsBB();
+
+				if ((i < 3 && ((sqBB & occupied) != 0)) || (sqBB & enemyAttacks) != 0)
+				{
+					allowed = false;
+					break;
+				}
+			}
+
+			if (allowed)
+			{
+				cmvs.add(TCastleMove.get(qSideArea));
+			}
+		}
+		return cmvs;
 	}
 
 	@Override
@@ -149,28 +239,28 @@ public class TBoardState implements BoardState
 	@Override
 	public long zobristHash()
 	{
-		ZobristHasher hasher = BoardState.HASHER;
+		final ZobristHasher hasher = BoardState.HASHER;
 		long hash = EngineUtils.multipleXor(
 				IntStream.range(0, 64)
-					.filter(i -> board[i] != null)
-					.mapToLong(i -> hasher.getSquarePieceFeature((byte) i, board[i]))
-					.toArray());
-		
+						.filter(i -> board[i] != null)
+						.mapToLong(i -> hasher.getSquarePieceFeature((byte) i, board[i]))
+						.toArray());
+
 		if (enPassantSq != null)
 		{
 			hash ^= hasher.getEnpassantFeature(enPassantSq.ordinal() % 8);
 		}
-		
-		for (CastleArea area : castleRights)
+
+		for (final CastleArea area : castleRights)
 		{
 			hash ^= hasher.getCastleFeature(area.hashingIndex);
 		}
-		
+
 		if (!friendlySide.isWhite())
 		{
 			hash ^= hasher.getBlackToMove();
 		}
-		
+
 		return hash;
 	}
 
@@ -244,8 +334,8 @@ public class TBoardState implements BoardState
 	{
 		return (byte) EngineUtils.multipleOr(
 				Arrays.stream(castleStatus)
-				.mapToLong(x -> x.byteRep)
-				.toArray());
+						.mapToLong(x -> x.byteRep)
+						.toArray());
 	}
 
 	@Override
@@ -253,8 +343,8 @@ public class TBoardState implements BoardState
 	{
 		return (byte) EngineUtils.multipleOr(
 				castleRights.stream()
-				.mapToLong(x -> x.byteRep)
-				.toArray());
+						.mapToLong(x -> x.byteRep)
+						.toArray());
 	}
 
 	@Override
@@ -266,16 +356,17 @@ public class TBoardState implements BoardState
 	@Override
 	public byte getPiecePhase()
 	{
-		int totalPhase = 4*1 + 4*1 + 4*2 + 2*4;// From chessprogramming
+		final int totalPhase = 4 * 1 + 4 * 1 + 4 * 2 + 2 * 4;// From chessprogramming
 		final int[] pieceCounts = new int[6];
-		IntStream.range(0, 64).forEach(i -> {
+		IntStream.range(0, 64).forEach(i ->
+		{
 			if (board[i] != null)
 			{
 				pieceCounts[board[i].getIndex() % 6]++;
 			}
 		});
-		return (byte) (totalPhase 
-				- (pieceCounts[1] + pieceCounts[2] + pieceCounts[3]*2 + pieceCounts[4]*4));
+		return (byte) (totalPhase
+				- (pieceCounts[1] + pieceCounts[2] + pieceCounts[3] * 2 + pieceCounts[4] * 4));
 	}
 
 	@Override
@@ -287,28 +378,28 @@ public class TBoardState implements BoardState
 	@Override
 	public long getHashing()
 	{
-		ZobristHasher hasher = BoardState.HASHER;
+		final ZobristHasher hasher = BoardState.HASHER;
 		long hash = EngineUtils.multipleXor(
 				IntStream.range(0, 64)
-					.filter(i -> board[i] != null)
-					.mapToLong(i -> hasher.getSquarePieceFeature((byte) i, board[i]))
-					.toArray());
-		
+						.filter(i -> board[i] != null)
+						.mapToLong(i -> hasher.getSquarePieceFeature((byte) i, board[i]))
+						.toArray());
+
 		if (enPassantSq != null)
 		{
 			hash ^= hasher.getEnpassantFeature(enPassantSq.ordinal() % 8);
 		}
-		
-		for (CastleArea area : castleRights)
+
+		for (final CastleArea area : castleRights)
 		{
 			hash ^= hasher.getCastleFeature(area.hashingIndex);
 		}
-		
+
 		if (!friendlySide.isWhite())
 		{
 			hash ^= hasher.getBlackToMove();
 		}
-		
+
 		return hash;
 	}
 
@@ -321,7 +412,7 @@ public class TBoardState implements BoardState
 	@Override
 	public long[] getNewRecentHashings(final long newHash)
 	{
-		long[] newHashings = new long[4];
+		final long[] newHashings = new long[4];
 		for (int i = 0; i < 3; i++)
 		{
 			newHashings[i + 1] = recentHashes[i];
@@ -348,9 +439,9 @@ public class TBoardState implements BoardState
 	public short getMidgamePositionalEval()
 	{
 		return (short) IntStream.range(0, 64)
-				.filter(i -> board[i] != null).map(i -> 
+				.filter(i -> board[i] != null).map(i ->
 				{
-					TChessPiece p = board[i];
+					final TChessPiece p = board[i];
 					return BoardState.MID_TABLE.getPieceSquareValue(p.getIndex(), (byte) i);
 				}).sum();
 	}
@@ -359,21 +450,21 @@ public class TBoardState implements BoardState
 	public short getEndgamePositionalEval()
 	{
 		return (short) IntStream.range(0, 64)
-				.filter(i -> board[i] != null).map(i -> 
+				.filter(i -> board[i] != null).map(i ->
 				{
-					TChessPiece p = board[i];
+					final TChessPiece p = board[i];
 					return BoardState.END_TABLE.getPieceSquareValue(p.getIndex(), (byte) i);
 				}).sum();
 	}
-	
-	public static void main(String[] args)
+
+	public static void main(final String[] args)
 	{
-		CastleArea[] cRights = {};
-		
-		System.out.println( (byte) EngineUtils.multipleOr(
+		final CastleArea[] cRights = {};
+
+		System.out.println((byte) EngineUtils.multipleOr(
 				Arrays.stream(cRights)
-				.mapToLong(x -> x.byteRep)
-				.toArray()));
+						.mapToLong(x -> x.byteRep)
+						.toArray()));
 	}
 }
 /* ---------------------------------------------------------------------*

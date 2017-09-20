@@ -7,6 +7,13 @@
 package jenjinn.engine.pieces;
 
 import jenjinn.engine.enums.Side;
+import jenjinn.testingengine.pieces.TBishop;
+import jenjinn.testingengine.pieces.TChessPiece;
+import jenjinn.testingengine.pieces.TKing;
+import jenjinn.testingengine.pieces.TKnight;
+import jenjinn.testingengine.pieces.TPawn;
+import jenjinn.testingengine.pieces.TQueen;
+import jenjinn.testingengine.pieces.TRook;
 
 /**
  * @author TB
@@ -50,6 +57,35 @@ public enum PieceType
 				break;
 			case K:
 				p = new King(s);
+				break;
+			default:
+				throw new AssertionError("Not yet impl");
+		}
+		return p;
+	}
+
+	public TChessPiece generateTPiece(final Side s)
+	{
+		TChessPiece p = null;
+		switch (this)
+		{
+			case P:
+				p = new TPawn(s);
+				break;
+			case B:
+				p = new TBishop(s);
+				break;
+			case N:
+				p = new TKnight(s);
+				break;
+			case R:
+				p = new TRook(s);
+				break;
+			case Q:
+				p = new TQueen(s);
+				break;
+			case K:
+				p = new TKing(s);
 				break;
 			default:
 				throw new AssertionError("Not yet impl");

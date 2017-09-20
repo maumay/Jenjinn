@@ -47,7 +47,7 @@ public class BBDBInitialisationUtilsSection3
 			for (final long occVar : singleSquaresOccupancyVariations)
 			{
 				final int magicIndex = (int) ((occVar * magicNumber) >>> bitShift);
-				singleSquareMmDatabase[magicIndex] = findAttackSetFromOccupancyVariation(Sq.getSq(i), occVar, isRook);
+				singleSquareMmDatabase[magicIndex] = findAttackSetFromOccupancyVariation(Sq.get(i), occVar, isRook);
 			}
 			mmDatabase[i] = singleSquareMmDatabase;
 		}

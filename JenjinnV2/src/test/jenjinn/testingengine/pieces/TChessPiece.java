@@ -24,6 +24,35 @@ import jenjinn.engine.pieces.PieceType;
 public abstract class TChessPiece extends ChessPiece
 {
 	/**
+	 * Here we initialise all instances of tChessPiece we will ever need (since the
+	 * class is completely immutable).
+	 */
+	public static final TChessPiece[] WPIECES;
+	public static final TChessPiece[] BPIECES;
+
+	public static final TChessPiece[] PIECES;
+	static
+	{
+		WPIECES = new TChessPiece[6];
+		BPIECES = new TChessPiece[6];
+		PIECES = new TChessPiece[12];
+
+		for (int i = 0; i < PieceType.values().length; i++)
+		{
+			WPIECES[i] = PieceType.values()[i].generateTPiece(Side.W);
+			BPIECES[i] = PieceType.values()[i].generateTPiece(Side.B);
+
+			PIECES[i] = WPIECES[i];
+			PIECES[6 + i] = BPIECES[i];
+		}
+	}
+
+	public static TChessPiece get(final int pieceIndex)
+	{
+		return PIECES[pieceIndex];
+	}
+
+	/**
 	 * For the testing engine we use a much slower but more intuitive way
 	 * of generating possible moves.
 	 */
@@ -47,7 +76,7 @@ public abstract class TChessPiece extends ChessPiece
 	public long getAttackset(final byte loc, final long occupiedSquares)
 	{
 		final List<Sq> attackSq = new ArrayList<>();
-		final Sq start = Sq.getSq(loc);
+		final Sq start = Sq.get(loc);
 
 		for (final Direction d : movementDirections)
 		{
@@ -71,7 +100,6 @@ public abstract class TChessPiece extends ChessPiece
 				.toArray());
 	}
 }
-
 /* ---------------------------------------------------------------------*
  * This software is the confidential and proprietary
  * information of Lhasa Limited

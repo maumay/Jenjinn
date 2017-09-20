@@ -40,8 +40,8 @@ public class Cord implements Comparable<Cord>
      private long generateConnection(final byte start, final byte end)
      {
           long connectingBitboard = 0L;
-          final Sq startSq = Sq.getSq(start);
-          final Sq endSq = Sq.getSq(end);
+          final Sq startSq = Sq.get(start);
+          final Sq endSq = Sq.get(end);
           
           for (Direction dir : PieceMovementDirectionArrays.KD)
           {

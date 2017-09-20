@@ -83,5 +83,4 @@ public enum Side
 	{
 		return index;
 	}
-
 }

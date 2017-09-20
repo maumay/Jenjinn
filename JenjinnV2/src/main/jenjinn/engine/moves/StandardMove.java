@@ -200,7 +200,7 @@ public class StandardMove extends AbstractChessMoveImplV2
 	@Override
 	public String toString()
 	{
-		return "S" + "[" + Sq.getSq(getStart()).name() + ", " + Sq.getSq(getTarget()).name() + "]";
+		return "S" + "[" + Sq.get(getStart()).name() + ", " + Sq.get(getTarget()).name() + "]";
 	}
 }
 

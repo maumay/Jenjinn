@@ -23,7 +23,6 @@ import jenjinn.engine.pieces.Pawn;
  */
 public class EnPassantMove extends AbstractChessMoveImplV2
 {
-
 	/**
 	 * EnPassant moves are so rare that I don't think we really need to cache them.
 	 *
@@ -41,7 +40,7 @@ public class EnPassantMove extends AbstractChessMoveImplV2
 		super(MoveType.ENPASSANT, start, target);
 	}
 
-	public byte getEnPassantSquare()
+	public final byte getEnPassantSquare()
 	{
 		return (byte) (getTarget() - Math.signum(getTarget() - getStart()) * 8);
 	}
@@ -61,28 +60,28 @@ public class EnPassantMove extends AbstractChessMoveImplV2
 		newPieceLocations[friendlySide.index()] &= ~getStartBB();
 		newPieceLocations[friendlySide.index()] |= getTargetBB();
 		newPieceLocations[friendlySide.otherSide().index()] &= ~enPassantSquareBB;
-		//---------------------------------------------------------------
-		
+		// ---------------------------------------------------------------
+
 		// Update metadata ----------------------------------------------
 		long newHash = updateGeneralHashFeatures(state, state.getCastleRights(), BoardState.NO_ENPASSANT);
 		newHash ^= BoardState.HASHER.getSquarePieceFeature(getStart(), ChessPiece.get(friendlySide.index()));
 		newHash ^= BoardState.HASHER.getSquarePieceFeature(getTarget(), ChessPiece.get(friendlySide.index()));
 		newHash ^= BoardState.HASHER.getSquarePieceFeature(getEnPassantSquare(), ChessPiece.get(friendlySide.otherSide().index()));
-		//---------------------------------------------------------------
-		
+		// ---------------------------------------------------------------
+
 		// Update positional evaluations --------------------------------
 		short midPosEval = state.getMidgamePositionalEval(), endPosEval = state.getEndgamePositionalEval();
-		
-		midPosEval += MID_TABLE.getPieceSquareValue((byte) (friendlySide.index()), getTarget());
-		midPosEval -= MID_TABLE.getPieceSquareValue((byte) (friendlySide.index()), getStart());
-		
-		endPosEval += END_TABLE.getPieceSquareValue((byte) (friendlySide.index()), getTarget());
-		endPosEval -= END_TABLE.getPieceSquareValue((byte) (friendlySide.index()), getStart());
-		
-		midPosEval -= MID_TABLE.getPieceSquareValue((byte) (friendlySide.otherSide().index()), getEnPassantSquare());
-		endPosEval -= END_TABLE.getPieceSquareValue((byte) (friendlySide.otherSide().index()), getEnPassantSquare());
-		//---------------------------------------------------------------
-		
+
+		midPosEval += MID_TABLE.getPieceSquareValue((friendlySide.index()), getTarget());
+		midPosEval -= MID_TABLE.getPieceSquareValue((friendlySide.index()), getStart());
+
+		endPosEval += END_TABLE.getPieceSquareValue((friendlySide.index()), getTarget());
+		endPosEval -= END_TABLE.getPieceSquareValue((friendlySide.index()), getStart());
+
+		midPosEval -= MID_TABLE.getPieceSquareValue((friendlySide.otherSide().index()), getEnPassantSquare());
+		endPosEval -= END_TABLE.getPieceSquareValue((friendlySide.otherSide().index()), getEnPassantSquare());
+		// ---------------------------------------------------------------
+
 		return new BoardStateImplV2(
 				state.getNewRecentHashings(newHash),
 				1 - state.getFriendlySideValue(),
@@ -105,7 +104,7 @@ public class EnPassantMove extends AbstractChessMoveImplV2
 	@Override
 	public String toString()
 	{
-		return "E" + "[" + Sq.getSq(getStart()).name() + ", " + Sq.getSq(getTarget()).name() + "]";
+		return "E" + "[" + Sq.get(getStart()).name() + ", " + Sq.get(getTarget()).name() + "]";
 	}
 }
 

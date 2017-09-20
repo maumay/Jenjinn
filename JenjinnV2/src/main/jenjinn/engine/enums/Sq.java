@@ -89,7 +89,7 @@ public enum Sq
 	}
 
 	/** Return corresponding Sq for given index parameter */
-	public static Sq getSq(final byte index)
+	public static Sq get(final int index)
 	{
 		if (index >= 0 && index < 64)
 		{
@@ -103,7 +103,7 @@ public enum Sq
 	{
 		if (Sq.coordinatesAreValid(x, y))
 		{
-			return getSq((byte) (8 * y + (7 - x)));
+			return get((byte) (8 * y + (7 - x)));
 		}
 		return null;
 	}
