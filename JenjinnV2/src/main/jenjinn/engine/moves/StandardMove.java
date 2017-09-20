@@ -163,7 +163,7 @@ public class StandardMove extends AbstractChessMoveImplV2
 				newPieceLocations);
 	}
 
-	private byte getNewClockValue(final ChessPiece movingPiece, final ChessPiece removedPiece, final byte oldClockValue)
+	public final byte getNewClockValue(final ChessPiece movingPiece, final ChessPiece removedPiece, final byte oldClockValue)
 	{
 		if (removedPiece != null || movingPiece instanceof Pawn)
 		{
@@ -172,7 +172,7 @@ public class StandardMove extends AbstractChessMoveImplV2
 		return (byte) (oldClockValue + 1);
 	}
 
-	private byte getNewEnPassantSquare(final ChessPiece movingPiece)
+	public final byte getNewEnPassantSquare(final ChessPiece movingPiece)
 	{
 		if (movingPiece instanceof Pawn && Math.abs(getTarget() - getStart()) == 16)
 		{
@@ -181,7 +181,7 @@ public class StandardMove extends AbstractChessMoveImplV2
 		return BoardState.NO_ENPASSANT;
 	}
 
-	byte updateCastleRights(byte oldRights)
+	public final byte updateCastleRights(byte oldRights)
 	{
 		if (oldRights > 0)
 		{

@@ -3,15 +3,25 @@
  */
 package jenjinn.testingengine.moves;
 
+import static jenjinn.engine.boardstate.BoardState.END_TABLE;
+import static jenjinn.engine.boardstate.BoardState.MID_TABLE;
+
 import jenjinn.engine.boardstate.BoardState;
+import jenjinn.engine.boardstate.CastlingRights;
 import jenjinn.engine.enums.MoveType;
 import jenjinn.engine.enums.Sq;
+import jenjinn.engine.moves.StandardMove;
+import jenjinn.engine.pieces.ChessPiece;
+import jenjinn.engine.pieces.King;
+import jenjinn.engine.pieces.Pawn;
 
 /**
  * @author t
  *
  */
-public class TStandardMove extends TAbstractChessMove {
+public class TStandardMove extends TAbstractChessMove 
+{
+	private final StandardMove matchingMove;
 
 	/**
 	 * @param type
@@ -21,7 +31,7 @@ public class TStandardMove extends TAbstractChessMove {
 	public TStandardMove(int start, int target) 
 	{
 		super(MoveType.STANDARD, start, target);
-		// TODO Auto-generated constructor stub
+		matchingMove = StandardMove.get(start, target);
 	}
 
 	/* (non-Javadoc)
@@ -30,8 +40,48 @@ public class TStandardMove extends TAbstractChessMove {
 	@Override
 	public BoardState evolve(BoardState state) 
 	{
-		// TODO Auto-generated method stub
+		final ChessPiece movingPiece = state.getPieceAt(getStart(), state.getFriendlySide());
+		final ChessPiece removedPiece = state.getPieceAt(getTarget(), state.getEnemySide());
+
+		assert !(removedPiece instanceof King);
+
+		// Update metadata -----------------------------------------
+		final byte newCastleRights = updateCastleRights(state.getCastleRights());
+		final byte newEnPassantSquare = getNewEnPassantSquare(movingPiece);
+		final byte newClockValue = getNewClockValue(movingPiece, removedPiece, state.getClockValue());
+
+		//-----------------------------------------------------------
+
+		// Update locations -----------------------------------------
+		final long start = getStartBB(), target = getTargetBB();
+		final long[] newPieceLocations = state.getPieceLocationsCopy();
+		newPieceLocations[movingPiece.getIndex()] &= ~start;
+		newPieceLocations[movingPiece.getIndex()] |= target;
+		if (removedPiece != null)
+		{
+			newPieceLocations[removedPiece.getIndex()] &= ~target;
+		}
+		//-----------------------------------------------------------
+		final long newDevStatus = state.getDevelopmentStatus() & ~start;
 		return null;
+	}
+	
+	/*
+	 * These three methods will be tested separately!
+	 */
+	public final byte getNewClockValue(final ChessPiece movingPiece, final ChessPiece removedPiece, final byte oldClockValue)
+	{
+		return matchingMove.getNewClockValue(movingPiece, removedPiece, oldClockValue);
+	}
+
+	public final byte getNewEnPassantSquare(final ChessPiece movingPiece)
+	{
+		return matchingMove.getNewEnPassantSquare(movingPiece);
+	}
+
+	public final byte updateCastleRights(byte oldRights)
+	{
+		return matchingMove.updateCastleRights(oldRights);
 	}
 	
 	@Override

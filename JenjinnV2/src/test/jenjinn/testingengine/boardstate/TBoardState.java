@@ -6,6 +6,7 @@
  */
 package jenjinn.testingengine.boardstate;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -33,11 +34,11 @@ public class TBoardState implements BoardState
 
 	private Side friendlySide;
 
-	private TChessPiece[] board;
+	private TChessPiece[] board = new TChessPiece[64];
 
-	private CastleArea[] castleStatus;
+	private CastleArea[] castleStatus = new CastleArea[2];
 	
-	private List<CastleArea> castleRights;
+	private List<CastleArea> castleRights = new ArrayList<>();
 	
 	private Sq enPassantSq;
 	
@@ -48,9 +49,16 @@ public class TBoardState implements BoardState
 	/**
 	 *
 	 */
-	public TBoardState()
+	public TBoardState(Side friendlySide, 
+			long[] pieceLocations, 
+			byte castleRights,
+			byte castleStatus,
+			long devStatus,
+			byte enPassantSq,
+			byte clockValue)
 	{
-		// TODO Auto-generated constructor stub
+		this.friendlySide = friendlySide;
+		
 	}
 
 	@Override
