@@ -258,20 +258,6 @@ public class BoardStateImplV2 implements BoardState
 		return cmvs;
 	}
 
-	// @Override
-	// public ChessMove generateMove(final AlgebraicCommand com)
-	// {
-	// // TODO Auto-generated method stub
-	// return null;
-	// }
-
-	@Override
-	public long zobristHash()
-	{
-		// TODO Auto-generated method stub
-		throw new RuntimeException("Not yet impl");
-	}
-
 	@Override
 	public ChessPiece getPieceAt(final byte loc)
 	{
@@ -399,7 +385,7 @@ public class BoardStateImplV2 implements BoardState
 		// First check for taking of king
 		final Side friendlySide = getFriendlySide();
 
-		if ((getSquaresAttackedBy(friendlySide) & pieceLocations[friendlySide.otherSide().index() + 6]) != 0)
+		if ((getSquaresAttackedBy(friendlySide) & pieceLocations[friendlySide.otherSide().index() + 5]) != 0)
 		{
 			return friendlySide == Side.W ? TerminationType.WHITE_WIN : TerminationType.BLACK_WIN;
 		}
@@ -448,7 +434,7 @@ public class BoardStateImplV2 implements BoardState
 		final long startHash = BoardState.HASHER.generateStartHash();
 
 		return new BoardStateImplV2(
-				new long[] { startHash, 0L, 0L, 0L },
+				new long[] { startHash, 1L, 2L, 3L },
 				0,
 				0b1111,
 				0,
@@ -582,16 +568,7 @@ public class BoardStateImplV2 implements BoardState
 	public static void main(final String[] args)
 	{
 		final BoardState state = getStartBoard();
-		// state.print();
-		// state.getMoves().stream().forEach(x -> System.out.println(x.toString()));
-		// System.out.println(state.getPieceAt((byte) 8, state.getFriendlySide()));
-		final BoardStateImplV2 s = (BoardStateImplV2) state;
-		EngineUtils.printNbitBoards(s.metaData);
-		System.out.println();
-		// System.out.println(256.0 / 24);
-		// EngineUtils.printNbitBoards(-50);
-		// System.out.println(Long.toBinaryString(-50));
-		System.out.println((short) 0b1111111111001110);
+		System.out.println(state.getTerminationState());
 	}
 
 	@Override
@@ -616,6 +593,12 @@ public class BoardStateImplV2 implements BoardState
 	public short getEndgamePositionalEval()
 	{
 		return (short) (metaData & ENDGAME_LOC_EVAL_GETTER);
+	}
+
+	@Override
+	public long[] getHashes()
+	{
+		return Arrays.copyOf(recentHashings, recentHashings.length);
 	}
 }
 

@@ -66,7 +66,8 @@ public final class TBoardState implements BoardState
 			final byte castleStatus,
 			final long devStatus,
 			final byte enPassantSq,
-			final byte clockValue)
+			final byte clockValue,
+			final long[] oldHashings)
 	{
 		this.friendlySide = friendlySide;
 		IntStream.range(0, 12).forEach(i ->
@@ -94,6 +95,9 @@ public final class TBoardState implements BoardState
 		this.clockValue = clockValue;
 		this.devStatus = devStatus;
 		this.enPassantSq = Sq.get(enPassantSq);
+
+		recentHashes = oldHashings;
+		recentHashes = getNewRecentHashings(getHashing());
 	}
 
 	public static TBoardState getStartBoard()
@@ -104,7 +108,8 @@ public final class TBoardState implements BoardState
 				(byte) 0,
 				EngineUtils.getStartingDevStatus(),
 				BoardState.NO_ENPASSANT,
-				(byte) 0);
+				(byte) 0,
+				new long[] { BoardState.HASHER.generateStartHash(), 1, 2, 3 });
 	}
 
 	@Override
@@ -190,7 +195,7 @@ public final class TBoardState implements BoardState
 					mvs.add(new TPromotionMove(i, targ));
 				}
 
-				if (enPassantSq.ordinal() != BoardState.NO_ENPASSANT && (attackSqs & enPassantSq.getAsBB()) != 0)
+				if (enPassantSq != null && (attackSqs & enPassantSq.getAsBB()) != 0)
 				{
 					mvs.add(new TEnPassantMove(i, enPassantSq.ordinal()));
 				}
@@ -267,34 +272,6 @@ public final class TBoardState implements BoardState
 	}
 
 	@Override
-	public long zobristHash()
-	{
-		final ZobristHasher hasher = BoardState.HASHER;
-		long hash = EngineUtils.multipleXor(
-				IntStream.range(0, 64)
-						.filter(i -> board[i] != null)
-						.mapToLong(i -> hasher.getSquarePieceFeature((byte) i, board[i]))
-						.toArray());
-
-		if (enPassantSq != null)
-		{
-			hash ^= hasher.getEnpassantFeature(enPassantSq.ordinal() % 8);
-		}
-
-		for (final CastleArea area : castleRights)
-		{
-			hash ^= hasher.getCastleFeature(area.hashingIndex);
-		}
-
-		if (!friendlySide.isWhite())
-		{
-			hash ^= hasher.getBlackToMove();
-		}
-
-		return hash;
-	}
-
-	@Override
 	public ChessPiece getPieceAt(final byte loc)
 	{
 		return board[loc];
@@ -311,7 +288,7 @@ public final class TBoardState implements BoardState
 	{
 		return EngineUtils.multipleOr(
 				IntStream.range(0, 64)
-						.filter(i -> board[i].getIndex() == pieceIndex)
+						.filter(i -> board[i] != null && board[i].getIndex() == pieceIndex)
 						.mapToLong(i -> (1L << i))
 						.toArray());
 	}
@@ -354,7 +331,7 @@ public final class TBoardState implements BoardState
 		final long occupied = getOccupiedSquares();
 		return EngineUtils.multipleOr(
 				IntStream.range(0, 64)
-						.filter(i -> board[i].getSide() == side)
+						.filter(i -> board[i] != null && board[i].getSide() == side)
 						.mapToLong(i -> board[i].getAttackset((byte) i, occupied))
 						.toArray());
 	}
@@ -364,6 +341,7 @@ public final class TBoardState implements BoardState
 	{
 		return (byte) EngineUtils.multipleOr(
 				Arrays.stream(castleStatus)
+						.filter(x -> x != null)
 						.mapToLong(x -> x.byteRep)
 						.toArray());
 	}
@@ -610,12 +588,29 @@ public final class TBoardState implements BoardState
 
 	public static void main(final String[] args)
 	{
-		final CastleArea[] cRights = {};
+		final BoardState s = getStartBoard();
+		EngineUtils.printNbitBoards(s.getPieceLocationsCopy());
+		System.out.println();
 
-		System.out.println((byte) EngineUtils.multipleOr(
-				Arrays.stream(cRights)
-						.mapToLong(x -> x.byteRep)
-						.toArray()));
+		// s = TStandardMove.get(Sq.d2.ordinal(), Sq.d4.ordinal()).evolve(s);
+		//
+		// EngineUtils.printNbitBoards(s.getSideLocations(Side.B), s.getSideLocations(Side.W));
+		// System.out.println(s.getPieceAt((byte) 57).getPieceType());
+		// final long kat = s.getPieceAt((byte) 57).getAttackset((byte) 57, s.getSideLocations(Side.B) | s.getSideLocations(Side.W));
+		// final long kMoves = s.getPieceAt((byte) 57).getMoveset((byte) 57, s.getSideLocations(Side.B), s.getSideLocations(Side.W));
+		// EngineUtils.printNbitBoards(kMoves, kat);
+		// System.out.println();
+		EngineUtils.printNbitBoards(EngineUtils.getStartingPieceLocs());
+		// for (final ChessMove mv : s.getMoves())
+		// {
+		// System.out.println(mv.toString());
+		// }
+	}
+
+	@Override
+	public long[] getHashes()
+	{
+		return Arrays.copyOf(recentHashes, recentHashes.length);
 	}
 }
 /* ---------------------------------------------------------------------*

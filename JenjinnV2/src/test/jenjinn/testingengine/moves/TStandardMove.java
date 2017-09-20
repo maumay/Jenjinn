@@ -11,6 +11,7 @@ import jenjinn.engine.pieces.ChessPiece;
 import jenjinn.engine.pieces.King;
 import jenjinn.engine.pieces.Pawn;
 import jenjinn.testingengine.boardstate.TBoardState;
+import jenjinn.testingengine.pieces.TPawn;
 
 /**
  * @author t
@@ -69,13 +70,14 @@ public class TStandardMove extends TAbstractChessMove
 				state.getCastleStatus(),
 				newDevStatus,
 				newEnPassantSquare,
-				newClockValue);
+				newClockValue,
+				state.getHashes());
 	}
 
 	/* These three methods will be tested separately! */
 	public final byte getNewClockValue(final ChessPiece movingPiece, final ChessPiece removedPiece, final byte oldClockValue)
 	{
-		if (removedPiece != null || movingPiece instanceof Pawn)
+		if (removedPiece != null || movingPiece instanceof TPawn)
 		{
 			return 0;
 		}

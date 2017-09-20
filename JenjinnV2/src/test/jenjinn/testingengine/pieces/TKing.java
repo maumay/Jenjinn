@@ -44,7 +44,7 @@ public class TKing extends TChessPiece
 			{
 				sup &= ~BBDB.RNK[i];
 			}
-			if (Math.abs((loc % 8) - i) > 1)
+			if (Math.abs((7 - (loc % 8)) - i) > 1)
 			{
 				sup &= ~BBDB.FILE[i];
 			}

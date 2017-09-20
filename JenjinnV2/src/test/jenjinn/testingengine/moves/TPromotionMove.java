@@ -52,7 +52,8 @@ public class TPromotionMove extends TAbstractChessMove
 				state.getCastleStatus(),
 				state.getDevelopmentStatus(),
 				BoardState.NO_ENPASSANT,
-				(byte) 0);
+				(byte) 0,
+				state.getHashes());
 	}
 
 	@Override

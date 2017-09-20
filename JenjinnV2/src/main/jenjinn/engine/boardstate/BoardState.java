@@ -52,12 +52,12 @@ public interface BoardState
 
 	ChessMove generateMove(final AlgebraicCommand com) throws AmbiguousPgnException;
 
-	/**
-	 * In general this hashing function is not what would be used during the tree search.
-	 *
-	 * @return
-	 */
-	long zobristHash();
+	// /**
+	// * In general this hashing function is not what would be used during the tree search.
+	// *
+	// * @return
+	// */
+	// long zobristHash();
 
 	ChessPiece getPieceAt(final byte loc);
 
@@ -91,6 +91,8 @@ public interface BoardState
 	long getHashing();
 
 	byte getEnPassantSq();
+
+	long[] getHashes();
 
 	long[] getNewRecentHashings(long newHash);
 

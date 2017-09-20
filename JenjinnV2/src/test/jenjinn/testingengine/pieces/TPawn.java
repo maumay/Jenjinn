@@ -45,7 +45,7 @@ public class TPawn extends TChessPiece
 		attackDirections.stream().forEach(x ->
 		{
 			final Sq next = start.getNextSqInDirection(x);
-			if (x != null)
+			if (next != null)
 			{
 				attcks.add(next);
 			}

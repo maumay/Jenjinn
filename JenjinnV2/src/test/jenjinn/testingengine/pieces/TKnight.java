@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import jenjinn.engine.bitboarddatabase.BBDB;
 import jenjinn.engine.enums.Direction;
 import jenjinn.engine.enums.Side;
+import jenjinn.engine.misc.EngineUtils;
 import jenjinn.engine.pieces.PieceType;
 
 /**
@@ -39,19 +40,17 @@ public class TKnight extends TChessPiece
 	public long getAttackset(final byte loc, final long occupiedSquares)
 	{
 		long sup = super.getAttackset(loc, occupiedSquares);
-
 		for (int i = 0; i < 8; i++)
 		{
 			if (Math.abs((loc / 8) - i) > 2)
 			{
 				sup &= ~BBDB.RNK[i];
 			}
-			if (Math.abs((loc % 8) - i) > 2)
+			if (Math.abs((7 - (loc % 8)) - i) > 2)
 			{
 				sup &= ~BBDB.FILE[i];
 			}
 		}
-
 		return sup;
 	}
 
@@ -61,6 +60,10 @@ public class TKnight extends TChessPiece
 		return 0b1000010L << 56 * (getSide().isWhite() ? 0 : 1);
 	}
 
+	public static void main(final String[] args)
+	{
+		EngineUtils.printNbitBoards((new TKnight(Side.W).getMoveset((byte) 56, 0L, 0L)));
+	}
 }
 
 /* ---------------------------------------------------------------------*

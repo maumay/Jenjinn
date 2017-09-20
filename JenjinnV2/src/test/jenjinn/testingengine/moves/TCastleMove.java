@@ -110,7 +110,8 @@ public class TCastleMove extends TAbstractChessMove
 				newCastleStatus,
 				state.getDevelopmentStatus(),
 				BoardState.NO_ENPASSANT,
-				(byte) (state.getClockValue() + 1));
+				(byte) (state.getClockValue() + 1),
+				state.getHashes());
 	}
 
 	public final Side getMoveSide()

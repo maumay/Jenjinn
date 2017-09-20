@@ -52,7 +52,8 @@ public class TEnPassantMove extends TAbstractChessMove
 				state.getCastleStatus(),
 				state.getDevelopmentStatus(),
 				BoardState.NO_ENPASSANT,
-				(byte) 0);
+				(byte) 0,
+				state.getHashes());
 	}
 
 	public final byte getEnPassantSquare()
