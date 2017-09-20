@@ -1,5 +1,5 @@
 /**
- * Copyright © 2017 Lhasa Limited
+ * Copyright ï¿½ 2017 Lhasa Limited
  * File created: 20 Sep 2017 by ThomasB
  * Creator : ThomasB
  * Version : $Id$
@@ -48,7 +48,7 @@ public class BoardStateComparisonTest
 			try
 			{
 				final BufferedReader reader = Files.newBufferedReader(
-						Paths.get(PROVIDER_FOLDER, posProvider), StandardCharsets.ISO_8859_1);
+						Paths.get("JenjinnV2", PROVIDER_FOLDER, posProvider), StandardCharsets.ISO_8859_1);
 
 				String game;
 				while ((game = reader.readLine()) != null)
@@ -77,6 +77,7 @@ public class BoardStateComparisonTest
 	{
 		final AlgebraicCommand[] commands = ChessGameReader.processSequenceOfCommands(game.trim());
 		BoardState constraint = TBoardState.getStartBoard(), toTest = BoardStateImplV2.getStartBoard();
+		testProperties(constraint, toTest, "");
 
 		for (final AlgebraicCommand com : commands)
 		{
@@ -111,7 +112,7 @@ public class BoardStateComparisonTest
 
 			conP = cons.getPieceAt(i, Side.B);
 			testP = test.getPieceAt(i, Side.B);
-			assertTrue(errorOutput, (conP == null && testP == null) || ((conP != null && testP != null) && conP.getIndex() == testP.getIndex()));
+			assertTrue("" + i + errorOutput, (conP == null && testP == null) || ((conP != null && testP != null) && conP.getIndex() == testP.getIndex()));
 		}
 
 		Assert.assertArrayEquals(errorOutput, cons.getPieceLocationsCopy(), test.getPieceLocationsCopy());
@@ -121,9 +122,7 @@ public class BoardStateComparisonTest
 		assertEquals(errorOutput, cons.getOccupiedSquares(), test.getOccupiedSquares());
 		assertEquals(errorOutput, cons.getPiecePhase(), test.getPiecePhase());
 		assertEquals(errorOutput, cons.getDevelopmentStatus(), test.getDevelopmentStatus());
-		assertEquals(errorOutput, cons.getHashing(), test.getHashing());
 		assertEquals(errorOutput, cons.getEnPassantSq(), test.getEnPassantSq());
-		Assert.assertArrayEquals(errorOutput, cons.getHashes(), test.getHashes());
 		assertEquals(errorOutput, cons.getMidgamePositionalEval(), test.getMidgamePositionalEval());
 		assertEquals(errorOutput, cons.getEndgamePositionalEval(), test.getEndgamePositionalEval());
 
@@ -132,23 +131,24 @@ public class BoardStateComparisonTest
 
 		Set<String> cMoves = cons.getMoves().stream().map(x -> x.toString()).collect(Collectors.toSet());
 		Set<String> tMoves = test.getMoves().stream().map(x -> x.toString()).collect(Collectors.toSet());
-		// System.out.println(cMoves.size() + ", " + tMoves.size());
-		// for (final String s : cMoves)
-		// {
-		// System.out.println(s);
-		// }
-		// System.out.println();
-		// for (final String s : tMoves)
-		// {
-		// System.out.println(s);
-		// }
 		assertTrue(errorOutput, cMoves.containsAll(tMoves) && tMoves.containsAll(cMoves));
 
 		cMoves = cons.getAttackMoves().stream().map(x -> x.toString()).collect(Collectors.toSet());
 		tMoves = test.getAttackMoves().stream().map(x -> x.toString()).collect(Collectors.toSet());
+//		System.out.println(cMoves.size() + ", " + tMoves.size());
+//		 for (final String s : cMoves)
+//		 {
+//		 System.out.println(s);
+//		 }
+//		 System.out.println();
+//		 for (final String s : tMoves)
+//		 {
+//		 System.out.println(s);
+//		 }
 		assertTrue(errorOutput, cMoves.containsAll(tMoves) && tMoves.containsAll(cMoves));
-
 		assertEquals(errorOutput, cons.getTerminationState(), test.getTerminationState());
+		assertEquals(errorOutput, cons.getHashing(), test.getHashing());
+		Assert.assertArrayEquals(errorOutput, cons.getHashes(), test.getHashes());
 	}
 }
 

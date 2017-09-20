@@ -109,7 +109,7 @@ public final class TBoardState implements BoardState
 				EngineUtils.getStartingDevStatus(),
 				BoardState.NO_ENPASSANT,
 				(byte) 0,
-				new long[] { BoardState.HASHER.generateStartHash(), 1, 2, 3 });
+				new long[] { 1L, 2L, 3L, 0L });
 	}
 
 	@Override
@@ -280,7 +280,8 @@ public final class TBoardState implements BoardState
 	@Override
 	public ChessPiece getPieceAt(final byte loc, final Side s)
 	{
-		return board[loc];
+		TChessPiece p = board[loc];
+		return (p != null && p.getSide() == s) ? p : null;
 	}
 
 	@Override
@@ -364,7 +365,7 @@ public final class TBoardState implements BoardState
 	@Override
 	public byte getPiecePhase()
 	{
-		final int totalPhase = 4 * 1 + 4 * 1 + 4 * 2 + 2 * 4;// From chessprogramming
+		final int totalPhase = 24;// From chessprogramming
 		final int[] pieceCounts = new int[6];
 		IntStream.range(0, 64).forEach(i ->
 		{
@@ -414,7 +415,7 @@ public final class TBoardState implements BoardState
 	@Override
 	public byte getEnPassantSq()
 	{
-		return (byte) enPassantSq.ordinal();
+		return enPassantSq == null ? BoardState.NO_ENPASSANT : (byte) enPassantSq.ordinal();
 	}
 
 	@Override
@@ -588,7 +589,7 @@ public final class TBoardState implements BoardState
 
 	public static void main(final String[] args)
 	{
-		final BoardState s = getStartBoard();
+		final TBoardState s = getStartBoard();
 		EngineUtils.printNbitBoards(s.getPieceLocationsCopy());
 		System.out.println();
 
@@ -605,6 +606,10 @@ public final class TBoardState implements BoardState
 		// {
 		// System.out.println(mv.toString());
 		// }
+		System.out.println();
+		System.out.println(s.board[1]);
+		
+		System.out.println(s.getHashing() == BoardState.HASHER.generateStartHash());
 	}
 
 	@Override

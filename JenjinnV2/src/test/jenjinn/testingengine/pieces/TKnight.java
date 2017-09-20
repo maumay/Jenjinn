@@ -1,5 +1,5 @@
 /**
- * Copyright © 2017 Lhasa Limited
+ * Copyright ï¿½ 2017 Lhasa Limited
  * File created: 19 Sep 2017 by ThomasB
  * Creator : ThomasB
  * Version : $Id$
@@ -29,7 +29,7 @@ public class TKnight extends TChessPiece
 	 */
 	public TKnight(final Side side)
 	{
-		super(PieceType.K, side, Arrays.stream(Direction.values())
+		super(PieceType.N, side, Arrays.stream(Direction.values())
 				.filter(x -> x.name().length() == 3)
 				.collect(Collectors.toList()));
 

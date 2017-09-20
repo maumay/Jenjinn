@@ -158,26 +158,16 @@ public class BoardStateImplV2 implements BoardState
 	public List<ChessMove> getAttackMoves()
 	{
 		final long enemyLoc = getSideLocations(getEnemySide());
-		final List<ChessMove> allMoves = getMoves();
-		for (final Iterator<ChessMove> itr = allMoves.iterator(); itr.hasNext();)
+		final List<ChessMove> allMoves = getMoves(), attackMoves = new ArrayList<>();
+		
+		for (ChessMove mv : allMoves)
 		{
-			final ChessMove mv = itr.next();
-
-			if (mv instanceof CastleMove)
+			if (mv instanceof EnPassantMove || ((mv.getTargetBB() & enemyLoc) != 0))
 			{
-				itr.remove();
-				continue;
-			}
-			else if (mv instanceof EnPassantMove)
-			{
-				continue;
-			}
-			else if ((mv.getTargetBB() & enemyLoc) != 0)
-			{
-				itr.remove();
+				attackMoves.add(mv);
 			}
 		}
-		return allMoves;
+		return attackMoves;
 	}
 
 	/**

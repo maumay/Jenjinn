@@ -86,7 +86,7 @@ public class TStandardMove extends TAbstractChessMove
 
 	public final byte getNewEnPassantSquare(final ChessPiece movingPiece)
 	{
-		if (movingPiece instanceof Pawn && Math.abs(getTarget() - getStart()) == 16)
+		if (movingPiece instanceof TPawn && Math.abs(getTarget() - getStart()) == 16)
 		{
 			return (byte) (getStart() + Math.signum(getTarget() - getStart()) * 8);
 		}
