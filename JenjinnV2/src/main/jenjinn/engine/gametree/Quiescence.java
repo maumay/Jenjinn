@@ -1,5 +1,5 @@
 /**
- * Copyright © 2017 Lhasa Limited
+ * Copyright ï¿½ 2017 Lhasa Limited
  * File created: 19 Sep 2017 by ThomasB
  * Creator : ThomasB
  * Version : $Id$
@@ -21,6 +21,7 @@ public class Quiescence
 {
 	private final BoardEvaluator evaluator;
 
+	
 	public short search(final BoardState root, int alpha, final int beta)
 	{
 		final short standPat = getEval(root);
@@ -41,6 +42,11 @@ public class Quiescence
 		for (final ChessMove mv : attackMoves)
 		{
 			final BoardState newState = mv.evolve(root);
+			/*
+			 * /!\ TERMINATION STATE SHOULD BE ADDED TO EVALUATION
+			 * 		OR TAKEN INTO ACCOUNT HERE BEFORE SCORE SINCE THE 
+			 * 		STATE COULD BE TERMINAL
+			 */
 			final int score = -search(newState, -beta, -alpha);
 
 			if (score >= beta)

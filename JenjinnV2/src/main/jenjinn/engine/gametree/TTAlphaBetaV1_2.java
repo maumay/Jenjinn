@@ -44,7 +44,7 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 	/**
 	 * Depth we will search at.
 	 */
-	private int searchDepth = 5;
+	private int searchDepth = 6;
 
 	private int bestFirstMoveIndex = -1;
 
@@ -206,7 +206,7 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 
 		if (depth == 0)
 		{
-			return quiescence.getEvaluator().evaluate(root);// .search(root, alpha, beta);
+			return quiescence.search(root, alpha, beta);
 		}
 
 		int bestValue = -Infinity.SHORT_INFINITY;
@@ -271,7 +271,7 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 		}
 		else if (newEntry.getType() == TreeNodeType.PV && oldEntry.getType() != TreeNodeType.PV)
 		{
-			System.out.println("SET PV NODE!");
+//			System.out.println("SET PV NODE!");
 			tt.set(newEntry);
 		}
 		else if (newEntry.getType() != TreeNodeType.PV && oldEntry.getType() == TreeNodeType.PV)
@@ -369,10 +369,10 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 		final BoardState state = BoardStateImplV2.getStartBoard();
 		final BoardEvaluator eval = new BoardEvaluator(Arrays.asList(new KingSafetyV1(), new MobilityV1(), new PawnStructureV1()));
 		final MoveCalculator c = new TTAlphaBetaV1_2(eval);
-		final NegaAlphaBeta d = new NegaAlphaBeta(eval);
+//		final NegaAlphaBeta d = new NegaAlphaBeta(eval);
 
 		System.out.println(c.getBestMove(state));
-		System.out.println(d.getBestMoveFrom(state, 6));
+//		System.out.println(d.getBestMoveFrom(state, 6));
 	}
 
 }
