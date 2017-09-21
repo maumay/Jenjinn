@@ -21,11 +21,13 @@ import jenjinn.engine.io.pgnutils.PgnReader;
  */
 public class WritePositionProvider
 {
-	private static final Path SRC_FILE_PATH = Paths.get("positionproviders", "Tal.pgn");
+	private static final String FILENAME = "Topalov.pgn";
+	
+	private static final String OUTPUT_FILE_NAME = "topalovprovider.txt";
+	
+	private static final Path SRC_FILE_PATH = Paths.get("JenjinnV2", "pgnfiles", FILENAME);
 
 	private static final String OUTPUT_FOLDER = "positionproviders";
-
-	private static final String OUTPUT_FILE_NAME = "talprovider500.txt";
 
 	/**
 	 * @param args
@@ -33,8 +35,8 @@ public class WritePositionProvider
 	 */
 	public static void main(final String[] args) throws IOException
 	{
-		final Path outputFilePath = Paths.get(OUTPUT_FOLDER, OUTPUT_FILE_NAME);
-		final List<String> gameStrings = PgnReader.getGameStrings(SRC_FILE_PATH, 18, 500);
+		final Path outputFilePath = Paths.get("JenjinnV2", OUTPUT_FOLDER, OUTPUT_FILE_NAME);
+		final List<String> gameStrings = PgnReader.getGameStrings(SRC_FILE_PATH, 100, 3000);
 		Files.write(outputFilePath, gameStrings, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
 	}
 }

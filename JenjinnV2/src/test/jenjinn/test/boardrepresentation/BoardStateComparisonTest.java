@@ -37,7 +37,17 @@ import jenjinn.testingengine.boardstate.TBoardState;
  */
 public class BoardStateComparisonTest
 {
-	private static final String[] POSITIONPROVIDERS = { "talprovider500.txt" };
+	private static final String[] POSITIONPROVIDERS = { 
+			"carlsenprovider.txt",
+			"fischerprovider.txt",
+			"grischukprovider.txt",
+			"karpovprovider.txt",
+			"kasparovprovider.txt",
+			"petrosianprovider.txt",
+			"talprovider.txt",
+			"topalovprovider.txt"
+			};
+	
 	private static final String PROVIDER_FOLDER = "positionproviders";
 
 	@Test

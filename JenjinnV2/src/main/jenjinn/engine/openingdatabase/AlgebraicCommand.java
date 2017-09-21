@@ -41,46 +41,53 @@ public class AlgebraicCommand
 	private int startFile = -1; // Will usually be left as -1
 	private boolean isAttackOrder;
 	private boolean isPromotionOrder;
-	private PieceType toPromoteTo; // usuallu null
+	private PieceType toPromoteTo; // usually null
 
 	public AlgebraicCommand(final String asStr)
 	{
 		// Trim the string (we don't need to know about checks etc).
-		String trimmed = asStr.trim();
-		final int indexOfCheckChar = trimmed.indexOf("+");
-		final int indexOfDot = trimmed.indexOf(".");
-		trimmed = indexOfCheckChar > -1 ? trimmed.substring(0, indexOfCheckChar) : trimmed;
-		trimmed = indexOfDot > -1 ? trimmed.substring(indexOfDot + 1) : trimmed;
+		asString = asStr.trim().replace("+", "");
+		if (asString.contains("."))
+		{
+			asString = asString.substring(asString.indexOf(".") + 1, asString.length());
+		}
+		isAttackOrder = asString.contains("x") ? true : false;
+		isPromotionOrder = asString.contains("=") ? true : false;
 
-		asString = trimmed;
-		isAttackOrder = trimmed.contains("x") ? true : false;
-		isPromotionOrder = trimmed.contains("=") ? true : false;
-
-		if (trimmed.equals(KINGSIDE_CASTLE_ID))
+		if (asString.equals(KINGSIDE_CASTLE_ID))
 		{
 			castleOrder = "_KINGSIDE";
 		}
-		else if (trimmed.equals(QUEENSIDE_CASTLE_ID))
+		else if (asString.equals(QUEENSIDE_CASTLE_ID))
 		{
 			castleOrder = "_QUEENSIDE";
 		}
+		else if (isPromotionOrder)
+		{
+			assert asString.length() == 4 || isAttackOrder;
+			
+			int len = asString.length();
+			toPromoteTo = PieceType.valueOf(asString.substring(len - 1, len));
+			targetSq = Sq.valueOf(asString.substring(len - 4, len - 2));
+			
+		}
 		else
 		{
-			final int length = trimmed.length();
+			final int length = asString.length();
 			if (length == 2)
 			{
 				pieceToMove = PieceType.P;
-				targetSq = Sq.valueOf(trimmed);
+				targetSq = Sq.valueOf(asString);
 			}
 			else if (length == 3)
 			{
-				final Object[] preparedValues = processLengthThreeCommand(trimmed);
+				final Object[] preparedValues = processLengthThreeCommand(asString);
 				pieceToMove = (PieceType) preparedValues[0];
 				targetSq = (Sq) preparedValues[1];
 			}
 			else if (length == 4)
 			{
-				final Object[] preparedValues = processLengthFourCommand(trimmed);
+				final Object[] preparedValues = processLengthFourCommand(asString);
 				pieceToMove = (PieceType) preparedValues[0];
 				targetSq = (Sq) preparedValues[1];
 				startRow = (Integer) preparedValues[2];
@@ -89,7 +96,7 @@ public class AlgebraicCommand
 			}
 			else if (length == 5)
 			{
-				final Object[] preparedValues = processLengthFiveCommand(trimmed);
+				final Object[] preparedValues = processLengthFiveCommand(asString);
 				pieceToMove = (PieceType) preparedValues[0];
 				targetSq = (Sq) preparedValues[1];
 				startRow = (Integer) preparedValues[2];
@@ -216,6 +223,7 @@ public class AlgebraicCommand
 	{
 		final AlgebraicCommand test = new AlgebraicCommand("O-O");
 		System.out.println(test.toString());
+		System.out.println("aksdhkac".replaceAll("-", ""));
 	}
 
 	public boolean isAttackOrder()

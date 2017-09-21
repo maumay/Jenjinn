@@ -15,6 +15,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import gnu.trove.list.TByteList;
+import gnu.trove.list.array.TByteArrayList;
 import jenjinn.engine.bitboarddatabase.BBDB;
 import jenjinn.engine.boardstate.BoardState;
 import jenjinn.engine.enums.Side;
@@ -25,6 +27,7 @@ import jenjinn.engine.misc.EngineUtils;
 import jenjinn.engine.moves.ChessMove;
 import jenjinn.engine.openingdatabase.AlgebraicCommand;
 import jenjinn.engine.pieces.ChessPiece;
+import jenjinn.engine.pieces.PieceType;
 import jenjinn.engine.zobristhashing.ZobristHasher;
 import jenjinn.testingengine.enums.CastleArea;
 import jenjinn.testingengine.moves.TCastleMove;
@@ -133,7 +136,7 @@ public final class TBoardState implements BoardState
 	@Override
 	public final TerminationType getTerminationState()
 	{
-		if (getClockValue() == 50)
+		if (getClockValue() == 100)
 		{
 			return TerminationType.DRAW;
 		}
@@ -192,7 +195,7 @@ public final class TBoardState implements BoardState
 				}
 				for (final byte targ : EngineUtils.getSetBits(backRankMvSqs))
 				{
-					mvs.add(new TPromotionMove(i, targ));
+					mvs.add(new TPromotionMove(i, targ, PieceType.Q));
 				}
 
 				if (enPassantSq != null && (attackSqs & enPassantSq.getAsBB()) != 0)
@@ -376,7 +379,7 @@ public final class TBoardState implements BoardState
 				pieceCounts[board[i].getIndex() % 6]++;
 			}
 		});
-		return (byte) (totalPhase
+		return (byte) Math.max(0, totalPhase
 				- (pieceCounts[1] + pieceCounts[2] + pieceCounts[3] * 2 + pieceCounts[4] * 4));
 	}
 
@@ -473,7 +476,33 @@ public final class TBoardState implements BoardState
 	{
 		if (com.isPromotionOrder())
 		{
-			throw new RuntimeException("Not yet implemented.");
+			Sq target = com.getTargetSq();
+			PieceType toPromoteTo = com.getToPromoteTo();
+			assert toPromoteTo != null;
+			
+			TByteList possStarts = new TByteArrayList();
+			for (byte pawnLoc : EngineUtils.getSetBits(getPieceLocations(friendlySide.index())))
+			{
+				long friendly = getSideLocations(friendlySide), enemy = getSideLocations(getEnemySide());
+				long mvSet = TChessPiece.get(friendlySide.index()).getMoveset(pawnLoc, friendly, enemy);
+				
+				if ((mvSet & target.getAsBB()) != 0)
+				{
+					possStarts.add(pawnLoc);
+				}
+			}
+			if (possStarts.size() > 1)
+			{
+				throw new AmbiguousPgnException("Multiple promotion moves!");
+			}
+			else if (possStarts.size() == 0)
+			{
+				throw new AssertionError();
+			}
+			else
+			{
+				return new TPromotionMove(possStarts.get(0), target.ordinal(), toPromoteTo);
+			}
 		}
 
 		final String castleOrder = com.getCastleOrder();

@@ -13,7 +13,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import gnu.trove.list.TByteList;
 import gnu.trove.list.TLongList;
+import gnu.trove.list.array.TByteArrayList;
 import gnu.trove.list.array.TLongArrayList;
 import jenjinn.engine.bitboarddatabase.BBDB;
 import jenjinn.engine.enums.Side;
@@ -28,6 +30,9 @@ import jenjinn.engine.moves.PromotionMove;
 import jenjinn.engine.moves.StandardMove;
 import jenjinn.engine.openingdatabase.AlgebraicCommand;
 import jenjinn.engine.pieces.ChessPiece;
+import jenjinn.engine.pieces.PieceType;
+import jenjinn.testingengine.moves.TPromotionMove;
+import jenjinn.testingengine.pieces.TChessPiece;
 
 /**
  * @author ThomasB
@@ -50,7 +55,7 @@ public class BoardStateImplV2 implements BoardState
 
 	private static final long FRIENDLY_SIDE_GETTER = 1L << (6 * 8);
 
-	private static final long HALFMOVE_CLOCK_GETTER = 0b111111L << (5 * 8);
+	private static final long HALFMOVE_CLOCK_GETTER = 0b1111111L << (5 * 8);
 
 	private static final long PIECE_PHASE_GETTER = 0b11111L << (4 * 8);
 
@@ -113,29 +118,24 @@ public class BoardStateImplV2 implements BoardState
 
 		final List<ChessMove> moves = new ArrayList<>(getCastleMoves(enemyPieces | friendlyPieces));
 
-		final byte upperBound = (byte) ((1 + getFriendlySideValue()) * 6 - 1), lowerBound = (byte) (getFriendlySideValue() * 6);
-
+		final byte upperBound = (byte) (5 + friendlySide.index()), lowerBound = friendlySide.index();
 		for (byte i = upperBound; i > lowerBound; i--) // Get the most valuable piece moves first
 		{
 			final ChessPiece p = ChessPiece.get(i);
-			final byte[] locs = EngineUtils.getSetBits(pieceLocations[i]);
 
-			for (final byte loc : locs)
+			for (final byte loc : EngineUtils.getSetBits(pieceLocations[i]))
 			{
-				final long mvset = p.getMoveset(loc, friendlyPieces, enemyPieces);
-				addStandardMoves(moves, loc, mvset);
+				addStandardMoves(moves, loc, p.getMoveset(loc, friendlyPieces, enemyPieces));
 			}
 		}
 
 		// Add Pawn moves.
 		final ChessPiece p = ChessPiece.get(lowerBound); // Pawn
-		final byte[] locs = EngineUtils.getSetBits(pieceLocations[lowerBound]);
 		if (getEnPassantSq() != BoardState.NO_ENPASSANT)
 		{
-			for (final byte loc : locs)
+			for (final byte loc : EngineUtils.getSetBits(pieceLocations[lowerBound]))
 			{
-				final long mvset = p.getMoveset(loc, friendlyPieces, enemyPieces);
-				addPawnStandardAndPromotionMoves(moves, loc, mvset);
+				addPawnStandardAndPromotionMoves(moves, loc, p.getMoveset(loc, friendlyPieces, enemyPieces));
 				if (((p.getAttackset(loc, enemyPieces | friendlyPieces) & (1L << getEnPassantSq())) != 0))
 				{
 					moves.add(EnPassantMove.get(loc, getEnPassantSq()));
@@ -144,10 +144,9 @@ public class BoardStateImplV2 implements BoardState
 		}
 		else
 		{
-			for (final byte loc : locs)
+			for (final byte loc : EngineUtils.getSetBits(pieceLocations[lowerBound]))
 			{
-				final long mvset = p.getMoveset(loc, friendlyPieces, enemyPieces);
-				addPawnStandardAndPromotionMoves(moves, loc, mvset);
+				addPawnStandardAndPromotionMoves(moves, loc, p.getMoveset(loc, friendlyPieces, enemyPieces));
 			}
 		}
 
@@ -195,7 +194,7 @@ public class BoardStateImplV2 implements BoardState
 	 */
 	private void addPawnStandardAndPromotionMoves(final List<ChessMove> moves, final byte loc, long mvset)
 	{
-		final long backRank = 0b11111111L << (getFriendlySideValue() * 56), backRankMvs = mvset & backRank;
+		final long backRank = 0b11111111L << ((1 - getFriendlySideValue()) * 56), backRankMvs = mvset & backRank;
 		mvset &= ~backRank;
 
 		addStandardMoves(moves, loc, mvset);
@@ -203,7 +202,7 @@ public class BoardStateImplV2 implements BoardState
 		final byte[] backRankTargets = EngineUtils.getSetBits(backRankMvs);
 		for (final byte target : backRankTargets)
 		{
-			moves.add(PromotionMove.get(loc, target));
+			moves.add(PromotionMove.get(loc, target, PieceType.Q));
 		}
 	}
 
@@ -347,7 +346,12 @@ public class BoardStateImplV2 implements BoardState
 	@Override
 	public byte getPiecePhase()
 	{
-		return (byte) ((metaData & PIECE_PHASE_GETTER) >>> 32);
+		int pPhase = 24;
+		for (int i = 1; i < 5; i++)
+		{
+			pPhase -= Long.bitCount(pieceLocations[i] | pieceLocations[i + 6])*ChessMove.PIECE_PHASES[i];
+		}
+		return (byte) Math.max(0, pPhase);
 	}
 
 	@Override
@@ -385,7 +389,7 @@ public class BoardStateImplV2 implements BoardState
 	@Override
 	public TerminationType getTerminationState()
 	{
-		if (getClockValue() == 50)
+		if (getClockValue() == 100)
 		{// 33 = (4 * 8) + 1
 			return TerminationType.DRAW;
 		}
@@ -460,7 +464,33 @@ public class BoardStateImplV2 implements BoardState
 	{
 		if (com.isPromotionOrder())
 		{
-			throw new RuntimeException("Not yet implemented.");
+			Sq target = com.getTargetSq();
+			PieceType toPromoteTo = com.getToPromoteTo();
+			assert toPromoteTo != null;
+			
+			TByteList possStarts = new TByteArrayList();
+			for (byte pawnLoc : EngineUtils.getSetBits(getPieceLocations(getFriendlySide().index())))
+			{
+				long friendly = getSideLocations(getFriendlySide()), enemy = getSideLocations(getEnemySide());
+				long mvSet = ChessPiece.get(getFriendlySide().index()).getMoveset(pawnLoc, friendly, enemy);
+				
+				if ((mvSet & target.getAsBB()) != 0)
+				{
+					possStarts.add(pawnLoc);
+				}
+			}
+			if (possStarts.size() > 1)
+			{
+				throw new AmbiguousPgnException("Multiple promotion moves!");
+			}
+			else if (possStarts.size() == 0)
+			{
+				throw new AssertionError();
+			}
+			else
+			{
+				return PromotionMove.get(possStarts.get(0), target.ordinal(), toPromoteTo);
+			}
 		}
 
 		final String castleOrder = com.getCastleOrder();
@@ -617,6 +647,9 @@ public class BoardStateImplV2 implements BoardState
 						HALFMOVE_CLOCK_GETTER, 
 						MIDGAME_LOC_EVAL_GETTER, 
 						ENDGAME_LOC_EVAL_GETTER));
+		
+		System.out.println(Integer.toBinaryString(-3));
+		System.out.println(Integer.toBinaryString(~0b11111111111111111111111111111101));
 	}
 }
 

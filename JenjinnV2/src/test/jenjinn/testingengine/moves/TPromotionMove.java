@@ -1,16 +1,19 @@
 /**
- * Copyright © 2017 Lhasa Limited
+ * Copyright ï¿½ 2017 Lhasa Limited
  * File created: 20 Sep 2017 by ThomasB
  * Creator : ThomasB
  * Version : $Id$
  */
 package jenjinn.testingengine.moves;
 
+import java.util.EnumSet;
+
 import jenjinn.engine.boardstate.BoardState;
 import jenjinn.engine.enums.MoveType;
 import jenjinn.engine.enums.Side;
 import jenjinn.engine.enums.Sq;
 import jenjinn.engine.pieces.ChessPiece;
+import jenjinn.engine.pieces.PieceType;
 import jenjinn.testingengine.boardstate.TBoardState;
 
 /**
@@ -19,20 +22,25 @@ import jenjinn.testingengine.boardstate.TBoardState;
  */
 public class TPromotionMove extends TAbstractChessMove
 {
+	private PieceType toPromoteTo;
+	
 	/**
 	 * @param type
 	 * @param start
 	 * @param target
 	 */
-	public TPromotionMove(final int start, final int target)
+	public TPromotionMove(final int start, final int target, PieceType toPromoteTo)
 	{
 		super(MoveType.PROMOTION, start, target);
+		assert !EnumSet.of(PieceType.K, PieceType.P).contains(toPromoteTo);
+		this.toPromoteTo = toPromoteTo;
 	}
 
 	@Override
 	public BoardState evolve(final BoardState state)
 	{
 		final Side friendlySide = state.getFriendlySide();
+		int newPieceIndex = friendlySide.index() + toPromoteTo.getId();
 
 		final ChessPiece removedPiece = state.getPieceAt(getTarget(), friendlySide.otherSide());
 
@@ -40,7 +48,7 @@ public class TPromotionMove extends TAbstractChessMove
 		final long[] newPieceLocations = state.getPieceLocationsCopy();
 
 		newPieceLocations[friendlySide.index()] &= ~getStartBB();
-		newPieceLocations[friendlySide.index() + 4] |= getTargetBB(); // Add a queen
+		newPieceLocations[newPieceIndex] |= getTargetBB(); 
 		if (removedPiece != null)
 		{
 			newPieceLocations[removedPiece.getIndex()] &= ~getTargetBB();
