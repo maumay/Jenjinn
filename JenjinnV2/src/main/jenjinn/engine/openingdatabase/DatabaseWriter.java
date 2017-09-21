@@ -12,7 +12,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import jenjinn.engine.pgnutils.PgnReader;
+import jenjinn.engine.io.pgnutils.PgnReader;
 
 /**
  * @author ThomasB

@@ -1,4 +1,4 @@
-package jenjinn.engine.pgnutils;
+package jenjinn.engine.io.pgnutils;
 /**
  *
  */

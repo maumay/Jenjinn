@@ -1,5 +1,5 @@
 /**
- * Copyright © 2017 Lhasa Limited
+ * Copyright ï¿½ 2017 Lhasa Limited
  * File created: 20 Sep 2017 by ThomasB
  * Creator : ThomasB
  * Version : $Id$
@@ -10,8 +10,8 @@ import jenjinn.engine.boardstate.BoardState;
 import jenjinn.engine.enums.MoveType;
 import jenjinn.engine.enums.Side;
 import jenjinn.engine.enums.Sq;
-import jenjinn.engine.pieces.Pawn;
 import jenjinn.testingengine.boardstate.TBoardState;
+import jenjinn.testingengine.pieces.TPawn;
 
 /**
  * @author ThomasB
@@ -32,7 +32,7 @@ public class TEnPassantMove extends TAbstractChessMove
 	@Override
 	public BoardState evolve(final BoardState state)
 	{
-		assert state.getPieceAt(getEnPassantSquare(), state.getEnemySide()) instanceof Pawn;
+		assert state.getPieceAt(getEnPassantSquare(), state.getEnemySide()) instanceof TPawn;
 
 		final Side friendlySide = state.getFriendlySide();
 

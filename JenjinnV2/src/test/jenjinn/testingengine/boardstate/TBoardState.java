@@ -246,7 +246,7 @@ public final class TBoardState implements BoardState
 		{
 			final List<Sq> qSide = Arrays.asList(Sq.get(6 + sideShift), Sq.get(5 + sideShift), Sq.get(4 + sideShift), Sq.get(3 + sideShift));
 			boolean allowed = true;
-			for (int i = 0; i < 3; i++)
+			for (int i = 0; i < 4; i++)
 			{
 				final long sqBB = qSide.get(i).getAsBB();
 
@@ -268,7 +268,9 @@ public final class TBoardState implements BoardState
 	@Override
 	public final List<ChessMove> getAttackMoves()
 	{
-		return getMoves().stream().filter(x -> board[x.getTarget()] != null).collect(Collectors.toList());
+		return getMoves().stream()
+				.filter(x -> (x instanceof TEnPassantMove) || board[x.getTarget()] != null)
+				.collect(Collectors.toList());
 	}
 
 	@Override
@@ -546,7 +548,7 @@ public final class TBoardState implements BoardState
 		else if (possibleMoves.size() == 2)
 		{
 			final BitSet pinned = new BitSet();
-			for (final int i : new int[] { 1, 2 })
+			for (final int i : new int[] { 0, 1 })
 			{
 				final byte startLoc = possibleMoves.get(i).getStart();
 				final TChessPiece p = (TChessPiece) getPieceAt(startLoc, getFriendlySide());
@@ -562,7 +564,7 @@ public final class TBoardState implements BoardState
 			final int pCard = pinned.cardinality();
 			if (pCard == 0 || pCard == 2)
 			{
-				throw new AmbiguousPgnException();
+				throw new AmbiguousPgnException(com.getAsString());
 			}
 			else
 			{

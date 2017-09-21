@@ -13,7 +13,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
 
-import jenjinn.engine.pgnutils.PgnReader;
+import jenjinn.engine.io.pgnutils.PgnReader;
 
 /**
  * @author thomasb

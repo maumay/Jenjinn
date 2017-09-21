@@ -50,9 +50,9 @@ public class BoardStateImplV2 implements BoardState
 
 	private static final long FRIENDLY_SIDE_GETTER = 1L << (6 * 8);
 
-	private static final long HALFMOVE_CLOCK_GETTER = 0b11111100L << (5 * 8);
+	private static final long HALFMOVE_CLOCK_GETTER = 0b111111L << (5 * 8);
 
-	private static final long PIECE_PHASE_GETTER = 0b1111100000L << (4 * 8);
+	private static final long PIECE_PHASE_GETTER = 0b11111L << (4 * 8);
 
 	private static final long MIDGAME_LOC_EVAL_GETTER = 0b1111111111111111L << (2 * 8);
 
@@ -98,8 +98,8 @@ public class BoardStateImplV2 implements BoardState
 				(castleStatus << 56) | // 56 = 7 * 8
 				(enPassantSq << 49) | // 49 = (6 * 8) + 1
 				(friendlySide << 48) | // 48 = 6 * 8
-				(halfMoveClock << 42) | // 42 = (5 * 8) + 2
-				(piecePhase << 33) | // 33 = (4 * 8) + 1
+				(halfMoveClock << 40) | // 40 = (5 * 8)
+				(piecePhase << 32) | // 32 = (4 * 8)
 				((midPieceLocEval & EXCESS_CHOPPER) << 16) |
 				(endPieceLocEval & EXCESS_CHOPPER);
 	}
@@ -335,13 +335,31 @@ public class BoardStateImplV2 implements BoardState
 	@Override
 	public byte getClockValue()
 	{
-		return (byte) ((metaData & HALFMOVE_CLOCK_GETTER) >>> 42);
+		return (byte) ((metaData & HALFMOVE_CLOCK_GETTER) >>> 40);
 	}
 
 	@Override
 	public byte getFriendlySideValue()
 	{
 		return (byte) ((metaData & FRIENDLY_SIDE_GETTER) >>> 48);
+	}
+	
+	@Override
+	public byte getPiecePhase()
+	{
+		return (byte) ((metaData & PIECE_PHASE_GETTER) >>> 32);
+	}
+
+	@Override
+	public short getMidgamePositionalEval()
+	{
+		return (short) ((metaData & MIDGAME_LOC_EVAL_GETTER) >>> 16);
+	}
+
+	@Override
+	public short getEndgamePositionalEval()
+	{
+		return (short) (metaData & ENDGAME_LOC_EVAL_GETTER);
 	}
 
 	@Override
@@ -517,7 +535,7 @@ public class BoardStateImplV2 implements BoardState
 		else if (possibleMoves.size() == 2)
 		{
 			final BitSet pinned = new BitSet();
-			for (final int i : new int[] { 1, 2 })
+			for (final int i : new int[] { 0, 1 })
 			{
 				final byte startLoc = possibleMoves.get(i).getStart();
 				final ChessPiece p = getPieceAt(startLoc, getFriendlySide());
@@ -533,7 +551,7 @@ public class BoardStateImplV2 implements BoardState
 			final int pCard = pinned.cardinality();
 			if (pCard == 0 || pCard == 2)
 			{
-				throw new AmbiguousPgnException();
+				throw new AmbiguousPgnException(com.getAsString());
 			}
 			else
 			{
@@ -555,12 +573,6 @@ public class BoardStateImplV2 implements BoardState
 		EngineUtils.printNbitBoards(toPrint.toArray());
 	}
 
-	public static void main(final String[] args)
-	{
-		final BoardState state = getStartBoard();
-		System.out.println(state.getTerminationState());
-	}
-
 	@Override
 	public void printMoves()
 	{
@@ -568,27 +580,43 @@ public class BoardStateImplV2 implements BoardState
 	}
 
 	@Override
-	public byte getPiecePhase()
-	{
-		return (byte) ((metaData & PIECE_PHASE_GETTER) >>> 33);
-	}
-
-	@Override
-	public short getMidgamePositionalEval()
-	{
-		return (short) ((metaData & MIDGAME_LOC_EVAL_GETTER) >>> 16);
-	}
-
-	@Override
-	public short getEndgamePositionalEval()
-	{
-		return (short) (metaData & ENDGAME_LOC_EVAL_GETTER);
-	}
-
-	@Override
 	public long[] getHashes()
 	{
 		return Arrays.copyOf(recentHashings, recentHashings.length);
+	}
+	
+//	CASTLE_RIGHTS_GETTER = 0b11110000L << (7 * 8);
+//
+//	private static final long CASTLE_STATUS_GETTER = 0b1111L << (7 * 8);
+//
+//	private static final long ENPASSANT_SQUARE_GETTER = 0b11111110L << (6 * 8);
+//
+//	private static final long FRIENDLY_SIDE_GETTER = 1L << (6 * 8);
+//
+//	private static final long HALFMOVE_CLOCK_GETTER = 0b11111100L << (5 * 8);
+//
+//	private static final long PIECE_PHASE_GETTER = 0b1111100000L << (4 * 8);
+//
+//	private static final long MIDGAME_LOC_EVAL_GETTER = 0b1111111111111111L << (2 * 8);
+//
+//	private static final long ENDGAME_LOC_EVAL_GETTER = 0b1111111111111111L;
+	
+	public static void main(String[] args)
+	{
+		EngineUtils.printNbitBoards(EngineUtils.multipleOr(CASTLE_RIGHTS_GETTER, 
+				CASTLE_STATUS_GETTER, 
+				ENPASSANT_SQUARE_GETTER,
+				FRIENDLY_SIDE_GETTER, 
+				HALFMOVE_CLOCK_GETTER, 
+				PIECE_PHASE_GETTER, 
+				MIDGAME_LOC_EVAL_GETTER, 
+				ENDGAME_LOC_EVAL_GETTER), EngineUtils.multipleOr(CASTLE_RIGHTS_GETTER, 
+						CASTLE_STATUS_GETTER, 
+						ENPASSANT_SQUARE_GETTER,
+						FRIENDLY_SIDE_GETTER, 
+						HALFMOVE_CLOCK_GETTER, 
+						MIDGAME_LOC_EVAL_GETTER, 
+						ENDGAME_LOC_EVAL_GETTER));
 	}
 }
 
