@@ -25,7 +25,6 @@ import jenjinn.engine.evaluation.componentimpl.MobilityV1;
 import jenjinn.engine.evaluation.componentimpl.PawnStructureV1;
 import jenjinn.engine.exceptions.AmbiguousPgnException;
 import jenjinn.engine.io.pgnutils.ChessGameReader;
-import jenjinn.engine.misc.EngineUtils;
 import jenjinn.engine.moves.ChessMove;
 import jenjinn.engine.openingdatabase.AlgebraicCommand;
 
@@ -38,6 +37,8 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 	private static final int DEFAULT_TABLE_SIZE = 20;
 
 	private static final String DESCRIPTOR = "[NegaAlphaBeta - no pv override 1 bucket tt - pv extraction - tt impl v1_2]";
+
+	private static final short IC_ALPHA = 1 - Infinity.SHORT_INFINITY, IC_BETA = Infinity.SHORT_INFINITY - 1;
 
 	/**
 	 * Only use a nega evaluator, i.e one that is signed depending
@@ -54,7 +55,7 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 	/**
 	 * Depth we will search at.
 	 */
-	private int searchDepth = 6;
+	private int searchDepth = 5;
 
 	private int bestFirstMoveIndex = -1;
 
@@ -118,9 +119,10 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 			List<ChessMove> mvs = root.getMoves();
 			BoardState state = mvs.get(bestFirstMoveIndex).evolve(root);
 			TableEntry entry;
-			while ((entry = tt.get(state.getHashing())) != null && entry.getPositionHash() == state.getHashing())
+			while ((entry = tt.get(state.getHashing())) != null
+					&& entry.getType() == TreeNodeType.PV
+					&& entry.getPositionHash() == state.getHashing())
 			{
-				assert entry.getType() == TreeNodeType.PV;
 				pv.add(entry.getMoveIndex());
 				mvs = state.getMoves();
 				state = mvs.get(entry.getMoveIndex()).evolve(state);
@@ -134,7 +136,7 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 		System.out.println("HELLO FROM DEPTH: " + depth);
 		// Initialise variables
 		int bestMoveIndex = -1;
-		int alpha = -Infinity.SHORT_INFINITY; // Here alpha is the calculated value of our best move.
+		int alpha = IC_ALPHA; // Here alpha is the calculated value of our best move.
 		final TIntList pv = getPrincipalVariation(root);
 		final List<ChessMove> possibleMoves = root.getMoves();
 
@@ -154,7 +156,7 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 		for (final int idx : indices)
 		{
 			final ChessMove mv = possibleMoves.get(idx);
-			final int bestBlackReply = -negamax(mv.evolve(root), -Infinity.SHORT_INFINITY, -alpha, depth - 1);
+			final int bestBlackReply = -negamax(mv.evolve(root), -IC_BETA, -alpha, depth - 1);
 
 			if (bestBlackReply > alpha) // We want to maximise the value of best opponent reply
 			{
@@ -216,7 +218,9 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 
 		if (depth == 0)
 		{
-			return quiescence.getEvaluator().evaluate(root);//quiescence.search(root, alpha, beta);
+			// Deal with problems in quiescence later
+			assert Quiescence.currentDepth == 0;
+			return quiescence.search(root, alpha, beta);// quiescence.getEvaluator().evaluate(root);//
 		}
 
 		int bestValue = -Infinity.SHORT_INFINITY;
@@ -256,6 +260,7 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 		}
 		else // PV node
 		{
+			assert bestMoveIndex != -1;
 			potentialNewEntry = TableEntry.generatePV(rootHash, bestValue, bestMoveIndex, depth);
 		}
 		processTableReplacement(potentialNewEntry, ttEntry);
@@ -281,7 +286,7 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 		}
 		else if (newEntry.getType() == TreeNodeType.PV && oldEntry.getType() != TreeNodeType.PV)
 		{
-//			System.out.println("SET PV NODE!");
+			// System.out.println("SET PV NODE!");
 			tt.set(newEntry);
 		}
 		else if (newEntry.getType() != TreeNodeType.PV && oldEntry.getType() == TreeNodeType.PV)
@@ -290,7 +295,13 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 		}
 		else
 		{
-			tt.set(newEntry.getDepthSearched() >= oldEntry.getDepthSearched() ? newEntry : oldEntry);
+			final boolean replace = newEntry.getDepthSearched() >= oldEntry.getDepthSearched();
+			tt.set(replace ? newEntry : oldEntry);
+
+			// if (replace && oldEntry.getType() == TreeNodeType.PV)
+			// {
+			// System.out.println("REPLACED PV NODE with type: " + newEntry.getType().name());
+			// }
 		}
 	}
 
@@ -373,37 +384,42 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 			x.add(0, x.remove(toGoFirst));
 		}
 	}
-	
+
 	static volatile ChessMove m;
 
 	public static void main(final String[] args) throws IOException, AmbiguousPgnException
 	{
-//		final BoardState state = BoardStateImplV2.getStartBoard();
+		// final BoardState state = BoardStateImplV2.getStartBoard();
 		final BoardEvaluator eval = new BoardEvaluator(Arrays.asList(new KingSafetyV1(), new MobilityV1(), new PawnStructureV1()));
-		final MoveCalculator c = new TTAlphaBetaV1_2(eval);
-//		final NegaAlphaBeta d = new NegaAlphaBeta(eval);
+		final TTAlphaBetaV1_2 c = new TTAlphaBetaV1_2(eval);
+		// final NegaAlphaBeta d = new NegaAlphaBeta(eval);
 
-		List<BigInteger> times = new ArrayList<>();
-//		System.out.println(d.getBestMoveFrom(state, 6));
-		BufferedReader br = Files.newBufferedReader(
-				Paths.get("JenjinnV2", "positionproviders", "carlsenprovider.txt"));
+		final List<BigInteger> times = new ArrayList<>();
+		// System.out.println(d.getBestMoveFrom(state, 6));
+		final BufferedReader br = Files.newBufferedReader(
+				Paths.get("positionproviders", "carlsenprovider.txt"));
 		br.readLine();
 		for (int i = 0; i < 20; i++)
 		{
-			System.out.println("djdc");
-			AlgebraicCommand[] gComs = ChessGameReader.processSequenceOfCommands(br.readLine().trim());
+			if (i == 0)
+			{
+				br.readLine();
+			}
+			System.out.println("Next");
+			c.tt.clear();
+			final AlgebraicCommand[] gComs = ChessGameReader.processSequenceOfCommands(br.readLine().trim());
 			BoardState state = BoardStateImplV2.getStartBoard();
 			for (int j = 0; j < Math.min(24, gComs.length); j++)
 			{
 				state = state.generateMove(gComs[j]).evolve(state);
 			}
 			assert state.getTerminationState() == TerminationType.NOT_TERMINAL;
-			long t = System.nanoTime();
+			final long t = System.nanoTime();
 			m = c.getBestMove(state);
 			times.add(BigInteger.valueOf(System.nanoTime() - t));
 		}
-		
-		System.out.println(times.stream().mapToLong(x -> x.longValueExact()).sum()/20);
+
+		System.out.println(times.stream().mapToLong(x -> x.longValueExact()).sum() / 20);
 	}
 
 }

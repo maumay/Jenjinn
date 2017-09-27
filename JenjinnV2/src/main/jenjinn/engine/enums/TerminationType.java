@@ -10,8 +10,8 @@ package jenjinn.engine.enums;
  */
 public enum TerminationType
 {
-	// Make just a little smaller than infinity so that we don't get null moves during the tree search.
-	WHITE_WIN(Infinity.SHORT_INFINITY - 1), BLACK_WIN(1 - Infinity.SHORT_INFINITY), DRAW(0), NOT_TERMINAL(0);
+	// Make just a little bigger than the initial alpha beta calls so we don't change the bounds for terminal states..
+	WHITE_WIN(Infinity.SHORT_INFINITY), BLACK_WIN(Infinity.SHORT_INFINITY), DRAW(0), NOT_TERMINAL(0);
 
 	public short value;
 
@@ -19,7 +19,7 @@ public enum TerminationType
 	{
 		this.value = (short) value;
 	}
-	
+
 	public boolean isTerminal()
 	{
 		return this != NOT_TERMINAL;

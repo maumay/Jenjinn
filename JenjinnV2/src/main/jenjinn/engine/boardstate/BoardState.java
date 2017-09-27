@@ -46,6 +46,11 @@ public interface BoardState
 
 	TerminationType getTerminationState();
 
+	default boolean isTerminal()
+	{
+		return getTerminationState() != TerminationType.NOT_TERMINAL;
+	}
+
 	List<ChessMove> getMoves();
 
 	List<ChessMove> getAttackMoves();

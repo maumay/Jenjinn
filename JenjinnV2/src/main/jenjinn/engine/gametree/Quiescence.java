@@ -9,7 +9,6 @@ package jenjinn.engine.gametree;
 import java.util.List;
 
 import jenjinn.engine.boardstate.BoardState;
-import jenjinn.engine.enums.TerminationType;
 import jenjinn.engine.evaluation.BoardEvaluator;
 import jenjinn.engine.moves.ChessMove;
 
@@ -19,20 +18,31 @@ import jenjinn.engine.moves.ChessMove;
  */
 public class Quiescence
 {
+	static int maxDepth = 0, currentDepth = 0;
+
 	private final BoardEvaluator evaluator;
-	
+
 	public short search(final BoardState root, int alpha, final int beta)
 	{
-		/*
-		 * We aren't dealing with terminal nodes proerly here
-		 * 
-		 *  what if standpat <= alpha?
-		 */
-		final short standPat = getEval(root);
+		currentDepth++;
+		if (currentDepth > maxDepth)
+		{
+			maxDepth = currentDepth;
+			System.out.println("Newmax qdepth: " + maxDepth);
+		}
+
+		if (root.isTerminal())
+		{
+			currentDepth--;
+			return (short) (root.getFriendlySide().orientation() * root.getTerminationState().value);
+		}
+
+		final short standPat = evaluator.evaluate(root);
 
 		if (standPat >= beta)
 		{
 			assert (short) beta == beta;
+			currentDepth--;
 			return (short) beta;
 		}
 		if (alpha < standPat)
@@ -46,20 +56,13 @@ public class Quiescence
 		for (final ChessMove mv : attackMoves)
 		{
 			final BoardState newState = mv.evolve(root);
-			/*
-			 * /!\ TERMINATION STATE SHOULD BE ADDED TO EVALUATION
-			 * 		OR TAKEN INTO ACCOUNT HERE BEFORE SCORE SINCE THE 
-			 * 		STATE COULD BE TERMINAL
-			 * 
-			 * - Added term eval to eval for now.
-			 * 
-			 *
-			 */
+
 			final int score = -search(newState, -beta, -alpha);
 
 			if (score >= beta)
 			{
 				assert (short) beta == beta;
+				currentDepth--;
 				return (short) beta;
 			}
 			if (score > alpha)
@@ -67,6 +70,9 @@ public class Quiescence
 				alpha = score;
 			}
 		}
+
+		currentDepth--;
+
 		assert (short) alpha == alpha;
 		return (short) alpha;
 	}
@@ -74,19 +80,6 @@ public class Quiescence
 	private void pruneMoves(final List<ChessMove> attackMoves)
 	{
 		// TODO - SEE, delta pruning etc.
-	}
-
-	private short getEval(final BoardState root)
-	{
-		final TerminationType tType = root.getTerminationState();
-		if (tType == TerminationType.NOT_TERMINAL)
-		{
-			return evaluator.evaluate(root);
-		}
-		else
-		{
-			return tType.value;
-		}
 	}
 
 	/**

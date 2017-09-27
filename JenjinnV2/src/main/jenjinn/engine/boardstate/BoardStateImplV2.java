@@ -9,7 +9,6 @@ package jenjinn.engine.boardstate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,8 +30,6 @@ import jenjinn.engine.moves.StandardMove;
 import jenjinn.engine.openingdatabase.AlgebraicCommand;
 import jenjinn.engine.pieces.ChessPiece;
 import jenjinn.engine.pieces.PieceType;
-import jenjinn.testingengine.moves.TPromotionMove;
-import jenjinn.testingengine.pieces.TChessPiece;
 
 /**
  * @author ThomasB
@@ -158,8 +155,8 @@ public class BoardStateImplV2 implements BoardState
 	{
 		final long enemyLoc = getSideLocations(getEnemySide());
 		final List<ChessMove> allMoves = getMoves(), attackMoves = new ArrayList<>();
-		
-		for (ChessMove mv : allMoves)
+
+		for (final ChessMove mv : allMoves)
 		{
 			if (mv instanceof EnPassantMove || ((mv.getTargetBB() & enemyLoc) != 0))
 			{
@@ -342,14 +339,14 @@ public class BoardStateImplV2 implements BoardState
 	{
 		return (byte) ((metaData & FRIENDLY_SIDE_GETTER) >>> 48);
 	}
-	
+
 	@Override
 	public byte getPiecePhase()
 	{
 		int pPhase = 24;
 		for (int i = 1; i < 5; i++)
 		{
-			pPhase -= Long.bitCount(pieceLocations[i] | pieceLocations[i + 6])*ChessMove.PIECE_PHASES[i];
+			pPhase -= Long.bitCount(pieceLocations[i] | pieceLocations[i + 6]) * ChessMove.PIECE_PHASES[i];
 		}
 		return (byte) Math.max(0, pPhase);
 	}
@@ -464,16 +461,16 @@ public class BoardStateImplV2 implements BoardState
 	{
 		if (com.isPromotionOrder())
 		{
-			Sq target = com.getTargetSq();
-			PieceType toPromoteTo = com.getToPromoteTo();
+			final Sq target = com.getTargetSq();
+			final PieceType toPromoteTo = com.getToPromoteTo();
 			assert toPromoteTo != null;
-			
-			TByteList possStarts = new TByteArrayList();
-			for (byte pawnLoc : EngineUtils.getSetBits(getPieceLocations(getFriendlySide().index())))
+
+			final TByteList possStarts = new TByteArrayList();
+			for (final byte pawnLoc : EngineUtils.getSetBits(getPieceLocations(getFriendlySide().index())))
 			{
-				long friendly = getSideLocations(getFriendlySide()), enemy = getSideLocations(getEnemySide());
-				long mvSet = ChessPiece.get(getFriendlySide().index()).getMoveset(pawnLoc, friendly, enemy);
-				
+				final long friendly = getSideLocations(getFriendlySide()), enemy = getSideLocations(getEnemySide());
+				final long mvSet = ChessPiece.get(getFriendlySide().index()).getMoveset(pawnLoc, friendly, enemy);
+
 				if ((mvSet & target.getAsBB()) != 0)
 				{
 					possStarts.add(pawnLoc);
@@ -614,40 +611,41 @@ public class BoardStateImplV2 implements BoardState
 	{
 		return Arrays.copyOf(recentHashings, recentHashings.length);
 	}
-	
-//	CASTLE_RIGHTS_GETTER = 0b11110000L << (7 * 8);
-//
-//	private static final long CASTLE_STATUS_GETTER = 0b1111L << (7 * 8);
-//
-//	private static final long ENPASSANT_SQUARE_GETTER = 0b11111110L << (6 * 8);
-//
-//	private static final long FRIENDLY_SIDE_GETTER = 1L << (6 * 8);
-//
-//	private static final long HALFMOVE_CLOCK_GETTER = 0b11111100L << (5 * 8);
-//
-//	private static final long PIECE_PHASE_GETTER = 0b1111100000L << (4 * 8);
-//
-//	private static final long MIDGAME_LOC_EVAL_GETTER = 0b1111111111111111L << (2 * 8);
-//
-//	private static final long ENDGAME_LOC_EVAL_GETTER = 0b1111111111111111L;
-	
-	public static void main(String[] args)
+
+	// CASTLE_RIGHTS_GETTER = 0b11110000L << (7 * 8);
+	//
+	// private static final long CASTLE_STATUS_GETTER = 0b1111L << (7 * 8);
+	//
+	// private static final long ENPASSANT_SQUARE_GETTER = 0b11111110L << (6 * 8);
+	//
+	// private static final long FRIENDLY_SIDE_GETTER = 1L << (6 * 8);
+	//
+	// private static final long HALFMOVE_CLOCK_GETTER = 0b11111100L << (5 * 8);
+	//
+	// private static final long PIECE_PHASE_GETTER = 0b1111100000L << (4 * 8);
+	//
+	// private static final long MIDGAME_LOC_EVAL_GETTER = 0b1111111111111111L << (2 * 8);
+	//
+	// private static final long ENDGAME_LOC_EVAL_GETTER = 0b1111111111111111L;
+
+	public static void main(final String[] args)
 	{
-		EngineUtils.printNbitBoards(EngineUtils.multipleOr(CASTLE_RIGHTS_GETTER, 
-				CASTLE_STATUS_GETTER, 
+		EngineUtils.printNbitBoards(EngineUtils.multipleOr(CASTLE_RIGHTS_GETTER,
+				CASTLE_STATUS_GETTER,
 				ENPASSANT_SQUARE_GETTER,
-				FRIENDLY_SIDE_GETTER, 
-				HALFMOVE_CLOCK_GETTER, 
-				PIECE_PHASE_GETTER, 
-				MIDGAME_LOC_EVAL_GETTER, 
-				ENDGAME_LOC_EVAL_GETTER), EngineUtils.multipleOr(CASTLE_RIGHTS_GETTER, 
-						CASTLE_STATUS_GETTER, 
+				FRIENDLY_SIDE_GETTER,
+				HALFMOVE_CLOCK_GETTER,
+				PIECE_PHASE_GETTER,
+				MIDGAME_LOC_EVAL_GETTER,
+				ENDGAME_LOC_EVAL_GETTER),
+				EngineUtils.multipleOr(CASTLE_RIGHTS_GETTER,
+						CASTLE_STATUS_GETTER,
 						ENPASSANT_SQUARE_GETTER,
-						FRIENDLY_SIDE_GETTER, 
-						HALFMOVE_CLOCK_GETTER, 
-						MIDGAME_LOC_EVAL_GETTER, 
+						FRIENDLY_SIDE_GETTER,
+						HALFMOVE_CLOCK_GETTER,
+						MIDGAME_LOC_EVAL_GETTER,
 						ENDGAME_LOC_EVAL_GETTER));
-		
+
 		System.out.println(Integer.toBinaryString(-3));
 		System.out.println(Integer.toBinaryString(~0b11111111111111111111111111111101));
 	}
