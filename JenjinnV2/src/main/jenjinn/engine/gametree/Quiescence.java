@@ -20,10 +20,14 @@ import jenjinn.engine.moves.ChessMove;
 public class Quiescence
 {
 	private final BoardEvaluator evaluator;
-
 	
 	public short search(final BoardState root, int alpha, final int beta)
 	{
+		/*
+		 * We aren't dealing with terminal nodes proerly here
+		 * 
+		 *  what if standpat <= alpha?
+		 */
 		final short standPat = getEval(root);
 
 		if (standPat >= beta)
@@ -46,6 +50,10 @@ public class Quiescence
 			 * /!\ TERMINATION STATE SHOULD BE ADDED TO EVALUATION
 			 * 		OR TAKEN INTO ACCOUNT HERE BEFORE SCORE SINCE THE 
 			 * 		STATE COULD BE TERMINAL
+			 * 
+			 * - Added term eval to eval for now.
+			 * 
+			 *
 			 */
 			final int score = -search(newState, -beta, -alpha);
 

@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jenjinn.engine.boardstate.BoardState;
+import jenjinn.engine.enums.TerminationType;
 
 /**
  * Simple interface representing an object which can take a {@link BoardState} instance
@@ -39,13 +40,14 @@ public class BoardEvaluator
 	 */
 	public short evaluate(final BoardState state)
 	{
-		// final TerminationType tType = state.getTerminationState();
-		// if (tType != TerminationType.NOT_TERMINAL)
-		// {
-		// return tType.value;
-		// }
-
 		final int orientation = state.getFriendlySide().orientation();
+		final TerminationType tType = state.getTerminationState();
+		
+//		if (tType != TerminationType.NOT_TERMINAL)
+//		{
+//			return (short) (state.getFriendlySide().orientation() * tType.value);
+//		}
+		
 		int score = 0;
 		for (final EvaluatingComponent component : components)
 		{

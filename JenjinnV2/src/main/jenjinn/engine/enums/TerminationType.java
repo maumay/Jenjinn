@@ -19,4 +19,9 @@ public enum TerminationType
 	{
 		this.value = (short) value;
 	}
+	
+	public boolean isTerminal()
+	{
+		return this != NOT_TERMINAL;
+	}
 }

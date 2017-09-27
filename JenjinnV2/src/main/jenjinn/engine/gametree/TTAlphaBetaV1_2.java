@@ -3,6 +3,12 @@
  */
 package jenjinn.engine.gametree;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.math.BigInteger;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -17,7 +23,11 @@ import jenjinn.engine.evaluation.BoardEvaluator;
 import jenjinn.engine.evaluation.componentimpl.KingSafetyV1;
 import jenjinn.engine.evaluation.componentimpl.MobilityV1;
 import jenjinn.engine.evaluation.componentimpl.PawnStructureV1;
+import jenjinn.engine.exceptions.AmbiguousPgnException;
+import jenjinn.engine.io.pgnutils.ChessGameReader;
+import jenjinn.engine.misc.EngineUtils;
 import jenjinn.engine.moves.ChessMove;
+import jenjinn.engine.openingdatabase.AlgebraicCommand;
 
 /**
  * @author t
@@ -206,7 +216,7 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 
 		if (depth == 0)
 		{
-			return quiescence.search(root, alpha, beta);
+			return quiescence.getEvaluator().evaluate(root);//quiescence.search(root, alpha, beta);
 		}
 
 		int bestValue = -Infinity.SHORT_INFINITY;
@@ -363,16 +373,37 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 			x.add(0, x.remove(toGoFirst));
 		}
 	}
+	
+	static volatile ChessMove m;
 
-	public static void main(final String[] args)
+	public static void main(final String[] args) throws IOException, AmbiguousPgnException
 	{
-		final BoardState state = BoardStateImplV2.getStartBoard();
+//		final BoardState state = BoardStateImplV2.getStartBoard();
 		final BoardEvaluator eval = new BoardEvaluator(Arrays.asList(new KingSafetyV1(), new MobilityV1(), new PawnStructureV1()));
 		final MoveCalculator c = new TTAlphaBetaV1_2(eval);
 //		final NegaAlphaBeta d = new NegaAlphaBeta(eval);
 
-		System.out.println(c.getBestMove(state));
+		List<BigInteger> times = new ArrayList<>();
 //		System.out.println(d.getBestMoveFrom(state, 6));
+		BufferedReader br = Files.newBufferedReader(
+				Paths.get("JenjinnV2", "positionproviders", "carlsenprovider.txt"));
+		br.readLine();
+		for (int i = 0; i < 20; i++)
+		{
+			System.out.println("djdc");
+			AlgebraicCommand[] gComs = ChessGameReader.processSequenceOfCommands(br.readLine().trim());
+			BoardState state = BoardStateImplV2.getStartBoard();
+			for (int j = 0; j < Math.min(24, gComs.length); j++)
+			{
+				state = state.generateMove(gComs[j]).evolve(state);
+			}
+			assert state.getTerminationState() == TerminationType.NOT_TERMINAL;
+			long t = System.nanoTime();
+			m = c.getBestMove(state);
+			times.add(BigInteger.valueOf(System.nanoTime() - t));
+		}
+		
+		System.out.println(times.stream().mapToLong(x -> x.longValueExact()).sum()/20);
 	}
 
 }
