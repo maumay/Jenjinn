@@ -23,11 +23,14 @@ import jenjinn.engine.enums.TerminationType;
 public class BoardEvaluator
 {
 	private final List<EvaluatingComponent> components;
+	private final short[] pValueCache = new short[6];
 
 	public BoardEvaluator(final List<EvaluatingComponent> components)
 	{
 		this.components = new ArrayList<>(components);
 	}
+	
+	
 
 	/**
 	 * A NEGAMAX evaluation function taking a {@link BoardState} instance as a
@@ -40,6 +43,7 @@ public class BoardEvaluator
 	 */
 	public short evaluate(final BoardState state)
 	{
+		cachePieceValues(state);
 		final int orientation = state.getFriendlySide().orientation();
 		final TerminationType tType = state.getTerminationState();
 		
@@ -59,6 +63,13 @@ public class BoardEvaluator
 
 		return (short) (state.getFriendlySide().orientation() * score);
 	}
+
+	private void cachePieceValues(BoardState state) 
+	{
+		throw new RuntimeException("Not yet impl");
+	}
+
+
 
 	private short evalPiecePositions(final BoardState state)
 	{

@@ -120,17 +120,22 @@ public abstract class ChessPiece
 	{
 		return side == Side.W;
 	}
+	
+	public boolean canXray()
+	{
+		return id == 1 || id == 3 || id == 4;
+	}
 
 	/**
 	 * @return the id
 	 */
-	public byte getIndex()
+	public byte index()
 	{
 		return id;
 	}
 
 	public PieceType getPieceType()
 	{
-		return PieceType.fromId(getIndex());
+		return PieceType.fromId(index());
 	}
 }

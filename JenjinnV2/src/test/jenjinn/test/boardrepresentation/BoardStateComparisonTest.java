@@ -113,15 +113,15 @@ public class BoardStateComparisonTest
 		for (byte i = 0; i < 64; i++)
 		{
 			ChessPiece conP = cons.getPieceAt(i), testP = test.getPieceAt(i);
-			assertTrue(errorOutput, (conP == null && testP == null) || ((conP != null && testP != null) && conP.getIndex() == testP.getIndex()));
+			assertTrue(errorOutput, (conP == null && testP == null) || ((conP != null && testP != null) && conP.index() == testP.index()));
 
 			conP = cons.getPieceAt(i, Side.W);
 			testP = test.getPieceAt(i, Side.W);
-			assertTrue(errorOutput, (conP == null && testP == null) || ((conP != null && testP != null) && conP.getIndex() == testP.getIndex()));
+			assertTrue(errorOutput, (conP == null && testP == null) || ((conP != null && testP != null) && conP.index() == testP.index()));
 
 			conP = cons.getPieceAt(i, Side.B);
 			testP = test.getPieceAt(i, Side.B);
-			assertTrue("" + i + errorOutput, (conP == null && testP == null) || ((conP != null && testP != null) && conP.getIndex() == testP.getIndex()));
+			assertTrue("" + i + errorOutput, (conP == null && testP == null) || ((conP != null && testP != null) && conP.index() == testP.index()));
 		}
 
 		Assert.assertArrayEquals(errorOutput, cons.getPieceLocationsCopy(), test.getPieceLocationsCopy());

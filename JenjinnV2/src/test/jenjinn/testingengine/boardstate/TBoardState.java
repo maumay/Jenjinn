@@ -145,7 +145,7 @@ public final class TBoardState implements BoardState
 		Sq kLoc = null;
 		for (int i = 0; i < 64; i++)
 		{
-			if (board[i] != null && board[i].getIndex() == kId)
+			if (board[i] != null && board[i].index() == kId)
 			{
 				kLoc = Sq.get((byte) i);
 				break;
@@ -294,7 +294,7 @@ public final class TBoardState implements BoardState
 	{
 		return EngineUtils.multipleOr(
 				IntStream.range(0, 64)
-						.filter(i -> board[i] != null && board[i].getIndex() == pieceIndex)
+						.filter(i -> board[i] != null && board[i].index() == pieceIndex)
 						.mapToLong(i -> (1L << i))
 						.toArray());
 	}
@@ -376,7 +376,7 @@ public final class TBoardState implements BoardState
 		{
 			if (board[i] != null)
 			{
-				pieceCounts[board[i].getIndex() % 6]++;
+				pieceCounts[board[i].index() % 6]++;
 			}
 		});
 		return (byte) Math.max(0, totalPhase
@@ -456,7 +456,7 @@ public final class TBoardState implements BoardState
 				.filter(i -> board[i] != null).map(i ->
 				{
 					final TChessPiece p = board[i];
-					return BoardState.MID_TABLE.getPieceSquareValue(p.getIndex(), (byte) i);
+					return BoardState.MID_TABLE.getPieceSquareValue(p.index(), (byte) i);
 				}).sum();
 	}
 
@@ -467,7 +467,7 @@ public final class TBoardState implements BoardState
 				.filter(i -> board[i] != null).map(i ->
 				{
 					final TChessPiece p = board[i];
-					return BoardState.END_TABLE.getPieceSquareValue(p.getIndex(), (byte) i);
+					return BoardState.END_TABLE.getPieceSquareValue(p.index(), (byte) i);
 				}).sum();
 	}
 

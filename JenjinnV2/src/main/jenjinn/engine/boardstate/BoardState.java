@@ -109,4 +109,6 @@ public interface BoardState
 
 	short getEndgamePositionalEval();
 
+	ChessPiece getPieceFromBB(long fromset);
+
 }

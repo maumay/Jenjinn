@@ -37,7 +37,7 @@ public interface ChessMove
 
 	default byte updatePiecePhase(final byte oldPhase, final ChessPiece removedPiece)
 	{
-		return (byte) (oldPhase + PIECE_PHASES[removedPiece.getIndex() % 6]);
+		return (byte) (oldPhase + PIECE_PHASES[removedPiece.index() % 6]);
 	}
 
 	default long updateGeneralHashFeatures(final BoardState oldState, final byte newCastleRights, final byte newEnPassantSquare)
