@@ -19,11 +19,15 @@ public class SEE
 	public int eval(byte targ, byte from, BoardState state, short[] pieceValues)
 	{
 		// Make sure all instance variables set correctly first
+		fromset = 1L << from;
 		targBB = 1L << targ;
 		occ = state.getOccupiedSquares();
 		generateAttackDefenseInfo(state);
 		
-		int d = 0, moveSide = state.getFriendlySideValue();
+		long knightLocs = state.getPieceLocations(2)|state.getPieceLocations(8);
+		Side fromSide = state.getFriendlySide();
+		
+		int d = 0;
 		int[] gain = new int[32];
 		gain[d] = pieceValues[state.getPieceAt(targ).index()];
 		ChessPiece attPiece = state.getPieceFromBB(fromset);
@@ -31,16 +35,47 @@ public class SEE
 		do
 		{
 			d++;
+			fromSide = fromSide.otherSide();
+			
 			gain[d] = pieceValues[attPiece.index()] - gain[d - 1];
+			if (Math.max(-gain[d - 1], gain[d]) < 0)
+			{
+				break;
+			}
+			
 			attadef ^= fromset;
 			occ ^= fromset;
 			
+			if ((fromset & knightLocs) == 0)
+			{
+				updateXrays(state);
+			}
+			fromset = getLeastValuablePiece(state.getPieceLocationsCopy(), fromSide);
+			attPiece = state.getPieceFromBB(fromset);
 		}
-		while (false);
+		while (fromset != 0);
 		
-		return 0;
+		while (--d > 0)
+		{
+			gain[d - 1] = -Math.max(-gain[d - 1], gain[d]);
+		}
+		return gain[0];
 	}
 	
+	private void updateXrays(BoardState state) 
+	{
+		for (byte loc : EngineUtils.getSetBits(potenxray))
+		{
+			ChessPiece p = state.getPieceAt(loc);
+			if ((p.getAttackset(loc, occ) & targBB) != 0)
+			{
+				long locBB = 1L << loc;
+				potenxray ^= locBB;
+				attadef ^= locBB;
+			}
+		}
+	}
+
 	private void generateAttackDefenseInfo(BoardState state) 
 	{
 		attadef = 0L;
@@ -67,7 +102,7 @@ public class SEE
 		}
 	}
 
-	private long getLeastValuablePiece(long[] pieceLocs, long attadef, Side fromSide)
+	private long getLeastValuablePiece(long[] pieceLocs, Side fromSide)
 	{
 		int startIdx = fromSide.index(), endIdx = startIdx + 6;
 		for (int i = startIdx; i < endIdx; i++)
@@ -80,5 +115,4 @@ public class SEE
 		}
 		return 0L;
 	}
-
 }

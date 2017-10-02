@@ -648,6 +648,12 @@ public final class TBoardState implements BoardState
 	{
 		return Arrays.copyOf(recentHashes, recentHashes.length);
 	}
+
+	@Override
+	public ChessPiece getPieceFromBB(long fromset) 
+	{
+		throw new RuntimeException("Not yet impl");
+	}
 }
 /* ---------------------------------------------------------------------*
  * This software is the confidential and proprietary
