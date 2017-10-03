@@ -55,11 +55,11 @@ public class TStandardMove extends TAbstractChessMove
 		// Update locations -----------------------------------------
 		final long start = getStartBB(), target = getTargetBB();
 		final long[] newPieceLocations = state.getPieceLocationsCopy();
-		newPieceLocations[movingPiece.getIndex()] &= ~start;
-		newPieceLocations[movingPiece.getIndex()] |= target;
+		newPieceLocations[movingPiece.index()] &= ~start;
+		newPieceLocations[movingPiece.index()] |= target;
 		if (removedPiece != null)
 		{
-			newPieceLocations[removedPiece.getIndex()] &= ~target;
+			newPieceLocations[removedPiece.index()] &= ~target;
 		}
 		// -----------------------------------------------------------
 		final long newDevStatus = state.getDevelopmentStatus() & ~start;

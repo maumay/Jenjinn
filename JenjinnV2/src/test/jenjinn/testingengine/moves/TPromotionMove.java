@@ -51,7 +51,7 @@ public class TPromotionMove extends TAbstractChessMove
 		newPieceLocations[newPieceIndex] |= getTargetBB(); 
 		if (removedPiece != null)
 		{
-			newPieceLocations[removedPiece.getIndex()] &= ~getTargetBB();
+			newPieceLocations[removedPiece.index()] &= ~getTargetBB();
 		}
 		// ---------------------------------------------------------------------
 		return new TBoardState(friendlySide.otherSide(),

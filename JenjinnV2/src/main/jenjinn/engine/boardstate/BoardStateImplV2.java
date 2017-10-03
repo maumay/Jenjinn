@@ -153,17 +153,45 @@ public class BoardStateImplV2 implements BoardState
 	@Override
 	public List<ChessMove> getAttackMoves()
 	{
-		final long enemyLoc = getSideLocations(getEnemySide());
-		final List<ChessMove> allMoves = getMoves(), attackMoves = new ArrayList<>();
+		final Side friendlySide = getFriendlySide();
+		final long enemyPieces = getSideLocations(friendlySide.otherSide());
+		final long allPieces = getOccupiedSquares();
 
-		for (final ChessMove mv : allMoves)
+		final List<ChessMove> moves = new ArrayList<>();
+
+		final byte upperBound = (byte) (5 + friendlySide.index()), lowerBound = friendlySide.index();
+		for (byte i = upperBound; i > lowerBound; i--) // Get the most valuable piece moves first
 		{
-			if (mv instanceof EnPassantMove || ((mv.getTargetBB() & enemyLoc) != 0))
+			final ChessPiece p = ChessPiece.get(i);
+
+			for (final byte loc : EngineUtils.getSetBits(pieceLocations[i]))
 			{
-				attackMoves.add(mv);
+				addStandardMoves(moves, loc, p.getAttackset(loc, allPieces) & enemyPieces);
 			}
 		}
-		return attackMoves;
+
+		// Add Pawn moves.
+		final ChessPiece p = ChessPiece.get(lowerBound); // Pawn
+		if (getEnPassantSq() != BoardState.NO_ENPASSANT)
+		{
+			for (final byte loc : EngineUtils.getSetBits(pieceLocations[lowerBound]))
+			{
+				addPawnStandardAndPromotionMoves(moves, loc, p.getAttackset(loc, allPieces) & enemyPieces);
+				if (((p.getAttackset(loc, allPieces) & (1L << getEnPassantSq())) != 0))
+				{
+					moves.add(EnPassantMove.get(loc, getEnPassantSq()));
+				}
+			}
+		}
+		else
+		{
+			for (final byte loc : EngineUtils.getSetBits(pieceLocations[lowerBound]))
+			{
+				addPawnStandardAndPromotionMoves(moves, loc, p.getAttackset(loc, allPieces) & enemyPieces);
+			}
+		}
+
+		return moves;
 	}
 
 	/**
@@ -387,7 +415,7 @@ public class BoardStateImplV2 implements BoardState
 	public TerminationType getTerminationState()
 	{
 		if (getClockValue() == 100)
-		{// 33 = (4 * 8) + 1
+		{
 			return TerminationType.DRAW;
 		}
 
@@ -568,12 +596,12 @@ public class BoardStateImplV2 implements BoardState
 				final ChessPiece p = getPieceAt(startLoc, getFriendlySide());
 				assert p != null;
 
-				pieceLocations[p.getIndex()] &= ~(1L << startLoc);
+				pieceLocations[p.index()] &= ~(1L << startLoc);
 				if ((getSquaresAttackedBy(getEnemySide()) & pieceLocations[5 + getFriendlySide().index()]) != 0)
 				{
 					pinned.set(i);
 				}
-				pieceLocations[p.getIndex()] |= (1L << startLoc);
+				pieceLocations[p.index()] |= (1L << startLoc);
 			}
 			final int pCard = pinned.cardinality();
 			if (pCard == 0 || pCard == 2)
@@ -648,6 +676,19 @@ public class BoardStateImplV2 implements BoardState
 
 		System.out.println(Integer.toBinaryString(-3));
 		System.out.println(Integer.toBinaryString(~0b11111111111111111111111111111101));
+	}
+
+	@Override
+	public ChessPiece getPieceFromBB(long fromset) 
+	{
+		for (int i = 0; i < 12; i++)
+		{
+			if ((pieceLocations[i] & fromset) != 0)
+			{
+				return ChessPiece.get(i);
+			}
+		}
+		return null;
 	}
 }
 

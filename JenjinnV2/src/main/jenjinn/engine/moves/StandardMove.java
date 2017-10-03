@@ -121,18 +121,18 @@ public class StandardMove extends AbstractChessMoveImplV2
 		// Update locations -----------------------------------------
 		final long start = getStartBB(), target = getTargetBB();
 		final long[] newPieceLocations = state.getPieceLocationsCopy();
-		newPieceLocations[movingPiece.getIndex()] &= ~start;
-		newPieceLocations[movingPiece.getIndex()] |= target;
+		newPieceLocations[movingPiece.index()] &= ~start;
+		newPieceLocations[movingPiece.index()] |= target;
 		//-----------------------------------------------------------
 		
 		// Update positional evaluations ----------------------------
 		short midPosEval = state.getMidgamePositionalEval(), endPosEval = state.getEndgamePositionalEval();
 		
-		midPosEval += MID_TABLE.getPieceSquareValue(movingPiece.getIndex(), getTarget());
-		midPosEval -= MID_TABLE.getPieceSquareValue(movingPiece.getIndex(), getStart());
+		midPosEval += MID_TABLE.getPieceSquareValue(movingPiece.index(), getTarget());
+		midPosEval -= MID_TABLE.getPieceSquareValue(movingPiece.index(), getStart());
 		
-		endPosEval += END_TABLE.getPieceSquareValue(movingPiece.getIndex(), getTarget());
-		endPosEval -= END_TABLE.getPieceSquareValue(movingPiece.getIndex(), getStart());
+		endPosEval += END_TABLE.getPieceSquareValue(movingPiece.index(), getTarget());
+		endPosEval -= END_TABLE.getPieceSquareValue(movingPiece.index(), getStart());
 		
 		//-----------------------------------------------------------
 
@@ -140,11 +140,11 @@ public class StandardMove extends AbstractChessMoveImplV2
 
 		if (removedPiece != null)
 		{
-			newPieceLocations[removedPiece.getIndex()] &= ~target;
+			newPieceLocations[removedPiece.index()] &= ~target;
 			newHash ^= BoardState.HASHER.getSquarePieceFeature(getTarget(), removedPiece);
 			piecePhase = updatePiecePhase(piecePhase, removedPiece);
-			midPosEval -= MID_TABLE.getPieceSquareValue(removedPiece.getIndex(), getTarget());
-			endPosEval -= END_TABLE.getPieceSquareValue(removedPiece.getIndex(), getTarget());
+			midPosEval -= MID_TABLE.getPieceSquareValue(removedPiece.index(), getTarget());
+			endPosEval -= END_TABLE.getPieceSquareValue(removedPiece.index(), getTarget());
 		}
 
 		final long newDevStatus = state.getDevelopmentStatus() & ~start;

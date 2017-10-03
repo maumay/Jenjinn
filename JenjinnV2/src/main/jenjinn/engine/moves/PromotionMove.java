@@ -80,12 +80,12 @@ public class PromotionMove extends AbstractChessMoveImplV2
 
 		if (removedPiece != null)
 		{
-			newPieceLocations[removedPiece.getIndex()] &= ~getTargetBB();
-			newHash ^= BoardState.HASHER.getSquarePieceFeature(getTarget(), ChessPiece.get(removedPiece.getIndex()));
+			newPieceLocations[removedPiece.index()] &= ~getTargetBB();
+			newHash ^= BoardState.HASHER.getSquarePieceFeature(getTarget(), ChessPiece.get(removedPiece.index()));
 			oldPiecePhase = updatePiecePhase(oldPiecePhase, removedPiece);
 			
-			midPosEval -= MID_TABLE.getPieceSquareValue(removedPiece.getIndex(), getTarget());
-			endPosEval -= END_TABLE.getPieceSquareValue(removedPiece.getIndex(), getTarget());
+			midPosEval -= MID_TABLE.getPieceSquareValue(removedPiece.index(), getTarget());
+			endPosEval -= END_TABLE.getPieceSquareValue(removedPiece.index(), getTarget());
 		}
 
 		return new BoardStateImplV2(
