@@ -6,11 +6,14 @@
  */
 package jenjinn.engine.gametree;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import jenjinn.engine.boardstate.BoardState;
 import jenjinn.engine.evaluation.BoardEvaluator;
+import jenjinn.engine.evaluation.SEE;
 import jenjinn.engine.moves.ChessMove;
+import jenjinn.engine.moves.EnPassantMove;
 
 /**
  * @author ThomasB
@@ -22,6 +25,7 @@ public class Quiescence
 	static int maxDepth = 0, currentDepth = 0;
 
 	private final BoardEvaluator evaluator;
+	private final SEE see = new SEE();
 
 	public short search(final BoardState root, int alpha, final int beta)
 	{
@@ -51,8 +55,7 @@ public class Quiescence
 			alpha = standPat;
 		}
 
-		final List<ChessMove> attackMoves = root.getAttackMoves();
-		pruneMoves(attackMoves);
+		List<ChessMove> attackMoves = getMovesToProbe(root);
 
 		for (final ChessMove mv : attackMoves)
 		{
@@ -78,9 +81,20 @@ public class Quiescence
 		return (short) alpha;
 	}
 
-	private void pruneMoves(final List<ChessMove> attackMoves)
+	private List<ChessMove> getMovesToProbe(BoardState state)
 	{
-		// TODO - SEE, delta pruning etc.
+		short[] pValues = state.interpolatePieceValues();
+		List<ChessMove> mtp = new ArrayList<>(), attMvs = state.getAttackMoves();
+		
+		for (ChessMove mv : attMvs)
+		{
+			if (mv instanceof EnPassantMove || 
+					see.isGoodExchange(mv.getTarget(), mv.getStart(), state, pValues))
+			{
+				mtp.add(mv);
+			}
+		}
+		return mtp;
 	}
 
 	/**

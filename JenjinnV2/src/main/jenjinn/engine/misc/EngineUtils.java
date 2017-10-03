@@ -344,6 +344,11 @@ public class EngineUtils
 		return startLocs[1] | startLocs[2] | startLocs[7] | startLocs[8] |
 				((startLocs[0] | startLocs[6]) & (BBDB.FILE[3] | BBDB.FILE[4]));
 	}
+	
+	public static long getBB(Sq... sqs)
+	{
+		return multipleOr(Arrays.stream(sqs).mapToLong(sq -> sq.getAsBB()).toArray());
+	}
 
 	public static void main(final String[] args)
 	{

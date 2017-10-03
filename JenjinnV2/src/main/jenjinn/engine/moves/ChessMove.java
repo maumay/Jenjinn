@@ -22,6 +22,8 @@ public interface ChessMove
 	BoardState evolve(BoardState state);
 
 	byte getTarget();
+	
+	byte getStart();
 
 	long getTargetBB();
 

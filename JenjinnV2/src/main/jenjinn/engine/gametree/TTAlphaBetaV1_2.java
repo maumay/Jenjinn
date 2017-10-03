@@ -55,7 +55,7 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 	/**
 	 * Depth we will search at.
 	 */
-	private int searchDepth = 5;
+	private int searchDepth = 6;
 
 	private int bestFirstMoveIndex = -1;
 
@@ -397,9 +397,9 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 		final List<BigInteger> times = new ArrayList<>();
 		// System.out.println(d.getBestMoveFrom(state, 6));
 		final BufferedReader br = Files.newBufferedReader(
-				Paths.get("positionproviders", "carlsenprovider.txt"));
+				Paths.get("JenjinnV2", "positionproviders", "carlsenprovider.txt"));
 		br.readLine();
-		for (int i = 0; i < 20; i++)
+		for (int i = 0; i < 5; i++)
 		{
 			if (i == 0)
 			{

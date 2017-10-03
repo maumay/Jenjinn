@@ -43,7 +43,7 @@ public class BoardEvaluator
 	 */
 	public short evaluate(final BoardState state)
 	{
-		cachePieceValues(state);
+//		cachePieceValues(state);
 		final int orientation = state.getFriendlySide().orientation();
 		final TerminationType tType = state.getTerminationState();
 		

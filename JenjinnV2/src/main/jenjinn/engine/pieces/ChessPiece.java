@@ -123,7 +123,8 @@ public abstract class ChessPiece
 	
 	public boolean canXray()
 	{
-		return id == 1 || id == 3 || id == 4;
+		int modId = id % 6;
+		return modId == 1 || modId == 3 || modId == 4;
 	}
 
 	/**

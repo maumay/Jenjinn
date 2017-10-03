@@ -6,7 +6,12 @@ import jenjinn.engine.enums.Side;
 import jenjinn.engine.misc.EngineUtils;
 import jenjinn.engine.pieces.ChessPiece;
 
-public class SEE
+/**
+ * Static exchange evaluator, implemented using pseudo c code on chessprogramming
+ * @author t
+ *
+ */
+public final class SEE
 {
 	private static final int[] ASCENDING_PVALUES = { 0, 2, 1, 3, 4, 5, 6, 8, 7, 9, 10, 11 };
 
@@ -29,7 +34,7 @@ public class SEE
 
 		int d = 0;
 		final int[] gain = new int[32];
-		gain[d] = pieceValues[state.getPieceAt(targ).index()];
+		gain[d] = pieceValues[state.getPieceAt(targ).index()%6];
 		ChessPiece attPiece = state.getPieceFromBB(fromset);
 
 		do
@@ -37,7 +42,8 @@ public class SEE
 			d++;
 			fromSide = fromSide.otherSide();
 
-			gain[d] = pieceValues[attPiece.index()] - gain[d - 1];
+			gain[d] = pieceValues[attPiece.index()%6] - gain[d - 1];
+			
 			if (Math.max(-gain[d - 1], gain[d]) < 0)
 			{
 				break;
@@ -54,12 +60,17 @@ public class SEE
 			attPiece = state.getPieceFromBB(fromset);
 		}
 		while (fromset != 0);
-
+		
 		while (--d > 0)
 		{
 			gain[d - 1] = -Math.max(-gain[d - 1], gain[d]);
 		}
 		return gain[0];
+	}
+	
+	public boolean isGoodExchange(final byte targ, final byte from, final BoardState state, final short[] pieceValues)
+	{
+		return eval(targ, from, state, pieceValues) > 0;
 	}
 
 	private void updateXrays(final BoardState state)
@@ -80,23 +91,23 @@ public class SEE
 	{
 		attadef = 0L;
 		potenxray = 0L;
-		final int ctr = 0;
+		int ctr = 0;
 		for (final long locs : state.getPieceLocationsCopy())
 		{
-			final ChessPiece p = ChessPiece.get(ctr);
+			final ChessPiece p = ChessPiece.get(ctr++);
 			final boolean canXray = p.canXray();
 
 			for (final byte loc : EngineUtils.getSetBits(locs))
 			{
-				final long atts = p.getAttackset(loc, occ), xray = BBDB.EBA[p.index() + 1][loc];
-
+				final long atts = p.getAttackset(loc, occ);
+				
 				if ((atts & targBB) != 0)
 				{
-					attadef |= loc;
+					attadef |= (1L << loc);
 				}
-				else if (canXray && (xray & targBB) != 0)
+				else if (canXray && (BBDB.EBA[(p.index()%6) + 1][loc] & targBB) != 0)
 				{
-					potenxray |= loc;
+					potenxray |= (1L << loc);
 				}
 			}
 		}
@@ -110,7 +121,7 @@ public class SEE
 			final long subset = attadef & pieceLocs[ASCENDING_PVALUES[i]];
 			if (subset != 0)
 			{
-				return (subset & ~subset);
+				return (subset & -subset);
 			}
 		}
 		return 0L;
