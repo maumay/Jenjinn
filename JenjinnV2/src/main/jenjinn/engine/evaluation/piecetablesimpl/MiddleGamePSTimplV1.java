@@ -14,7 +14,8 @@ package jenjinn.engine.evaluation.piecetablesimpl;
  */
 public class MiddleGamePSTimplV1 extends AbstractPSTimplV1
 {
-	private static final short[] PIECE_VALUES = { 90, 330, 320, 490, 900, 10000 };
+	/* Obviously don't modify elsewhere. */
+	public static final short[] PIECE_VALUES = { 90, 330, 320, 490, 900, 10000 };
 
 	/**
 	 *

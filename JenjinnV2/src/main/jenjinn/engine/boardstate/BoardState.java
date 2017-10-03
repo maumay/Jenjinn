@@ -8,6 +8,7 @@ import java.util.List;
 import jenjinn.engine.enums.Side;
 import jenjinn.engine.enums.TerminationType;
 import jenjinn.engine.evaluation.PieceSquareTable;
+import jenjinn.engine.evaluation.PieceValueProvider;
 import jenjinn.engine.evaluation.piecetablesimpl.EndGamePSTimplV1;
 import jenjinn.engine.evaluation.piecetablesimpl.MiddleGamePSTimplV1;
 import jenjinn.engine.exceptions.AmbiguousPgnException;
@@ -91,6 +92,22 @@ public interface BoardState
 		return (short) ((getPiecePhase() * 256 + 12) / 24);
 	}
 
+	default short[] interpolatePieceValues()
+	{
+		final short[] arr1 = PieceValueProvider.MGAME_VALUES, arr2 = PieceValueProvider.EGAME_VALUES;
+		assert arr1.length == arr2.length;
+		final short[] result = new short[arr1.length];
+		final short gamePhase = getGamePhase();
+
+		for (int i = 0; i < arr1.length; i++)
+		{
+			final int ans = ((arr1[i] * (256 - gamePhase)) + (arr2[i] * gamePhase)) / 256;
+			assert (short) ans == ans;
+			result[i] = (short) (ans);
+		}
+		return result;
+	}
+
 	long getDevelopmentStatus();
 
 	long getHashing();
@@ -110,5 +127,4 @@ public interface BoardState
 	short getEndgamePositionalEval();
 
 	ChessPiece getPieceFromBB(long fromset);
-
 }

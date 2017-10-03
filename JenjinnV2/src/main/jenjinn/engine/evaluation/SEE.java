@@ -8,7 +8,6 @@ import jenjinn.engine.pieces.ChessPiece;
 
 public class SEE
 {
-
 	private static final int[] ASCENDING_PVALUES = { 0, 2, 1, 3, 4, 5, 6, 8, 7, 9, 10, 11 };
 
 	public SEE()

@@ -18,6 +18,7 @@ import jenjinn.engine.moves.ChessMove;
  */
 public class Quiescence
 {
+	/* Interesting to track how deep quiescence probes. */
 	static int maxDepth = 0, currentDepth = 0;
 
 	private final BoardEvaluator evaluator;
