@@ -6,7 +6,10 @@
 
 package jenjinn.engine.misc;
 
+import java.io.IOException;
 import java.math.BigInteger;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -16,6 +19,7 @@ import gnu.trove.list.TLongList;
 import gnu.trove.list.array.TLongArrayList;
 import jenjinn.engine.bitboarddatabase.BBDB;
 import jenjinn.engine.enums.Sq;
+import jenjinn.engine.moves.ChessMove;
 import jenjinn.engine.moves.StandardMove;
 import jenjinn.engine.pieces.ChessPiece;
 
@@ -344,10 +348,35 @@ public class EngineUtils
 		return startLocs[1] | startLocs[2] | startLocs[7] | startLocs[8] |
 				((startLocs[0] | startLocs[6]) & (BBDB.FILE[3] | BBDB.FILE[4]));
 	}
-	
-	public static long getBB(Sq... sqs)
+
+	public static long getBB(final Sq... sqs)
 	{
 		return multipleOr(Arrays.stream(sqs).mapToLong(sq -> sq.getAsBB()).toArray());
+	}
+
+	public static void writeMoves(final List<ChessMove> toWrite, final Path path) throws IOException
+	{
+		final List<String> asStrings = new ArrayList<>();
+
+		for (final ChessMove mv : toWrite)
+		{
+			asStrings.add(mv.toCompactString());
+		}
+
+		Files.write(path, asStrings);
+	}
+
+	public static List<ChessMove> readMoves(final Path path) throws IOException
+	{
+		final List<String> lines = Files.readAllLines(path);
+		final List<ChessMove> mvs = new ArrayList<>();
+
+		for (final String line : lines)
+		{
+			mvs.add(ChessMove.fromCompactString(line));
+		}
+
+		return mvs;
 	}
 
 	public static void main(final String[] args)

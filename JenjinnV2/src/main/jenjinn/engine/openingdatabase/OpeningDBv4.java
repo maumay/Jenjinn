@@ -55,7 +55,7 @@ public class OpeningDBv4
 
 			if (new BigInteger(components[0], 16).longValue() == stateHashing)
 			{
-				return ChessMove.getFromReportString(components[1]);
+				return ChessMove.fromCompactString(components[1]);
 			}
 		}
 		return null;

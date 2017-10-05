@@ -35,6 +35,11 @@ public class EnPassantMove extends AbstractChessMoveImplV2
 		return new EnPassantMove(start, target);
 	}
 
+	public static EnPassantMove get(final Sq start, final Sq targ)
+	{
+		return get(start.ordinal(), targ.ordinal());
+	}
+
 	private EnPassantMove(final int start, final int target)
 	{
 		super(MoveType.ENPASSANT, start, target);
@@ -57,9 +62,9 @@ public class EnPassantMove extends AbstractChessMoveImplV2
 
 		final long[] newPieceLocations = state.getPieceLocationsCopy();
 
-		newPieceLocations[friendlySide.index()] &= ~getStartBB();
+		newPieceLocations[friendlySide.index()] ^= getStartBB();
 		newPieceLocations[friendlySide.index()] |= getTargetBB();
-		newPieceLocations[friendlySide.otherSide().index()] &= ~enPassantSquareBB;
+		newPieceLocations[friendlySide.otherSide().index()] ^= enPassantSquareBB;
 		// ---------------------------------------------------------------
 
 		// Update metadata ----------------------------------------------
@@ -94,11 +99,6 @@ public class EnPassantMove extends AbstractChessMoveImplV2
 				endPosEval,
 				state.getDevelopmentStatus(),
 				newPieceLocations);
-	}
-
-	public static EnPassantMove get(final Sq start, final Sq targSq)
-	{
-		return get(start.ordinal(), targSq.ordinal());
 	}
 
 	@Override

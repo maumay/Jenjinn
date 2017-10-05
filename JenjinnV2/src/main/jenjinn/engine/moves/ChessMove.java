@@ -6,9 +6,15 @@
  */
 package jenjinn.engine.moves;
 
+import java.util.Arrays;
+import java.util.List;
+
 import jenjinn.engine.boardstate.BoardState;
 import jenjinn.engine.boardstate.CastlingRights;
+import jenjinn.engine.enums.MoveType;
+import jenjinn.engine.enums.Sq;
 import jenjinn.engine.pieces.ChessPiece;
+import jenjinn.engine.pieces.PieceType;
 
 /**
  * @author ThomasB
@@ -16,25 +22,64 @@ import jenjinn.engine.pieces.ChessPiece;
  */
 public interface ChessMove
 {
+	String SEPARATOR = "_";
+
 	/** Don't modify this obviously */
 	byte[] PIECE_PHASES = { 0, 1, 1, 2, 4, 0 };
 
 	BoardState evolve(BoardState state);
 
 	byte getTarget();
-	
+
 	byte getStart();
+
+	MoveType getType();
 
 	long getTargetBB();
 
-	default String toRecordString()
+	boolean matches(final Sq start, final Sq target);
+
+	boolean matchesStart(final Sq start);
+
+	default String toCompactString()
 	{
-		throw new RuntimeException();
+		final StringBuilder sb = new StringBuilder();
+		sb.append(getType().id);
+		sb.append(ChessMove.SEPARATOR);
+		sb.append(getStart());
+		sb.append(ChessMove.SEPARATOR);
+		sb.append(getTarget());
+		return sb.toString();
 	}
 
-	static ChessMove getFromReportString(final String string)
+	static ChessMove fromCompactString(final String reportString)
 	{
-		throw new RuntimeException();
+		final List<String> components = Arrays.asList(reportString.split(SEPARATOR));
+		final MoveType mt = MoveType.getFromId(Integer.parseInt(components.get(0)));
+
+		if (mt == MoveType.CASTLE)
+		{
+			assert components.size() == 2;
+			return CastleMove.get(Integer.parseInt(components.get(1)));
+		}
+
+		final int start = Integer.parseInt(components.get(1)), targ = Integer.parseInt(components.get(2));
+
+		switch (mt)
+		{
+			case STANDARD:
+				assert components.size() == 3;
+				return StandardMove.get(start, targ);
+			case ENPASSANT:
+				assert components.size() == 3;
+				return EnPassantMove.get(start, targ);
+			case PROMOTION:
+				assert components.size() == 4;
+				final PieceType toPromoteTo = PieceType.valueOf(components.get(3));
+				return PromotionMove.get(start, targ, toPromoteTo);
+			default:
+				throw new RuntimeException("Not yet impl");
+		}
 	}
 
 	default byte updatePiecePhase(final byte oldPhase, final ChessPiece removedPiece)

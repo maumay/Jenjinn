@@ -397,7 +397,7 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 		final List<BigInteger> times = new ArrayList<>();
 		// System.out.println(d.getBestMoveFrom(state, 6));
 		final BufferedReader br = Files.newBufferedReader(
-				Paths.get("JenjinnV2", "positionproviders", "carlsenprovider.txt"));
+				Paths.get("positionproviders", "carlsenprovider.txt"));
 		br.readLine();
 		for (int i = 0; i < 5; i++)
 		{

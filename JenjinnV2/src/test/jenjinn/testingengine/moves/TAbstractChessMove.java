@@ -4,6 +4,7 @@
 package jenjinn.testingengine.moves;
 
 import jenjinn.engine.enums.MoveType;
+import jenjinn.engine.enums.Sq;
 import jenjinn.engine.moves.ChessMove;
 
 /**
@@ -23,6 +24,19 @@ public abstract class TAbstractChessMove implements ChessMove
 		this.target = (byte) target;
 	}
 
+	@Override
+	public boolean matches(final Sq start, final Sq target)
+	{
+		return start.ordinal() == this.start && target.ordinal() == this.target;
+	}
+
+	@Override
+	public boolean matchesStart(final Sq start)
+	{
+		return start.ordinal() == this.start;
+	}
+
+	@Override
 	public byte getStart()
 	{
 		return start;
@@ -33,6 +47,7 @@ public abstract class TAbstractChessMove implements ChessMove
 		return (1L << start);
 	}
 
+	@Override
 	public byte getTarget()
 	{
 		return target;

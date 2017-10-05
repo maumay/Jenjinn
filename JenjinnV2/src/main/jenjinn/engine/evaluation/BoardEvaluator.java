@@ -7,10 +7,13 @@
 package jenjinn.engine.evaluation;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import jenjinn.engine.boardstate.BoardState;
-import jenjinn.engine.enums.TerminationType;
+import jenjinn.engine.evaluation.componentimpl.KingSafetyV1;
+import jenjinn.engine.evaluation.componentimpl.MobilityV1;
+import jenjinn.engine.evaluation.componentimpl.PawnStructureV1;
 
 /**
  * Simple interface representing an object which can take a {@link BoardState} instance
@@ -23,14 +26,11 @@ import jenjinn.engine.enums.TerminationType;
 public class BoardEvaluator
 {
 	private final List<EvaluatingComponent> components;
-	private final short[] pValueCache = new short[6];
 
 	public BoardEvaluator(final List<EvaluatingComponent> components)
 	{
 		this.components = new ArrayList<>(components);
 	}
-	
-	
 
 	/**
 	 * A NEGAMAX evaluation function taking a {@link BoardState} instance as a
@@ -43,15 +43,8 @@ public class BoardEvaluator
 	 */
 	public short evaluate(final BoardState state)
 	{
-//		cachePieceValues(state);
 		final int orientation = state.getFriendlySide().orientation();
-		final TerminationType tType = state.getTerminationState();
-		
-//		if (tType != TerminationType.NOT_TERMINAL)
-//		{
-//			return (short) (state.getFriendlySide().orientation() * tType.value);
-//		}
-		
+
 		int score = 0;
 		for (final EvaluatingComponent component : components)
 		{
@@ -64,18 +57,16 @@ public class BoardEvaluator
 		return (short) (state.getFriendlySide().orientation() * score);
 	}
 
-	private void cachePieceValues(BoardState state) 
-	{
-		throw new RuntimeException("Not yet impl");
-	}
-
-
-
 	private short evalPiecePositions(final BoardState state)
 	{
 		final short midGameEval = state.getMidgamePositionalEval(), endGameEval = state.getEndgamePositionalEval();
 		final short gamePhase = state.getGamePhase();
 		return (short) (((midGameEval * (256 - gamePhase)) + (endGameEval * gamePhase)) / 256);
+	}
+
+	public static BoardEvaluator getDefault()
+	{
+		return new BoardEvaluator(Arrays.asList(new KingSafetyV1(), new MobilityV1(), new PawnStructureV1()));
 	}
 }
 /* ---------------------------------------------------------------------*

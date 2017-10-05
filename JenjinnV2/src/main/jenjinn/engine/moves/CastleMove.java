@@ -35,6 +35,8 @@ public final class CastleMove extends AbstractChessMoveImplV2
 
 	public static final CastleMove BLACK_QUEENSIDE = new CastleMove(59, 61, new int[] { 59, 61, 63, 60 });
 
+	private static final List<CastleMove> ALL = Arrays.asList(WHITE_KINGSIDE, WHITE_QUEENSIDE, BLACK_KINGSIDE, BLACK_QUEENSIDE);
+
 	public static final List<CastleMove> ALL_INSTANCES = Collections.unmodifiableList(Arrays.asList(
 			WHITE_KINGSIDE,
 			WHITE_QUEENSIDE,
@@ -56,6 +58,12 @@ public final class CastleMove extends AbstractChessMoveImplV2
 			default:
 				throw new IllegalArgumentException();
 		}
+	}
+
+	public static CastleMove get(final int i)
+	{
+		assert 0 <= i && i < 5;
+		return ALL.get(i);
 	}
 
 	// ------------------------------------------------------------------------------------------------
@@ -95,10 +103,10 @@ public final class CastleMove extends AbstractChessMoveImplV2
 		// Update piece locations-----------------------------------------
 		final long[] newPiecePositions = state.getPieceLocationsCopy();
 
-		newPiecePositions[5 + moveSide.index()] &= ~(1L << kingRemovalSquare);
+		newPiecePositions[5 + moveSide.index()] ^= (1L << kingRemovalSquare);
 		newPiecePositions[5 + moveSide.index()] |= (1L << kingAdditionSquare);
 
-		newPiecePositions[3 + moveSide.index()] &= ~(1L << rookRemovalSquare);
+		newPiecePositions[3 + moveSide.index()] ^= (1L << rookRemovalSquare);
 		newPiecePositions[3 + moveSide.index()] |= (1L << rookAdditionSquare);
 		// ----------------------------------------------------------------
 
@@ -164,6 +172,13 @@ public final class CastleMove extends AbstractChessMoveImplV2
 	{
 		return getMoveSide().name() + "_" + (isKingside() ? "KINGSIDE" : "QUEENSIDE");
 	}
+
+	@Override
+	public String toCompactString()
+	{
+		return "" + getType().id + ChessMove.SEPARATOR + ALL.indexOf(this);
+	}
+
 }
 /* ---------------------------------------------------------------------*
  * This software is the confidential and proprietary

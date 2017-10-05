@@ -1,37 +1,20 @@
 /**
  * Copyright © 2017 Lhasa Limited
- * File created: 20 Jul 2017 by ThomasB
+ * File created: 11 Jul 2017 by ThomasB
  * Creator : ThomasB
  * Version : $Id$
  */
-package jenjinn.engine.enums;
+package jenjinn.ui.chessboard;
+
+import javafx.geometry.Point2D;
 
 /**
  * @author ThomasB
- * @since 20 Jul 2017
+ * @since 11 Jul 2017
  */
-public enum MoveType
+public interface PointTransform
 {
-	STANDARD(0), CASTLE(1), ENPASSANT(2), PROMOTION(3);
-
-	public final int id;
-
-	private MoveType(final int id)
-	{
-		this.id = id;
-	}
-
-	public static MoveType getFromId(final int id)
-	{
-		for (final MoveType mt : MoveType.values())
-		{
-			if (id == mt.id)
-			{
-				return mt;
-			}
-		}
-		throw new AssertionError();
-	}
+	Point2D transform(Point2D p);
 }
 
 /* ---------------------------------------------------------------------*

@@ -37,7 +37,7 @@ import jenjinn.testingengine.boardstate.TBoardState;
  */
 public class BoardStateComparisonTest
 {
-	private static final String[] POSITIONPROVIDERS = { 
+	private static final String[] POSITIONPROVIDERS = {
 			"carlsenprovider.txt",
 			"fischerprovider.txt",
 			"grischukprovider.txt",
@@ -46,8 +46,8 @@ public class BoardStateComparisonTest
 			"petrosianprovider.txt",
 			"talprovider.txt",
 			"topalovprovider.txt"
-			};
-	
+	};
+
 	private static final String PROVIDER_FOLDER = "positionproviders";
 
 	@Test
@@ -58,7 +58,7 @@ public class BoardStateComparisonTest
 			try
 			{
 				final BufferedReader reader = Files.newBufferedReader(
-						Paths.get("JenjinnV2", PROVIDER_FOLDER, posProvider), StandardCharsets.ISO_8859_1);
+						Paths.get(PROVIDER_FOLDER, posProvider), StandardCharsets.ISO_8859_1);
 
 				String game;
 				while ((game = reader.readLine()) != null)
@@ -141,17 +141,17 @@ public class BoardStateComparisonTest
 		Set<String> cMoves = cons.getMoves().stream().map(x -> x.toString()).collect(Collectors.toSet());
 		Set<String> tMoves = test.getMoves().stream().map(x -> x.toString()).collect(Collectors.toSet());
 		boolean sameMoves = cMoves.containsAll(tMoves) && tMoves.containsAll(cMoves);
-		
-		assertTrue(errorOutput + "\n\n" + "Constraint has " + cMoves.size() + " moves:" + cMoves.toString() 
-		+ "\n\nTotest has " + tMoves.size() + " moves:" + tMoves.toString(), sameMoves);
+
+		assertTrue(errorOutput + "\n\n" + "Constraint has " + cMoves.size() + " moves:" + cMoves.toString()
+				+ "\n\nTotest has " + tMoves.size() + " moves:" + tMoves.toString(), sameMoves);
 
 		cMoves = cons.getAttackMoves().stream().map(x -> x.toString()).collect(Collectors.toSet());
 		tMoves = test.getAttackMoves().stream().map(x -> x.toString()).collect(Collectors.toSet());
 		sameMoves = cMoves.containsAll(tMoves) && tMoves.containsAll(cMoves);
-		
-		assertTrue(errorOutput + "\n\n" + "Constraint has " + cMoves.size() + " moves:" + cMoves.toString() 
-		+ "\n\nTotest has " + tMoves.size() + " moves:" + tMoves.toString(), sameMoves);
-		
+
+		assertTrue(errorOutput + "\n\n" + "Constraint has " + cMoves.size() + " moves:" + cMoves.toString()
+				+ "\n\nTotest has " + tMoves.size() + " moves:" + tMoves.toString(), sameMoves);
+
 		assertEquals(errorOutput, cons.getTerminationState(), test.getTerminationState());
 		assertEquals(errorOutput, cons.getHashing(), test.getHashing());
 		Assert.assertArrayEquals(errorOutput, cons.getHashes(), test.getHashes());

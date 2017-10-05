@@ -33,6 +33,6 @@ public class OpeningOrder
 
 	public String toDatabaseString()
 	{
-		return Long.toHexString(boardStateHash) + " " + move.toRecordString();
+		return Long.toHexString(boardStateHash) + " " + move.toCompactString();
 	}
 }

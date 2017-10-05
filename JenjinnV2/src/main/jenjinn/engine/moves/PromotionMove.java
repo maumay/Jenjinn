@@ -26,10 +26,15 @@ import jenjinn.engine.pieces.PieceType;
 public class PromotionMove extends AbstractChessMoveImplV2
 {
 	private PieceType toPromoteTo;
-	
-	public static PromotionMove get(final int start, final int target, PieceType toPromoteTo)
+
+	public static PromotionMove get(final int start, final int target, final PieceType toPromoteTo)
 	{
 		return new PromotionMove(start, target, toPromoteTo);
+	}
+
+	public static PromotionMove get(final Sq start, final Sq target, final PieceType toPromoteTo)
+	{
+		return get(start.ordinal(), target.ordinal(), toPromoteTo);
 	}
 
 	/**
@@ -37,7 +42,7 @@ public class PromotionMove extends AbstractChessMoveImplV2
 	 * @param start
 	 * @param target
 	 */
-	private PromotionMove(final int start, final int target, PieceType toPromoteTo)
+	private PromotionMove(final int start, final int target, final PieceType toPromoteTo)
 	{
 		super(MoveType.PROMOTION, start, target);
 		assert !EnumSet.of(PieceType.K, PieceType.P).contains(toPromoteTo);
@@ -48,42 +53,42 @@ public class PromotionMove extends AbstractChessMoveImplV2
 	public BoardState evolve(final BoardState state)
 	{
 		final Side friendlySide = state.getFriendlySide();
-		int newPieceIndex = friendlySide.index() + toPromoteTo.getId();
+		final int newPieceIndex = friendlySide.index() + toPromoteTo.getId();
 
 		final ChessPiece removedPiece = state.getPieceAt(getTarget(), friendlySide.otherSide());
 
 		// Update piece locations ---------------------------------------------
 		final long[] newPieceLocations = state.getPieceLocationsCopy();
 
-		newPieceLocations[friendlySide.index()] &= ~getStartBB();
-		newPieceLocations[newPieceIndex] |= getTargetBB(); 
-		//---------------------------------------------------------------------
+		newPieceLocations[friendlySide.index()] ^= getStartBB();
+		newPieceLocations[newPieceIndex] |= getTargetBB();
+		// ---------------------------------------------------------------------
 
 		// Update metadata ----------------------------------------------------
 		long newHash = updateGeneralHashFeatures(state, state.getCastleRights(), BoardState.NO_ENPASSANT);
 		newHash ^= BoardState.HASHER.getSquarePieceFeature(getStart(), ChessPiece.get(friendlySide.index()));
 		newHash ^= BoardState.HASHER.getSquarePieceFeature(getTarget(), ChessPiece.get(newPieceIndex));
-		//---------------------------------------------------------------------
-		
+		// ---------------------------------------------------------------------
+
 		// Update positional eval ---------------------------------------------
 		short midPosEval = state.getMidgamePositionalEval(), endPosEval = state.getEndgamePositionalEval();
-		
+
 		midPosEval += MID_TABLE.getPieceSquareValue((byte) (newPieceIndex), getTarget());
-		midPosEval -= MID_TABLE.getPieceSquareValue((byte) (friendlySide.index()), getStart());
-		
+		midPosEval -= MID_TABLE.getPieceSquareValue((friendlySide.index()), getStart());
+
 		endPosEval += END_TABLE.getPieceSquareValue((byte) (newPieceIndex), getTarget());
-		endPosEval -= END_TABLE.getPieceSquareValue((byte) (friendlySide.index()), getStart());
-		
-		//---------------------------------------------------------------------
+		endPosEval -= END_TABLE.getPieceSquareValue((friendlySide.index()), getStart());
+
+		// ---------------------------------------------------------------------
 
 		byte oldPiecePhase = state.getPiecePhase();
 
 		if (removedPiece != null)
 		{
-			newPieceLocations[removedPiece.index()] &= ~getTargetBB();
+			newPieceLocations[removedPiece.index()] ^= getTargetBB();
 			newHash ^= BoardState.HASHER.getSquarePieceFeature(getTarget(), ChessPiece.get(removedPiece.index()));
 			oldPiecePhase = updatePiecePhase(oldPiecePhase, removedPiece);
-			
+
 			midPosEval -= MID_TABLE.getPieceSquareValue(removedPiece.index(), getTarget());
 			endPosEval -= END_TABLE.getPieceSquareValue(removedPiece.index(), getTarget());
 		}
@@ -106,6 +111,15 @@ public class PromotionMove extends AbstractChessMoveImplV2
 	public String toString()
 	{
 		return "P" + "[" + Sq.get(getStart()).name() + ", " + Sq.get(getTarget()).name() + "]";
+	}
+
+	@Override
+	public String toCompactString()
+	{
+		final StringBuilder sb = new StringBuilder(super.toCompactString());
+		sb.append(ChessMove.SEPARATOR);
+		sb.append(toPromoteTo.name());
+		return sb.toString();
 	}
 }
 

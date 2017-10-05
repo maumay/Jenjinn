@@ -6,6 +6,11 @@
  */
 package jenjinn.engine.moves;
 
+import static jenjinn.engine.boardstate.BoardState.END_TABLE;
+import static jenjinn.engine.boardstate.BoardState.MID_TABLE;
+
+import java.util.List;
+
 import jenjinn.engine.bitboarddatabase.BBDB;
 import jenjinn.engine.boardstate.BoardState;
 import jenjinn.engine.boardstate.BoardStateImplV2;
@@ -16,9 +21,6 @@ import jenjinn.engine.misc.EngineUtils;
 import jenjinn.engine.pieces.ChessPiece;
 import jenjinn.engine.pieces.King;
 import jenjinn.engine.pieces.Pawn;
-
-import static jenjinn.engine.boardstate.BoardState.END_TABLE;
-import static jenjinn.engine.boardstate.BoardState.MID_TABLE;
 
 /**
  * @author ThomasB
@@ -116,31 +118,31 @@ public class StandardMove extends AbstractChessMoveImplV2
 		long newHash = updateGeneralHashFeatures(state, newCastleRights, newEnPassantSquare);
 		newHash ^= BoardState.HASHER.getSquarePieceFeature(getStart(), movingPiece);
 		newHash ^= BoardState.HASHER.getSquarePieceFeature(getTarget(), movingPiece);
-		//-----------------------------------------------------------
+		// -----------------------------------------------------------
 
 		// Update locations -----------------------------------------
 		final long start = getStartBB(), target = getTargetBB();
 		final long[] newPieceLocations = state.getPieceLocationsCopy();
-		newPieceLocations[movingPiece.index()] &= ~start;
+		newPieceLocations[movingPiece.index()] ^= start;
 		newPieceLocations[movingPiece.index()] |= target;
-		//-----------------------------------------------------------
-		
+		// -----------------------------------------------------------
+
 		// Update positional evaluations ----------------------------
 		short midPosEval = state.getMidgamePositionalEval(), endPosEval = state.getEndgamePositionalEval();
-		
+
 		midPosEval += MID_TABLE.getPieceSquareValue(movingPiece.index(), getTarget());
 		midPosEval -= MID_TABLE.getPieceSquareValue(movingPiece.index(), getStart());
-		
+
 		endPosEval += END_TABLE.getPieceSquareValue(movingPiece.index(), getTarget());
 		endPosEval -= END_TABLE.getPieceSquareValue(movingPiece.index(), getStart());
-		
-		//-----------------------------------------------------------
+
+		// -----------------------------------------------------------
 
 		byte piecePhase = state.getPiecePhase();
 
 		if (removedPiece != null)
 		{
-			newPieceLocations[removedPiece.index()] &= ~target;
+			newPieceLocations[removedPiece.index()] ^= target;
 			newHash ^= BoardState.HASHER.getSquarePieceFeature(getTarget(), removedPiece);
 			piecePhase = updatePiecePhase(piecePhase, removedPiece);
 			midPosEval -= MID_TABLE.getPieceSquareValue(removedPiece.index(), getTarget());
@@ -201,6 +203,12 @@ public class StandardMove extends AbstractChessMoveImplV2
 	public String toString()
 	{
 		return "S" + "[" + Sq.get(getStart()).name() + ", " + Sq.get(getTarget()).name() + "]";
+	}
+
+	public static ChessMove getFromReportStringComponents(final List<String> components)
+	{
+		assert components.size() == 2;
+		return get(Sq.valueOf(components.get(1)), Sq.valueOf(components.get(2)));
 	}
 }
 
