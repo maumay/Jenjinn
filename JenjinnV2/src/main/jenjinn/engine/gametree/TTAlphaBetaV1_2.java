@@ -210,6 +210,7 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 			recommendedMoveIndex = ttEntry.getMoveIndex();
 		}
 
+		/* Not sure abou tthis termination bit */
 		final TerminationType tState = root.getTerminationState();
 		if (tState != TerminationType.NOT_TERMINAL)
 		{
@@ -218,7 +219,6 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 
 		if (depth == 0)
 		{
-			// Deal with problems in quiescence later
 			assert Quiescence.currentDepth == 0;
 			return quiescence.search(root, alpha, beta);// quiescence.getEvaluator().evaluate(root);//
 		}

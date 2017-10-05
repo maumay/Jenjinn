@@ -9,7 +9,7 @@ import jenjinn.engine.boardstate.BoardState;
 import jenjinn.engine.enums.Side;
 import jenjinn.engine.evaluation.BoardEvaluator;
 import jenjinn.engine.gametree.MoveCalculator;
-import jenjinn.engine.gametree.TTAlphaBetaV1_2;
+import jenjinn.engine.gametree.NegaAlphaBeta;
 import jenjinn.engine.moves.ChessMove;
 import jenjinn.engine.openingdatabase.OpeningDBv4;
 
@@ -29,7 +29,8 @@ public final class Jenjinn
 	public Jenjinn(final Side side, final int plyCount, final BoardEvaluator evaluator, final String openingdbFileName)
 	{
 		this.side = side;
-		gts = new TTAlphaBetaV1_2(evaluator);
+		// gts = new TTAlphaBetaV1_2(evaluator);
+		gts = new NegaAlphaBeta(evaluator);
 		openings = new OpeningDBv4(openingdbFileName);
 	}
 

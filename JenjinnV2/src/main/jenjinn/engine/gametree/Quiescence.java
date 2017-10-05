@@ -38,7 +38,9 @@ public class Quiescence
 
 		if (root.isTerminal())
 		{
+			/* Not sure about this */
 			currentDepth--;
+			assert root.getTerminationState().matches(root.getFriendlySide());
 			return (short) (root.getFriendlySide().orientation() * root.getTerminationState().value);
 		}
 
@@ -55,7 +57,7 @@ public class Quiescence
 			alpha = standPat;
 		}
 
-		List<ChessMove> attackMoves = getMovesToProbe(root);
+		final List<ChessMove> attackMoves = getMovesToProbe(root);
 
 		for (final ChessMove mv : attackMoves)
 		{
@@ -81,14 +83,14 @@ public class Quiescence
 		return (short) alpha;
 	}
 
-	private List<ChessMove> getMovesToProbe(BoardState state)
+	private List<ChessMove> getMovesToProbe(final BoardState state)
 	{
-		short[] pValues = state.interpolatePieceValues();
-		List<ChessMove> mtp = new ArrayList<>(), attMvs = state.getAttackMoves();
-		
-		for (ChessMove mv : attMvs)
+		final short[] pValues = state.interpolatePieceValues();
+		final List<ChessMove> mtp = new ArrayList<>(), attMvs = state.getAttackMoves();
+
+		for (final ChessMove mv : attMvs)
 		{
-			if (mv instanceof EnPassantMove || 
+			if (mv instanceof EnPassantMove ||
 					see.isGoodExchange(mv.getTarget(), mv.getStart(), state, pValues))
 			{
 				mtp.add(mv);

@@ -24,4 +24,17 @@ public enum TerminationType
 	{
 		return this != NOT_TERMINAL;
 	}
+
+	@SuppressWarnings("incomplete-switch")
+	public boolean matches(final Side s)
+	{
+		switch (this)
+		{
+			case WHITE_WIN:
+				return s.isWhite();
+			case BLACK_WIN:
+				return !s.isWhite();
+		}
+		return true;
+	}
 }

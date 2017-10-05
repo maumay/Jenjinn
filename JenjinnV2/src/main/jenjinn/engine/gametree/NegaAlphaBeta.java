@@ -21,11 +21,12 @@ public class NegaAlphaBeta implements MoveCalculator
 	 * Only use a nega evaluator, i.e one that is signed depending
 	 * on whether white or black is to move.
 	 */
-	private BoardEvaluator eval;
+	private Quiescence quiescence;
+	private int depth = 4;
 
 	public NegaAlphaBeta(final BoardEvaluator eval)
 	{
-		this.eval = eval;
+		this.quiescence = new Quiescence(eval);
 	}
 
 	public ChessMove getBestMoveFrom(final BoardState root, final int depth)
@@ -59,9 +60,9 @@ public class NegaAlphaBeta implements MoveCalculator
 	 */
 	public int nAlphaBeta(final BoardState root, int alpha, final int beta, final int depth)
 	{
-		if (depth == 0)
+		if (depth == 0 || root.isTerminal())
 		{
-			return eval.evaluate(root);
+			return quiescence.search(root, alpha, beta);
 		}
 
 		for (final ChessMove mv : root.getMoves())
@@ -85,8 +86,7 @@ public class NegaAlphaBeta implements MoveCalculator
 	@Override
 	public ChessMove getBestMove(final BoardState root)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return getBestMoveFrom(root, depth);
 	}
 
 	@Override

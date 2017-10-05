@@ -6,11 +6,7 @@
  */
 package jenjinn.engine.openingdatabase;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.math.BigInteger;
 
 import jenjinn.engine.boardstate.BoardState;
 import jenjinn.engine.boardstate.BoardStateImplV2;
@@ -42,22 +38,22 @@ public class OpeningDBv4
 	 */
 	public ChessMove getMoveForPosition(final long stateHashing) throws IOException
 	{
-		final InputStream dbStream = getClass().getResourceAsStream(sourceFilePath);
-
-		assert dbStream != null;
-
-		final BufferedReader reader = new BufferedReader(new InputStreamReader(dbStream));
-
-		String line;
-		while ((line = reader.readLine()) != null)
-		{
-			final String[] components = line.split(" ");
-
-			if (new BigInteger(components[0], 16).longValue() == stateHashing)
-			{
-				return ChessMove.fromCompactString(components[1]);
-			}
-		}
+		// final InputStream dbStream = getClass().getResourceAsStream(sourceFilePath);
+		//
+		// assert dbStream != null;
+		//
+		// final BufferedReader reader = new BufferedReader(new InputStreamReader(dbStream));
+		//
+		// String line;
+		// while ((line = reader.readLine()) != null)
+		// {
+		// final String[] components = line.split(" ");
+		//
+		// if (new BigInteger(components[0], 16).longValue() == stateHashing)
+		// {
+		// return ChessMove.fromCompactString(components[1]);
+		// }
+		// }
 		return null;
 	}
 
