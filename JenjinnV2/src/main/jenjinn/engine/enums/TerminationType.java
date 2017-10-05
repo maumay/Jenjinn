@@ -11,7 +11,10 @@ package jenjinn.engine.enums;
 public enum TerminationType
 {
 	// Make just a little bigger than the initial alpha beta calls so we don't change the bounds for terminal states..
-	WHITE_WIN(Infinity.SHORT_INFINITY), BLACK_WIN(Infinity.SHORT_INFINITY), DRAW(0), NOT_TERMINAL(0);
+	/*
+	 * Surely we do want to change the bounds for terminakl states, or does it not matter at all?
+	 */
+	WHITE_WIN(Infinity.SHORT_INFINITY), BLACK_WIN(-Infinity.SHORT_INFINITY), DRAW(0), NOT_TERMINAL(0);
 
 	public short value;
 

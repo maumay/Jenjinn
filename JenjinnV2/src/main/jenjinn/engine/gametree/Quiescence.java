@@ -29,6 +29,11 @@ public class Quiescence
 
 	public short search(final BoardState root, int alpha, final int beta)
 	{
+//		if (root.getHashing() == 1117970579444109206L)
+//		{
+//			System.out.println("Hi");
+//		}
+		
 		currentDepth++;
 		if (currentDepth > maxDepth)
 		{
@@ -58,9 +63,14 @@ public class Quiescence
 		}
 
 		final List<ChessMove> attackMoves = getMovesToProbe(root);
-
+		
 		for (final ChessMove mv : attackMoves)
 		{
+			if (currentDepth == 1)
+			{
+				System.out.println(mv.toString());
+			}
+			
 			final BoardState newState = mv.evolve(root);
 
 			final int score = -search(newState, -beta, -alpha);
@@ -90,11 +100,21 @@ public class Quiescence
 
 		for (final ChessMove mv : attMvs)
 		{
+			//System.out.println(mv.toString());
 			if (mv instanceof EnPassantMove ||
 					see.isGoodExchange(mv.getTarget(), mv.getStart(), state, pValues))
 			{
 				mtp.add(mv);
+				if (currentDepth == 1)
+				{
+					System.out.println(mv.toString());
+				}
+				
 			}
+		}
+		if (currentDepth == 1)
+		{
+			System.out.println();
 		}
 		return mtp;
 	}

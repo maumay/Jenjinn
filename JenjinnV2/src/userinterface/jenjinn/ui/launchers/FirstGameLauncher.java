@@ -40,7 +40,7 @@ public class FirstGameLauncher extends Application
 
 	public ChessBoard getInitialisedGame(final BoardColorScheme colors)
 	{
-		final Side humanSide = Side.W;
+		final Side humanSide = Side.B;
 		final JenjinnHumanGameModel model = JenjinnHumanGameModel.createNewModel(humanSide);
 		final ChessBoard board = new ChessBoard(colors);
 		board.rotateToSuitSide(humanSide, false);

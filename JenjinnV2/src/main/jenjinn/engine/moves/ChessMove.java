@@ -81,6 +81,36 @@ public interface ChessMove
 				throw new RuntimeException("Not yet impl");
 		}
 	}
+	
+	static ChessMove fromCompactString2(final String reportString)
+	{
+		final List<String> components = Arrays.asList(reportString.split(SEPARATOR));
+		final MoveType mt = MoveType.getFromId(Integer.parseInt(components.get(0)));
+
+		if (mt == MoveType.CASTLE)
+		{
+			assert components.size() == 2;
+			return CastleMove.get(Integer.parseInt(components.get(1)));
+		}
+
+		final Sq start = Sq.valueOf(components.get(1)), targ = Sq.valueOf(components.get(2));
+
+		switch (mt)
+		{
+			case STANDARD:
+				assert components.size() == 3;
+				return StandardMove.get(start, targ);
+			case ENPASSANT:
+				assert components.size() == 3;
+				return EnPassantMove.get(start, targ);
+			case PROMOTION:
+				assert components.size() == 4;
+				final PieceType toPromoteTo = PieceType.valueOf(components.get(3));
+				return PromotionMove.get(start, targ, toPromoteTo);
+			default:
+				throw new RuntimeException("Not yet impl");
+		}
+	}
 
 	default byte updatePiecePhase(final byte oldPhase, final ChessPiece removedPiece)
 	{

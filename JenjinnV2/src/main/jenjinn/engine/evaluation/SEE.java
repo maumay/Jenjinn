@@ -70,7 +70,7 @@ public final class SEE
 	
 	public boolean isGoodExchange(final byte targ, final byte from, final BoardState state, final short[] pieceValues)
 	{
-		return eval(targ, from, state, pieceValues) > 0;
+		return eval(targ, from, state, pieceValues) >= 0;
 	}
 
 	private void updateXrays(final BoardState state)

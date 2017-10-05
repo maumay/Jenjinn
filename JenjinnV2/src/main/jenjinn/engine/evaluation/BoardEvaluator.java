@@ -44,6 +44,11 @@ public class BoardEvaluator
 	public short evaluate(final BoardState state)
 	{
 		final int orientation = state.getFriendlySide().orientation();
+		
+		if (state.isTerminal())
+		{
+			return (short) (orientation*state.getTerminationState().value);
+		}
 
 		int score = 0;
 		for (final EvaluatingComponent component : components)
@@ -66,7 +71,7 @@ public class BoardEvaluator
 
 	public static BoardEvaluator getDefault()
 	{
-		return new BoardEvaluator(Arrays.asList(new KingSafetyV1(), new MobilityV1(), new PawnStructureV1()));
+		return new BoardEvaluator(Arrays.asList());//new PawnStructureV1()));//new KingSafetyV1(), new MobilityV1(), ));
 	}
 }
 /* ---------------------------------------------------------------------*

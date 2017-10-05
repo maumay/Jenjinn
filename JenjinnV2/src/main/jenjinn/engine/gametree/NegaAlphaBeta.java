@@ -7,6 +7,7 @@
 package jenjinn.engine.gametree;
 
 import jenjinn.engine.boardstate.BoardState;
+import jenjinn.engine.boardstate.BoardStateImplV2;
 import jenjinn.engine.enums.Infinity;
 import jenjinn.engine.evaluation.BoardEvaluator;
 import jenjinn.engine.moves.ChessMove;
@@ -22,7 +23,7 @@ public class NegaAlphaBeta implements MoveCalculator
 	 * on whether white or black is to move.
 	 */
 	private Quiescence quiescence;
-	private int depth = 4;
+	private int depth = 2;
 
 	public NegaAlphaBeta(final BoardEvaluator eval)
 	{
@@ -38,13 +39,17 @@ public class NegaAlphaBeta implements MoveCalculator
 		for (final ChessMove mv : root.getMoves())
 		{
 			final int bestReply = -nAlphaBeta(mv.evolve(root), -Infinity.INT_INFINITY, -alpha, depth - 1);
-
+			System.out.println(mv.toString());
+			
 			if (bestReply > alpha) // We want to maximise the value of best reply
 			{
 				alpha = bestReply;
 				bestMove = mv;
 			}
+			System.out.println(alpha);
+			System.out.println();
 		}
+		System.out.println(alpha);
 		return bestMove;
 	}
 
@@ -62,7 +67,15 @@ public class NegaAlphaBeta implements MoveCalculator
 	{
 		if (depth == 0 || root.isTerminal())
 		{
-			return quiescence.search(root, alpha, beta);
+//			if (root.isTerminal())
+//			{
+//				System.out.println(root.getTerminationState());
+//				EngineUtils.printNbitBoards(root.getPieceLocationsCopy());
+//				System.out.println();
+//			}
+//			System.out.println("Returning: " + quiescence.getEvaluator().evaluate(root));
+//			System.out.println("Friendly side: " + root.getFriendlySide().name());
+			return quiescence.search(root, alpha, beta);//getEvaluator().evaluate(root);//
 		}
 
 		for (final ChessMove mv : root.getMoves())
@@ -108,6 +121,26 @@ public class NegaAlphaBeta implements MoveCalculator
 	{
 		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	public static void main(String[] args)
+	{
+		NegaAlphaBeta nag = new NegaAlphaBeta(BoardEvaluator.getDefault());
+		BoardState state = BoardStateImplV2.getStartBoard();
+		state = ChessMove.fromCompactString2("0_e2_e4").evolve(state);
+		state = ChessMove.fromCompactString2("0_e7_e5").evolve(state);
+		state = ChessMove.fromCompactString2("0_d2_d4").evolve(state);
+		state = ChessMove.fromCompactString2("0_b8_c6").evolve(state);
+		state = ChessMove.fromCompactString2("0_d4_e5").evolve(state);
+		state = ChessMove.fromCompactString2("0_c6_e5").evolve(state);
+		state = ChessMove.fromCompactString2("0_f1_b5").evolve(state);
+		state = ChessMove.fromCompactString2("0_c7_c6").evolve(state);
+		System.out.println(nag.getBestMove(state));
+		System.out.println("-------------------");
+		state = ChessMove.fromCompactString2("0_d1_d5").evolve(state);
+		state = ChessMove.fromCompactString2("0_c6_d5").evolve(state);
+		System.out.println(state.getFriendlySide());
+		System.out.println(nag.quiescence.search(state, -Infinity.INT_INFINITY, Infinity.INT_INFINITY));//getBestMoveFrom(state, 1);
 	}
 }
 

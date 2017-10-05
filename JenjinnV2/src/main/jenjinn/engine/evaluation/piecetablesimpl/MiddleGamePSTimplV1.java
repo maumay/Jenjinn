@@ -34,7 +34,15 @@ public class MiddleGamePSTimplV1 extends AbstractPSTimplV1
 	@Override
 	protected short[] getPawnTable()
 	{
-		return new short[64];
+		return new short[] {
+				-20, -10, -10, -10, -10, -10, -10, -20,
+				-10, 0, 0, 0, 0, 0, 0, -10,
+				-10, 0, 5, 10, 10, 5, 0, -10,
+				-10, 5, 5, 10, 10, 5, 5, -10,
+				-10, 0, 10, 100, 100, 10, 0, -10,
+				-10, 10, 10, 10, 10, 10, 10, -10,
+				-10, 5, 0, 0, 0, 0, 5, -10,
+				-20, -10, -10, -10, -10, -10, -10, -20 };
 	}
 
 	@Override

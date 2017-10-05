@@ -66,6 +66,7 @@ public class JenjinnHumanGameModel implements ChessGameModel
 		final BoardState currentState = getPresentGameState();
 		movesPlayed.add(chosenMove);
 		gameStates.add(chosenMove.evolve(currentState));
+		System.out.println("User: " + getPresentGameState().getHashing());
 		userSelection.reset();
 		fireDisplayUpdate();
 		performAiMove();
@@ -187,6 +188,10 @@ public class JenjinnHumanGameModel implements ChessGameModel
 				final ChessMove jenjinnMove = jenjinn.calculateBestMove(presentState);
 				gameStates.add(jenjinnMove.evolve(presentState));
 				movesPlayed.add(jenjinnMove);
+//				System.out.println(getPresentGameState().getMidgamePositionalEval());
+//				System.out.println(getPresentGameState().getMidgamePositionalEval());
+//				System.out.println(evalPiecePositions(getPresentGameState()));
+				System.out.println(getPresentGameState().getHashing());
 
 				// Tell the FX thread to do the updates.
 				Platform.runLater(() ->
@@ -196,6 +201,13 @@ public class JenjinnHumanGameModel implements ChessGameModel
 				});
 			}
 		})).start();
+	}
+	
+	private short evalPiecePositions(final BoardState state)
+	{
+		final short midGameEval = state.getMidgamePositionalEval(), endGameEval = state.getEndgamePositionalEval();
+		final short gamePhase = state.getGamePhase();
+		return (short) (((midGameEval * (256 - gamePhase)) + (endGameEval * gamePhase)) / 256);
 	}
 
 	@Override

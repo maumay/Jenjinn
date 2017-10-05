@@ -38,7 +38,7 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 
 	private static final String DESCRIPTOR = "[NegaAlphaBeta - no pv override 1 bucket tt - pv extraction - tt impl v1_2]";
 
-	private static final short IC_ALPHA = 1 - Infinity.SHORT_INFINITY, IC_BETA = Infinity.SHORT_INFINITY - 1;
+	private static final int IC_ALPHA = Infinity.INT_INFINITY, IC_BETA = -Infinity.INT_INFINITY;
 
 	/**
 	 * Only use a nega evaluator, i.e one that is signed depending
