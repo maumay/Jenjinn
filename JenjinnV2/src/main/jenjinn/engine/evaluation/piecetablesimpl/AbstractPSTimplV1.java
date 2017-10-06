@@ -102,6 +102,8 @@ public abstract class AbstractPSTimplV1 implements PieceSquareTable
 		final int newRank = 7 - (idx / 8);
 		return (newRank * 8) + (idx % 8);
 	}
+	
+	
 }
 
 /* ---------------------------------------------------------------------*

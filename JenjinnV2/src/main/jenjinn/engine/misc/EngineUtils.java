@@ -378,10 +378,49 @@ public class EngineUtils
 
 		return mvs;
 	}
+	
+	public static String formatPieceTable(short[] ptable) 
+	{
+		assert ptable.length == 64;
+		int maxlen = 0;
+		for (short val : ptable)
+		{
+			maxlen = Math.max(Integer.toString(val).length(), maxlen);
+		}
+		
+		StringBuilder sb = new StringBuilder();
+		int ctr = 63;
+		for (int i = 63; i >= 0; i--)
+		{
+			int val = ptable[i];
+			sb.append(getPaddedString(val, maxlen));
+			sb.append(" ");
+			if ((--ctr) % 8 == 7)
+			{
+				sb.append("\n");
+			}
+		}
+		return sb.toString();
+	}
+	
+	private static String getPaddedString(int i, int len)
+	{
+		StringBuilder sb = new StringBuilder(Integer.toString(i));
+		while (sb.length() < len)
+		{
+			sb.append(" ");
+		}
+		return sb.toString();
+	}
 
 	public static void main(final String[] args)
 	{
-		System.out.println(Arrays.toString(getSetBits(33746390L)));
-		System.out.println(BBDB.SOB[0]);
+//		System.out.println(Arrays.toString(getSetBits(33746390L)));
+//		System.out.println(BBDB.SOB[0]);
+		
+		short[] testP = new short[64];
+		testP[0] = 1;
+		testP[Sq.c4.ordinal()] = -3;
+		System.out.println(formatPieceTable(testP));
 	}
 }

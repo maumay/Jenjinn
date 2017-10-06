@@ -139,6 +139,11 @@ public class NegaAlphaBeta implements MoveCalculator
 		System.out.println("-------------------");
 		state = ChessMove.fromCompactString2("0_d1_d5").evolve(state);
 		state = ChessMove.fromCompactString2("0_c6_d5").evolve(state);
+		state = ChessMove.fromCompactString2("0_e4_d5").evolve(state);
+		
+		/*
+		 * Here is bug, black to move, queen up but evaluates as negative
+		 */
 		System.out.println(state.getFriendlySide());
 		System.out.println(nag.quiescence.search(state, -Infinity.INT_INFINITY, Infinity.INT_INFINITY));//getBestMoveFrom(state, 1);
 	}

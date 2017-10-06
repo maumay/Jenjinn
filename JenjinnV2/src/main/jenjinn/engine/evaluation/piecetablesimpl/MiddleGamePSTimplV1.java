@@ -6,6 +6,8 @@
  */
 package jenjinn.engine.evaluation.piecetablesimpl;
 
+import jenjinn.engine.misc.EngineUtils;
+
 /**
  *
  *
@@ -154,6 +156,12 @@ public class MiddleGamePSTimplV1 extends AbstractPSTimplV1
 	protected short getKingValue()
 	{
 		return PIECE_VALUES[5];
+	}
+	
+	public static void main(String[] args)
+	{
+		MiddleGamePSTimplV1 m = new MiddleGamePSTimplV1();
+		System.out.println(EngineUtils.formatPieceTable(m.getKingTable()));
 	}
 }
 
