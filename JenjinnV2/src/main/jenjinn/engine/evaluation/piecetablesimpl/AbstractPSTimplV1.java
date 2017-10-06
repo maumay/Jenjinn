@@ -20,7 +20,7 @@ import jenjinn.engine.evaluation.PieceSquareTable;
 public abstract class AbstractPSTimplV1 implements PieceSquareTable
 {
 
-	private final List<short[]> tables = new ArrayList<>();
+	protected final List<short[]> tables = new ArrayList<>();
 
 	/**
 	 *
@@ -102,8 +102,7 @@ public abstract class AbstractPSTimplV1 implements PieceSquareTable
 		final int newRank = 7 - (idx / 8);
 		return (newRank * 8) + (idx % 8);
 	}
-	
-	
+
 }
 
 /* ---------------------------------------------------------------------*

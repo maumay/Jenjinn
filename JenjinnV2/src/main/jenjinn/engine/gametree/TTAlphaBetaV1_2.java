@@ -38,13 +38,12 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 
 	private static final String DESCRIPTOR = "[NegaAlphaBeta - no pv override 1 bucket tt - pv extraction - tt impl v1_2]";
 
-	private static final int IC_ALPHA = Infinity.INT_INFINITY, IC_BETA = -Infinity.INT_INFINITY;
+	private static final int IC_ALPHA = -Infinity.INT_INFINITY, IC_BETA = Infinity.INT_INFINITY;
 
 	/**
-	 * Only use a nega evaluator, i.e one that is signed depending
-	 * on whether white or black is to move.
+	 * The heuristic position evaluator. It performs a quiescence search to make sure
+	 * only quiet positions are evaluated to avoid overlooking any nasty tactics.
 	 */
-	// private BoardEvaluator eval;
 	private Quiescence quiescence;
 
 	/**
@@ -55,7 +54,7 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 	/**
 	 * Depth we will search at.
 	 */
-	private int searchDepth = 6;
+	private int maxSearchDepth = 8;
 
 	private int bestFirstMoveIndex = -1;
 
@@ -76,24 +75,32 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 	}
 
 	@Override
-	public ChessMove getBestMove(final BoardState root)
+	public ChessMove getBestMoveFrom(final BoardState root)
 	{
 		tt.clear();
 		bestFirstMoveIndex = -1;
 		ChessMove bestMove = null;
-
-		for (int depth = 1; depth <= searchDepth; depth++)
+		for (int depth = 1; depth <= maxSearchDepth; depth++)
 		{
-			bestMove = getBestMoveFrom(root, depth);
+			try
+			{
+				final ChessMove newBestMove = getBestMoveFrom(root, depth);
+				bestMove = newBestMove;
+			}
+			catch (final InterruptedException e)
+			{
+				// Restore interrupted status
+				Thread.interrupted();
+				break;
+			}
 		}
-
 		return bestMove;
 	}
 
 	@Override
 	public void setSearchDepth(final int depth)
 	{
-		searchDepth = depth;
+		maxSearchDepth = depth;
 	}
 
 	@Override
@@ -109,7 +116,7 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 		return DESCRIPTOR;
 	}
 
-	private TIntList getPrincipalVariation(final BoardState root)
+	private TIntList getPrincipalVariation(final BoardState root, final int depth)
 	{
 		final TIntList pv = new TIntArrayList();
 
@@ -121,7 +128,8 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 			TableEntry entry;
 			while ((entry = tt.get(state.getHashing())) != null
 					&& entry.getType() == TreeNodeType.PV
-					&& entry.getPositionHash() == state.getHashing())
+					&& entry.getPositionHash() == state.getHashing()
+					&& pv.size() < depth - 1)
 			{
 				pv.add(entry.getMoveIndex());
 				mvs = state.getMoves();
@@ -131,13 +139,13 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 		return pv;
 	}
 
-	private ChessMove getBestMoveFrom(final BoardState root, final int depth)
+	private ChessMove getBestMoveFrom(final BoardState root, final int depth) throws InterruptedException
 	{
 		System.out.println("HELLO FROM DEPTH: " + depth);
 		// Initialise variables
 		int bestMoveIndex = -1;
 		int alpha = IC_ALPHA; // Here alpha is the calculated value of our best move.
-		final TIntList pv = getPrincipalVariation(root);
+		final TIntList pv = getPrincipalVariation(root, depth);
 		final List<ChessMove> possibleMoves = root.getMoves();
 
 		if (pv.size() != depth - 1)
@@ -177,8 +185,13 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 	 * @param depth
 	 * @return
 	 */
-	public int negamax(final BoardState root, int alpha, int beta, final int depth)
+	public int negamax(final BoardState root, int alpha, int beta, final int depth) throws InterruptedException
 	{
+		if (Thread.currentThread().isInterrupted())
+		{
+			throw new InterruptedException();
+		}
+
 		final int alphaOrig = alpha;
 		final long rootHash = root.getHashing();
 
@@ -223,8 +236,8 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 			return quiescence.search(root, alpha, beta);// quiescence.getEvaluator().evaluate(root);//
 		}
 
-		int bestValue = -Infinity.SHORT_INFINITY;
-		int bestMoveIndex = -1, refutationMoveIndex = -1;
+		int bestValue = -Infinity.INT_INFINITY;
+		int bestMoveIndex = recommendedMoveIndex, refutationMoveIndex = -1;
 
 		final List<ChessMove> possibleMoves = root.getMoves();
 		final int[] indices = IntStream.range(0, possibleMoves.size()).toArray();
@@ -240,7 +253,7 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 			bestValue = Math.max(bestValue, bestReply);
 			bestMoveIndex = oldBestValue != bestValue ? i : bestMoveIndex;
 
-			alpha = Math.max(alpha, bestReply);
+			alpha = Math.max(alpha, bestValue);
 
 			if (alpha >= beta)
 			{
@@ -256,6 +269,7 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 		}
 		else if (bestValue >= beta) // CUT node
 		{
+			assert refutationMoveIndex != -1;
 			potentialNewEntry = TableEntry.generateCUT(rootHash, bestValue, refutationMoveIndex, depth);
 		}
 		else // PV node
@@ -297,29 +311,24 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 		{
 			final boolean replace = newEntry.getDepthSearched() >= oldEntry.getDepthSearched();
 			tt.set(replace ? newEntry : oldEntry);
-
-			// if (replace && oldEntry.getType() == TreeNodeType.PV)
-			// {
-			// System.out.println("REPLACED PV NODE with type: " + newEntry.getType().name());
-			// }
 		}
 	}
 
-	/**
-	 * Assumes the {@link TableEntry} is valid.
-	 *
-	 * @param moveIndexList
-	 * @param ttEntry
-	 */
-	private void orderMoves(final TIntList moveIndexList, final TableEntry ttEntry)
-	{
-		final int moveIndex = ttEntry.getMoveIndex();
-		throw new RuntimeException("not yet impl");
-		// if (moveIndex > -1)
-		// {
-		// changeFirstIndex(moveIndexList, moveIndex);
-		// }
-	}
+	// /**
+	// * Assumes the {@link TableEntry} is valid.
+	// *
+	// * @param moveIndexList
+	// * @param ttEntry
+	// */
+	// private void orderMoves(final TIntList moveIndexList, final TableEntry ttEntry)
+	// {
+	// final int moveIndex = ttEntry.getMoveIndex();
+	// throw new RuntimeException("not yet impl");
+	// // if (moveIndex > -1)
+	// // {
+	// // changeFirstIndex(moveIndexList, moveIndex);
+	// // }
+	// }
 
 	private boolean entryIsValid(final long nodeHash, final TableEntry entry)
 	{
@@ -399,7 +408,7 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 		final BufferedReader br = Files.newBufferedReader(
 				Paths.get("positionproviders", "carlsenprovider.txt"));
 		br.readLine();
-		for (int i = 0; i < 5; i++)
+		for (int i = 0; i < 20; i++)
 		{
 			if (i == 0)
 			{
@@ -409,13 +418,13 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 			c.tt.clear();
 			final AlgebraicCommand[] gComs = ChessGameReader.processSequenceOfCommands(br.readLine().trim());
 			BoardState state = BoardStateImplV2.getStartBoard();
-			for (int j = 0; j < Math.min(24, gComs.length); j++)
+			for (int j = 0; j < Math.min(20, gComs.length); j++)
 			{
 				state = state.generateMove(gComs[j]).evolve(state);
 			}
 			assert state.getTerminationState() == TerminationType.NOT_TERMINAL;
 			final long t = System.nanoTime();
-			m = c.getBestMove(state);
+			m = c.getBestMoveFrom(state);
 			times.add(BigInteger.valueOf(System.nanoTime() - t));
 		}
 

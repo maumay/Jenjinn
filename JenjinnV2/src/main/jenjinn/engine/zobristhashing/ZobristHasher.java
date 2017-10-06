@@ -20,7 +20,7 @@ import jenjinn.engine.pieces.ChessPiece;
  */
 public class ZobristHasher
 {
-	private static final long DEFAULT_SEED = 0x110894L;
+	private static final long DEFAULT_SEED = 0x73abc76L;// 0x110894L;
 
 	private long[][] squarePieceFeatures = new long[64][12];
 
@@ -124,14 +124,14 @@ public class ZobristHasher
 	public long generateStartHash()
 	{
 		long startHash = EngineUtils.multipleXor(castleFeatures);
-		
-		long[] startPieceLocs = EngineUtils.getStartingPieceLocs();
-		
+
+		final long[] startPieceLocs = EngineUtils.getStartingPieceLocs();
+
 		for (int i = 0; i < 12; i++)
 		{
-			byte[] locs = EngineUtils.getSetBits(startPieceLocs[i]);
-			
-			for (byte loc : locs)
+			final byte[] locs = EngineUtils.getSetBits(startPieceLocs[i]);
+
+			for (final byte loc : locs)
 			{
 				startHash ^= getSquarePieceFeature(loc, ChessPiece.get(i));
 			}

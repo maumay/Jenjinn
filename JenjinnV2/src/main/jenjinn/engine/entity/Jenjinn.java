@@ -53,7 +53,7 @@ public final class Jenjinn
 
 		if (bestMove == null)
 		{
-			bestMove = gts.getBestMove(root);
+			bestMove = gts.getBestMoveFrom(root);
 			outsideOpeningCounter++;
 		}
 		else

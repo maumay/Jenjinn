@@ -9,9 +9,12 @@ package jenjinn.engine.gametree;
 import java.util.ArrayList;
 import java.util.List;
 
+import jenjinn.engine.bitboarddatabase.BBDB;
 import jenjinn.engine.boardstate.BoardState;
+import jenjinn.engine.enums.Side;
 import jenjinn.engine.evaluation.BoardEvaluator;
 import jenjinn.engine.evaluation.SEE;
+import jenjinn.engine.misc.EngineUtils;
 import jenjinn.engine.moves.ChessMove;
 import jenjinn.engine.moves.EnPassantMove;
 
@@ -24,16 +27,14 @@ public class Quiescence
 	/* Interesting to track how deep quiescence probes. */
 	static int maxDepth = 0, currentDepth = 0;
 
+	/** Delta pruning safety margin. */
+	private static final int DP_SAFETY_MARGIN = 200;
+
 	private final BoardEvaluator evaluator;
 	private final SEE see = new SEE();
 
 	public short search(final BoardState root, int alpha, final int beta)
 	{
-//		if (root.getHashing() == 1117970579444109206L)
-//		{
-//			System.out.println("Hi");
-//		}
-		
 		currentDepth++;
 		if (currentDepth > maxDepth)
 		{
@@ -43,7 +44,6 @@ public class Quiescence
 
 		if (root.isTerminal())
 		{
-			/* Not sure about this */
 			currentDepth--;
 			assert root.getTerminationState().matches(root.getFriendlySide());
 			return (short) (root.getFriendlySide().orientation() * root.getTerminationState().value);
@@ -57,20 +57,28 @@ public class Quiescence
 			currentDepth--;
 			return (short) beta;
 		}
+
+		// Rough delta prune
+		final short[] pValues = root.interpolatePieceValues();
+		/* big delta is the largest material swing */
+		final int bigDelta = pValues[4] + (isPromotingPawn(root) ? pValues[4] - pValues[0] : 0);
+
+		if (standPat < alpha - bigDelta)
+		{
+			// If we are here there is no way we will increase alpha so leave now
+			currentDepth--;
+			return (short) alpha;
+		}
+
 		if (alpha < standPat)
 		{
 			alpha = standPat;
 		}
 
-		final List<ChessMove> attackMoves = getMovesToProbe(root);
-		
+		final List<ChessMove> attackMoves = getMovesToProbe(root, pValues, standPat, alpha);
+
 		for (final ChessMove mv : attackMoves)
 		{
-			if (currentDepth == 1)
-			{
-				System.out.println(mv.toString());
-			}
-			
 			final BoardState newState = mv.evolve(root);
 
 			final int score = -search(newState, -beta, -alpha);
@@ -86,37 +94,53 @@ public class Quiescence
 				alpha = score;
 			}
 		}
-
 		currentDepth--;
-
 		assert (short) alpha == alpha;
 		return (short) alpha;
 	}
 
-	private List<ChessMove> getMovesToProbe(final BoardState state)
+	private List<ChessMove> getMovesToProbe(final BoardState state, final short[] pValues, final int standPat, final int alpha)
 	{
-		final short[] pValues = state.interpolatePieceValues();
 		final List<ChessMove> mtp = new ArrayList<>(), attMvs = state.getAttackMoves();
 
 		for (final ChessMove mv : attMvs)
 		{
-			//System.out.println(mv.toString());
-			if (mv instanceof EnPassantMove ||
-					see.isGoodExchange(mv.getTarget(), mv.getStart(), state, pValues))
+			if (mv instanceof EnPassantMove)
+			{
+				// Delta prune
+				if (standPat >= alpha - (pValues[0] + DP_SAFETY_MARGIN))
+				{
+					mtp.add(mv);
+				}
+				continue;
+			}
+
+			final int targVal = pValues[state.getPieceAt(mv.getTarget(), state.getEnemySide()).index() % 6];
+
+			if (standPat >= alpha - (targVal + DP_SAFETY_MARGIN) // Delta prune
+					&& see.isGoodExchange(mv.getTarget(), mv.getStart(), state, pValues))
 			{
 				mtp.add(mv);
-				if (currentDepth == 1)
-				{
-					System.out.println(mv.toString());
-				}
-				
 			}
 		}
-		if (currentDepth == 1)
-		{
-			System.out.println();
-		}
 		return mtp;
+	}
+
+	private boolean isPromotingPawn(final BoardState state)
+	{
+		final Side friendly = state.getFriendlySide();
+		final long enemys = state.getSideLocations(friendly.otherSide());
+		final long friendlyPawns = state.getPieceLocations(friendly.index());
+		final long seventhRank = 0b11111111L << (friendly.isWhite() ? 48 : 8);
+
+		for (final byte loc : EngineUtils.getSetBits(friendlyPawns & seventhRank))
+		{
+			if ((BBDB.EBA[friendly.ordinal()][loc] & enemys) != 0)
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**

@@ -23,7 +23,7 @@ public class NegaAlphaBeta implements MoveCalculator
 	 * on whether white or black is to move.
 	 */
 	private Quiescence quiescence;
-	private int depth = 2;
+	private int depth = 5;
 
 	public NegaAlphaBeta(final BoardEvaluator eval)
 	{
@@ -39,17 +39,13 @@ public class NegaAlphaBeta implements MoveCalculator
 		for (final ChessMove mv : root.getMoves())
 		{
 			final int bestReply = -nAlphaBeta(mv.evolve(root), -Infinity.INT_INFINITY, -alpha, depth - 1);
-			System.out.println(mv.toString());
-			
+
 			if (bestReply > alpha) // We want to maximise the value of best reply
 			{
 				alpha = bestReply;
 				bestMove = mv;
 			}
-			System.out.println(alpha);
-			System.out.println();
 		}
-		System.out.println(alpha);
 		return bestMove;
 	}
 
@@ -67,15 +63,7 @@ public class NegaAlphaBeta implements MoveCalculator
 	{
 		if (depth == 0 || root.isTerminal())
 		{
-//			if (root.isTerminal())
-//			{
-//				System.out.println(root.getTerminationState());
-//				EngineUtils.printNbitBoards(root.getPieceLocationsCopy());
-//				System.out.println();
-//			}
-//			System.out.println("Returning: " + quiescence.getEvaluator().evaluate(root));
-//			System.out.println("Friendly side: " + root.getFriendlySide().name());
-			return quiescence.search(root, alpha, beta);//getEvaluator().evaluate(root);//
+			return quiescence.search(root, alpha, beta);// getEvaluator().evaluate(root);//
 		}
 
 		for (final ChessMove mv : root.getMoves())
@@ -97,7 +85,7 @@ public class NegaAlphaBeta implements MoveCalculator
 	}
 
 	@Override
-	public ChessMove getBestMove(final BoardState root)
+	public ChessMove getBestMoveFrom(final BoardState root)
 	{
 		return getBestMoveFrom(root, depth);
 	}
@@ -122,10 +110,12 @@ public class NegaAlphaBeta implements MoveCalculator
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
-	public static void main(String[] args)
+
+	public static void main(final String[] args)
 	{
-		NegaAlphaBeta nag = new NegaAlphaBeta(BoardEvaluator.getDefault());
+		final NegaAlphaBeta nag = new NegaAlphaBeta(BoardEvaluator.getDefault());
+		final MoveCalculator mc = new TTAlphaBetaV1_2(BoardEvaluator.getDefault());
+
 		BoardState state = BoardStateImplV2.getStartBoard();
 		state = ChessMove.fromCompactString2("0_e2_e4").evolve(state);
 		state = ChessMove.fromCompactString2("0_e7_e5").evolve(state);
@@ -135,17 +125,11 @@ public class NegaAlphaBeta implements MoveCalculator
 		state = ChessMove.fromCompactString2("0_c6_e5").evolve(state);
 		state = ChessMove.fromCompactString2("0_f1_b5").evolve(state);
 		state = ChessMove.fromCompactString2("0_c7_c6").evolve(state);
-		System.out.println(nag.getBestMove(state));
+		System.out.println(nag.getBestMoveFrom(state) + " ---- " + mc.getBestMoveFrom(state));
 		System.out.println("-------------------");
-		state = ChessMove.fromCompactString2("0_d1_d5").evolve(state);
-		state = ChessMove.fromCompactString2("0_c6_d5").evolve(state);
-		state = ChessMove.fromCompactString2("0_e4_d5").evolve(state);
-		
-		/*
-		 * Here is bug, black to move, queen up but evaluates as negative
-		 */
-		System.out.println(state.getFriendlySide());
-		System.out.println(nag.quiescence.search(state, -Infinity.INT_INFINITY, Infinity.INT_INFINITY));//getBestMoveFrom(state, 1);
+		// state = ChessMove.fromCompactString2("0_d1_d5").evolve(state);
+		// state = ChessMove.fromCompactString2("0_c6_d5").evolve(state);
+		// state = ChessMove.fromCompactString2("0_e4_d5").evolve(state);
 	}
 }
 

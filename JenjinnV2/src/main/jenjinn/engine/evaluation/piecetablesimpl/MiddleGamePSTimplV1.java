@@ -157,11 +157,15 @@ public class MiddleGamePSTimplV1 extends AbstractPSTimplV1
 	{
 		return PIECE_VALUES[5];
 	}
-	
-	public static void main(String[] args)
+
+	public static void main(final String[] args)
 	{
-		MiddleGamePSTimplV1 m = new MiddleGamePSTimplV1();
+		final MiddleGamePSTimplV1 m = new MiddleGamePSTimplV1();
 		System.out.println(EngineUtils.formatPieceTable(m.getKingTable()));
+		System.out.println();
+		System.out.println(EngineUtils.formatPieceTable(m.tables.get(4)));
+		System.out.println();
+		System.out.println(EngineUtils.formatPieceTable(m.tables.get(10)));
 	}
 }
 

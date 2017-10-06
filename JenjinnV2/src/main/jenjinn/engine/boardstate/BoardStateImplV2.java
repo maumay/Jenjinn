@@ -382,6 +382,17 @@ public class BoardStateImplV2 implements BoardState
 	@Override
 	public short getMidgamePositionalEval()
 	{
+		// int eval = 0, ctr = 0;
+		// for (final long locs : pieceLocations)
+		// {
+		// for (final byte loc : EngineUtils.getSetBits(locs))
+		// {
+		// eval += BoardState.MID_TABLE.getPieceSquareValue((byte) ctr, loc);
+		// }
+		// System.out.println("Index: " + ctr + ", Value: " + BoardState.MID_TABLE.getPieceSquareValue((byte) ctr, (byte) 0));
+		// ctr++;
+		// }
+		// return (short) eval;
 		return (short) ((metaData & MIDGAME_LOC_EVAL_GETTER) >>> 16);
 	}
 
@@ -679,7 +690,7 @@ public class BoardStateImplV2 implements BoardState
 	}
 
 	@Override
-	public ChessPiece getPieceFromBB(long fromset) 
+	public ChessPiece getPieceFromBB(final long fromset)
 	{
 		for (int i = 0; i < 12; i++)
 		{

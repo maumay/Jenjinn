@@ -43,23 +43,23 @@ public class BoardEvaluator
 	 */
 	public short evaluate(final BoardState state)
 	{
-		final int orientation = state.getFriendlySide().orientation();
-		
+		int score = 0;
 		if (state.isTerminal())
 		{
-			return (short) (orientation*state.getTerminationState().value);
+			score = state.getTerminationState().value;
 		}
-
-		int score = 0;
-		for (final EvaluatingComponent component : components)
+		else
 		{
-			score += orientation * component.evaluate(state);
+			for (final EvaluatingComponent component : components)
+			{
+				score += component.evaluate(state);
+			}
+			score += evalPiecePositions(state);
 		}
-		score += orientation * evalPiecePositions(state);
-
 		assert (short) score == score;
 
-		return (short) (state.getFriendlySide().orientation() * score);
+		final int orientation = state.getFriendlySide().orientation();
+		return (short) (orientation * score);
 	}
 
 	private short evalPiecePositions(final BoardState state)
@@ -71,7 +71,7 @@ public class BoardEvaluator
 
 	public static BoardEvaluator getDefault()
 	{
-		return new BoardEvaluator(Arrays.asList());//new PawnStructureV1()));//new KingSafetyV1(), new MobilityV1(), ));
+		return new BoardEvaluator(Arrays.asList(new PawnStructureV1(), new KingSafetyV1(), new MobilityV1()));
 	}
 }
 /* ---------------------------------------------------------------------*

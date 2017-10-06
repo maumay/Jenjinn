@@ -21,12 +21,13 @@ public interface MoveCalculator
 {
 	/**
 	 * Searches the game tree for the best available move from the root state
-	 * for the side to move.
+	 * for the side to move. This is a blocking method which can return a value
+	 * early if required. I.e. we may time box the execution time.
 	 *
 	 * @param root
 	 * @return
 	 */
-	ChessMove getBestMove(BoardState root);
+	ChessMove getBestMoveFrom(BoardState root);// throws InterruptedException;
 
 	/**
 	 * Set the search depth.

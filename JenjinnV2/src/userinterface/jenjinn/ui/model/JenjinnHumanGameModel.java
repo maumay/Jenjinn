@@ -180,6 +180,10 @@ public class JenjinnHumanGameModel implements ChessGameModel
 
 	public void performAiMove()
 	{
+		/* Can interrupt in this method maybe? So the thread we got now,
+		 * another timer thread which upon finishing interrupts this other
+		 * thread which should now terminate because of work done in
+		 * TTAlphaBeta class. */
 		(new Thread(() ->
 		{
 			synchronized (gameStates)
@@ -188,9 +192,9 @@ public class JenjinnHumanGameModel implements ChessGameModel
 				final ChessMove jenjinnMove = jenjinn.calculateBestMove(presentState);
 				gameStates.add(jenjinnMove.evolve(presentState));
 				movesPlayed.add(jenjinnMove);
-//				System.out.println(getPresentGameState().getMidgamePositionalEval());
-//				System.out.println(getPresentGameState().getMidgamePositionalEval());
-//				System.out.println(evalPiecePositions(getPresentGameState()));
+				// System.out.println(getPresentGameState().getMidgamePositionalEval());
+				// System.out.println(getPresentGameState().getMidgamePositionalEval());
+				// System.out.println(evalPiecePositions(getPresentGameState()));
 				System.out.println(getPresentGameState().getHashing());
 
 				// Tell the FX thread to do the updates.
@@ -202,7 +206,7 @@ public class JenjinnHumanGameModel implements ChessGameModel
 			}
 		})).start();
 	}
-	
+
 	private short evalPiecePositions(final BoardState state)
 	{
 		final short midGameEval = state.getMidgamePositionalEval(), endGameEval = state.getEndgamePositionalEval();
