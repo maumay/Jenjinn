@@ -4,14 +4,17 @@
 package jenjinn.engine.entity;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import jenjinn.engine.boardstate.BoardState;
 import jenjinn.engine.enums.Side;
 import jenjinn.engine.evaluation.BoardEvaluator;
 import jenjinn.engine.gametree.MoveCalculator;
 import jenjinn.engine.gametree.NegaAlphaBeta;
+import jenjinn.engine.gametree.TTAlphaBetaV1_2;
 import jenjinn.engine.moves.ChessMove;
 import jenjinn.engine.openingdatabase.OpeningDBv4;
+import jenjinn.engine.openingdatabase.Openings;
 
 /**
  * @author TB
@@ -30,8 +33,8 @@ public final class Jenjinn
 	{
 		this.side = side;
 		// gts = new TTAlphaBetaV1_2(evaluator);
-		gts = new NegaAlphaBeta(evaluator);
-		openings = new OpeningDBv4(openingdbFileName);
+		gts = new TTAlphaBetaV1_2(evaluator);
+		openings = new OpeningDBv4(Openings.getQualifyedNames());
 	}
 
 	public ChessMove calculateBestMove(final BoardState root)

@@ -6,13 +6,16 @@
  */
 package jenjinn.engine.openingdatabase;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 
 import jenjinn.engine.boardstate.BoardState;
-import jenjinn.engine.boardstate.BoardStateImplV2;
-import jenjinn.engine.enums.Sq;
 import jenjinn.engine.moves.ChessMove;
-import jenjinn.engine.moves.StandardMove;
 
 /**
  * @author ThomasB
@@ -21,11 +24,11 @@ import jenjinn.engine.moves.StandardMove;
 public class OpeningDBv4
 {
 	/** The source file path assumes the source file is in a source folder! */
-	private final String sourceFilePath;
+	private final List<String> srcpaths = new ArrayList<>();
 
-	public OpeningDBv4(final String sourceFileName)
+	public OpeningDBv4(final List<String> filenames)
 	{
-		sourceFilePath = "/" + sourceFileName;
+		srcpaths.addAll(filenames);
 	}
 
 	/**
@@ -38,22 +41,26 @@ public class OpeningDBv4
 	 */
 	public ChessMove getMoveForPosition(final long stateHashing) throws IOException
 	{
-		// final InputStream dbStream = getClass().getResourceAsStream(sourceFilePath);
-		//
-		// assert dbStream != null;
-		//
-		// final BufferedReader reader = new BufferedReader(new InputStreamReader(dbStream));
-		//
-		// String line;
-		// while ((line = reader.readLine()) != null)
-		// {
-		// final String[] components = line.split(" ");
-		//
-		// if (new BigInteger(components[0], 16).longValue() == stateHashing)
-		// {
-		// return ChessMove.fromCompactString(components[1]);
-		// }
-		// }
+		for (String s : srcpaths)
+		{
+			try (final InputStream dbStream = getClass().getResourceAsStream(s))
+			{
+				assert dbStream != null && new InputStreamReader(dbStream) != null;
+
+				final BufferedReader reader = new BufferedReader(new InputStreamReader(dbStream));
+
+				String line;
+				while ((line = reader.readLine()) != null)
+				{
+					final String[] components = line.split(" ");
+
+					if (new BigInteger(components[0], 16).longValue() == stateHashing)
+					{
+						return ChessMove.fromCompactString(components[1]);
+					}
+				}
+			}
+		}
 		return null;
 	}
 
@@ -62,24 +69,24 @@ public class OpeningDBv4
 		return getMoveForPosition(state.getHashing());
 	}
 
-	public static void main(final String[] args)
-	{
-		final OpeningDBv4 db = new OpeningDBv4("testdb.txt");
-		BoardState state = BoardStateImplV2.getStartBoard();
-
-		state = StandardMove.get(Sq.e2, Sq.e4).evolve(state);
-		state = StandardMove.get(Sq.e7, Sq.e5).evolve(state);
-
-		try
-		{
-			System.out.println(db.getMoveForPosition(state.getHashing()).toString());
-		}
-		catch (final IOException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
+//	public static void main(final String[] args)
+//	{
+//		final OpeningDBv4 db = new OpeningDBv4("testdb.txt");
+//		BoardState state = BoardStateImplV2.getStartBoard();
+//
+//		state = StandardMove.get(Sq.e2, Sq.e4).evolve(state);
+//		state = StandardMove.get(Sq.e7, Sq.e5).evolve(state);
+//
+//		try
+//		{
+//			System.out.println(db.getMoveForPosition(state.getHashing()).toString());
+//		}
+//		catch (final IOException e)
+//		{
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//	}
 }
 
 /* ---------------------------------------------------------------------*

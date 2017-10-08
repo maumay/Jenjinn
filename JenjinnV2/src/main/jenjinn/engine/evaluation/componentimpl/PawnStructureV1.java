@@ -41,7 +41,7 @@ public class PawnStructureV1 implements EvaluatingComponent
 
 	static final short TRIPLE_PHALANX_BONUS = 25;
 
-	static final short CENTRAL_BONUS = 20;
+	static final short CENTRAL_BONUS = 30;
 
 	static final short CHAIN_BONUS = 4;
 

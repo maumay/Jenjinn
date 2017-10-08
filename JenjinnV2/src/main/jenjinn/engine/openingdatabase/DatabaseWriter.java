@@ -24,7 +24,7 @@ public class DatabaseWriter
 	private static final boolean dontIncludeLosingPos = false;
 	private static final int LENGTH_CAP = 10;
 
-	private static final String DB_FOLDER = "databases";
+	private static final String DB_FOLDER = "JenjinnV2/dbresources";
 
 	/**
 	 *
@@ -45,7 +45,11 @@ public class DatabaseWriter
 	{
 		try
 		{
-			writePgnFileToDbFormatTxtFile("RuyLopezMarshall.pgn", "testdb.txt");
+			writePgnFileToDbFormatTxtFile("Karpov.pgn", "karpovdb.txt");
+			writePgnFileToDbFormatTxtFile("Kasparov.pgn", "kasparovdb.txt");
+			writePgnFileToDbFormatTxtFile("Petrosian.pgn", "petrosiandb.txt");
+			writePgnFileToDbFormatTxtFile("Tal.pgn", "taldb.txt");
+			writePgnFileToDbFormatTxtFile("Topalov.pgn", "topalovdb.txt");
 		}
 		catch (final IOException e)
 		{

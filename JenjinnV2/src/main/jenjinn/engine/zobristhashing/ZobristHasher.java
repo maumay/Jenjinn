@@ -20,7 +20,7 @@ import jenjinn.engine.pieces.ChessPiece;
  */
 public class ZobristHasher
 {
-	private static final long DEFAULT_SEED = 0x73abc76L;// 0x110894L;
+	private static final long DEFAULT_SEED = 0x110894L;//0x73abc76L;//
 
 	private long[][] squarePieceFeatures = new long[64][12];
 

@@ -309,8 +309,8 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 		}
 		else
 		{
-			final boolean replace = newEntry.getDepthSearched() >= oldEntry.getDepthSearched();
-			tt.set(replace ? newEntry : oldEntry);
+//			final boolean replace = newEntry.getDepthSearched() >= oldEntry.getDepthSearched();
+			tt.set(newEntry);//replace ? newEntry : oldEntry);
 		}
 	}
 

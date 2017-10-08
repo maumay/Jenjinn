@@ -29,6 +29,9 @@ import jenjinn.ui.controller.ChessGameController;
  */
 public class JenjinnHumanGameModel implements ChessGameModel
 {
+	private static final double MOVE_TIME = 60;
+	
+	
 	private static final String REPORT_FOLDER = "matchreports/";
 
 	private static final String DEFAULT_DB = "testdb.txt";
@@ -184,7 +187,9 @@ public class JenjinnHumanGameModel implements ChessGameModel
 		 * another timer thread which upon finishing interrupts this other
 		 * thread which should now terminate because of work done in
 		 * TTAlphaBeta class. */
-		(new Thread(() ->
+		
+		
+		final Thread jenjinnJob = new Thread(() ->
 		{
 			synchronized (gameStates)
 			{
@@ -192,10 +197,6 @@ public class JenjinnHumanGameModel implements ChessGameModel
 				final ChessMove jenjinnMove = jenjinn.calculateBestMove(presentState);
 				gameStates.add(jenjinnMove.evolve(presentState));
 				movesPlayed.add(jenjinnMove);
-				// System.out.println(getPresentGameState().getMidgamePositionalEval());
-				// System.out.println(getPresentGameState().getMidgamePositionalEval());
-				// System.out.println(evalPiecePositions(getPresentGameState()));
-				System.out.println(getPresentGameState().getHashing());
 
 				// Tell the FX thread to do the updates.
 				Platform.runLater(() ->
@@ -204,7 +205,30 @@ public class JenjinnHumanGameModel implements ChessGameModel
 					enableUserInteraction();
 				});
 			}
-		})).start();
+		});
+		
+		jenjinnJob.start();
+		
+		Thread timer = new Thread(() ->  
+		{
+			try 
+			{
+				long t = System.nanoTime();
+				Thread.sleep((long) MOVE_TIME * 1000);
+				
+				if (jenjinnJob.isAlive())
+				{
+					System.out.println("Interrupted after: " + (System.nanoTime() - t));
+					jenjinnJob.interrupt();
+				}
+				
+			} catch (InterruptedException e) 
+			{
+				throw new AssertionError();
+			}
+		});
+		
+		timer.start();
 	}
 
 	private short evalPiecePositions(final BoardState state)

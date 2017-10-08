@@ -32,7 +32,7 @@ public class PgnReader
 	private static final String DRAW = "1/2-1/2";
 	private static final String BLACK_WINS = "0-1";
 
-	private static final String OPENING_FOLDER_PATH = "OpeningResources";
+	private static final String OPENING_FOLDER_PATH = "JenjinnV2/pgnfiles";
 
 	public static List<String> getGameStrings(final Path filePath, final int moveCap, final int gameCap) throws IOException
 	{
