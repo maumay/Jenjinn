@@ -17,7 +17,7 @@ import jenjinn.engine.misc.EngineUtils;
 public class MiddleGamePSTimplV1 extends AbstractPSTimplV1
 {
 	/* Obviously don't modify elsewhere. */
-	public static final short[] PIECE_VALUES = { 90, 330, 320, 490, 900, 10000 };
+	public static final short[] PIECE_VALUES = { 90*2, 330*2, 320*2, 490*2, 900*2, 20000 };
 
 	/**
 	 *

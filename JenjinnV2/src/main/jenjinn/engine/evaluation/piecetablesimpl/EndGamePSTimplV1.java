@@ -13,7 +13,7 @@ package jenjinn.engine.evaluation.piecetablesimpl;
 public class EndGamePSTimplV1 extends AbstractPSTimplV1
 {
 	/* Don't modify elsewhere */
-	public static final short[] PIECE_VALUES = { 120, 335, 305, 510, 910, 10000 };
+	public static final short[] PIECE_VALUES = { 120*2, 335*2, 305*2, 510*2, 910*2, 20000 };
 
 	@Override
 	protected short[] getPawnTable()

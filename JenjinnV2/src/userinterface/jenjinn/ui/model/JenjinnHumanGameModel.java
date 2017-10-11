@@ -29,7 +29,7 @@ import jenjinn.ui.controller.ChessGameController;
  */
 public class JenjinnHumanGameModel implements ChessGameModel
 {
-	private static final double MOVE_TIME = 60;
+	private static final double MOVE_TIME = 30;
 	
 	
 	private static final String REPORT_FOLDER = "matchreports/";
