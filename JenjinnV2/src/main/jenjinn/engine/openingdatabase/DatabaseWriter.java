@@ -7,11 +7,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import jenjinn.engine.enums.Side;
 import jenjinn.engine.io.pgnutils.PgnReader;
 
 /**
@@ -21,10 +20,12 @@ import jenjinn.engine.io.pgnutils.PgnReader;
  */
 public class DatabaseWriter
 {
-	private static final boolean dontIncludeLosingPos = false;
-	private static final int LENGTH_CAP = 10;
+	private static final String PGN_EXT = ".pgn";
+	private static final int LENGTH_CAP = 14;
 
-	private static final String DB_FOLDER = "JenjinnV2/dbresources";
+	private static final String PGN_FOLDER_PATH = "";
+
+	private static final String DB_FOLDER = "dbresources";
 
 	/**
 	 *
@@ -33,29 +34,41 @@ public class DatabaseWriter
 	{
 	}
 
-	public static void writePgnFileToDbFormatTxtFile(final String inputFileName, final String outputFileName) throws IOException
+	public static void writePgnFileToDbFormatTxtFile(final Path pgnFolder, final String outputFileName, final Side requiredSide) throws IOException
 	{
-		final Path filePath = Paths.get(DB_FOLDER, outputFileName);
-		final OpeningOrder[] ordersToWrite = PgnReader.processFileForOpeningOrders(inputFileName, LENGTH_CAP);
-		final List<String> ordersAsStrings = Arrays.stream(ordersToWrite).map(x -> x.toDatabaseString()).collect(Collectors.toList());
-		Files.write(filePath, ordersAsStrings, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+		assert Files.isDirectory(pgnFolder) : "Folder not passed!";
+
+		final List<Path> filePaths = Files.list(pgnFolder).collect(Collectors.toList());
+
+		filePaths.forEach(x ->
+		{
+			assert x.getFileName().toString().endsWith(PGN_EXT) : "Non pgn file passed!";
+		});
+
+		final Path outFilePath = Paths.get(DB_FOLDER, outputFileName);
+		//		Files.
+		PgnReader.writeDBFile(filePaths, outFilePath, LENGTH_CAP, requiredSide);
 	}
 
-	public static void main(final String[] args)
+	public static void main(final String[] args) throws IOException
 	{
-		try
-		{
-			writePgnFileToDbFormatTxtFile("Karpov.pgn", "karpovdb.txt");
-			writePgnFileToDbFormatTxtFile("Kasparov.pgn", "kasparovdb.txt");
-			writePgnFileToDbFormatTxtFile("Petrosian.pgn", "petrosiandb.txt");
-			writePgnFileToDbFormatTxtFile("Tal.pgn", "taldb.txt");
-			writePgnFileToDbFormatTxtFile("Topalov.pgn", "topalovdb.txt");
-		}
-		catch (final IOException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		//		try
+		//		{
+		//			writePgnFileToDbFormatTxtFile("Karpov.pgn", "karpovdb.txt");
+		//			writePgnFileToDbFormatTxtFile("Kasparov.pgn", "kasparovdb.txt");
+		//			writePgnFileToDbFormatTxtFile("Petrosian.pgn", "petrosiandb.txt");
+		//			writePgnFileToDbFormatTxtFile("Tal.pgn", "taldb.txt");
+		//			writePgnFileToDbFormatTxtFile("Topalov.pgn", "topalovdb.txt");
+		//		}
+		//		catch (final IOException e)
+		//		{
+		//			// TODO Auto-generated catch block
+		//			e.printStackTrace();
+		//		}
+		//		Files.list(Paths.get(DB_FOLDER)).forEach(x -> System.out.println(x.toString()));
+
+		final Path folder = Paths.get("F:", "chessopenings", "queensgambit");
+		writePgnFileToDbFormatTxtFile(folder, "test", Side.B);
 	}
 
 }

@@ -4,19 +4,25 @@ package jenjinn.engine.io.pgnutils;
  */
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import gnu.trove.set.TLongSet;
 import gnu.trove.set.hash.TLongHashSet;
+import jenjinn.engine.enums.Side;
 import jenjinn.engine.exceptions.AmbiguousPgnException;
 import jenjinn.engine.openingdatabase.OpeningOrder;
 
@@ -28,6 +34,8 @@ import jenjinn.engine.openingdatabase.OpeningOrder;
  */
 public class PgnReader
 {
+	private static final String TXT_EXT = ".txt", ZIP_EXT = ".zip";
+
 	private static final String WHITE_WINS = "1-0";
 	private static final String DRAW = "1/2-1/2";
 	private static final String BLACK_WINS = "0-1";
@@ -121,45 +129,77 @@ public class PgnReader
 		}
 	}
 
-	public static OpeningOrder[] processFileForOpeningOrders(final String fileName, final int lengthCap) throws IOException
+	public static void writeDBFile(final List<Path> fileName, final Path outPath, final int lengthCap, final Side toInclude) throws IOException
 	{
-		final Path filePath = Paths.get(OPENING_FOLDER_PATH, fileName);
-		final BufferedReader fileParser = Files.newBufferedReader(filePath, StandardCharsets.ISO_8859_1);
-
-		final List<OpeningOrder> ordersRead = new ArrayList<>();
 		final TLongSet positionsUsed = new TLongHashSet();
 
-		final List<String> gameStrings = getGameStrings(fileParser, -1, -1);
-
-		/* This consumer checks if this OpeningOrder is unique and if
-		 * so adds it to the List of orders read. */
-		final Consumer<OpeningOrder> orderAction = x ->
+		for (final Path p : fileName)
 		{
-			if (!positionsUsed.contains(x.getBoardHash()))
-			{
-				ordersRead.add(x);
-				positionsUsed.add(x.getBoardHash());
-			}
-		};
+			final BufferedReader fileParser = Files.newBufferedReader(p, StandardCharsets.ISO_8859_1);
+			final List<String> gameStrings = getGameStrings(fileParser, -1, -1);
 
-		// Convert to OpeningOrders and add as appropriate
-		for (final String gs : gameStrings)
-		{
-			OpeningOrder[] game;
-			try 
+			/* This consumer checks if this OpeningOrder is unique and if
+			 * so adds it to the List of orders read. */
+			final Consumer<OpeningOrder> orderAction = x ->
 			{
-				game = ChessGameReader.convertAlgebraicString(gs.split("  ")[0], lengthCap);
-				Arrays.stream(game).forEach(orderAction);
-			} 
-			catch (AmbiguousPgnException e) 
+				if (!positionsUsed.contains(x.getBoardHash()))
+				{
+					positionsUsed.add(x.getBoardHash());
+					try
+					{
+						Files.write(outPath, Arrays.asList(x.toDatabaseString()), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.APPEND);
+					}
+					catch (final IOException e)
+					{
+						e.printStackTrace();
+						throw new AssertionError();
+					}
+				}
+			};
+
+			// Convert to OpeningOrders and add as appropriate
+			for (final String gs : gameStrings)
 			{
-				System.err.println("Removed ambiguous game.");
-				continue;
+				OpeningOrder[] game;
+				try
+				{
+					game = ChessGameReader.convertAlgebraicString(gs.split("  ")[0], lengthCap);
+
+					final List<OpeningOrder> requiredSide = new ArrayList<>();
+					for (int i = toInclude.ordinal(); i < game.length; i += 2)
+					{
+						requiredSide.add(game[i]);
+					}
+
+					requiredSide.stream().forEach(orderAction);
+				}
+				catch (final AmbiguousPgnException e)
+				{
+					System.err.println("Skipped ambiguous game.");
+					continue;
+				}
 			}
 		}
 
-		System.out.println(ordersRead.size() + " positions successfully read from " + fileName);
-		return ordersRead.toArray(new OpeningOrder[ordersRead.size()]);
+		final String passedName = outPath.getFileName().toString();
+		final Path parentFolder = outPath.getParent();
+
+		final Path zipPath = Paths.get(parentFolder.toString(), passedName + ZIP_EXT);
+		final File f = new File(zipPath.toAbsolutePath().toString());
+
+		try (ZipOutputStream out = new ZipOutputStream(new FileOutputStream(f)))
+		{
+			out.putNextEntry(new ZipEntry(passedName + TXT_EXT));
+
+			final byte[] toWrite = Files.readAllBytes(outPath);
+			out.write(toWrite, 0, toWrite.length);
+			out.closeEntry();
+
+		}
+
+		Files.delete(outPath);
+		//		System.out.println(ordersRead.size() + " positions successfully read from " + fileName);
+		//		return ordersRead.toArray(new OpeningOrder[ordersRead.size()]);
 	}
 
 	public static void main(final String[] args)
@@ -180,15 +220,15 @@ public class PgnReader
 		// // TODO Auto-generated catch block
 		// e.printStackTrace();
 		// }
-		try
-		{
-			processFileForOpeningOrders("RuyLopezMarshall.pgn", 30);
-		}
-		catch (final IOException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		//		try
+		//		{
+		//			processFileForOpeningOrders("RuyLopezMarshall.pgn", 30);
+		//		}
+		//		catch (final IOException e)
+		//		{
+		//			// TODO Auto-generated catch block
+		//			e.printStackTrace();
+		//		}
 
 	}
 
