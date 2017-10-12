@@ -20,12 +20,13 @@ import jenjinn.engine.io.pgnutils.PgnReader;
  */
 public class DatabaseWriter
 {
-	private static final String PGN_EXT = ".pgn";
-	private static final int LENGTH_CAP = 14;
+	private static final String ZIP_EXT = ".zip";
+	private static final int LENGTH_CAP = 16;
+	
+	private static final Side TO_WRITE_FOR = Side.B;
 
-	private static final String PGN_FOLDER_PATH = "";
 
-	private static final String DB_FOLDER = "dbresources";
+	private static final String DB_FOLDER = "JenjinnV2/dbresources";
 
 	/**
 	 *
@@ -38,11 +39,13 @@ public class DatabaseWriter
 	{
 		assert Files.isDirectory(pgnFolder) : "Folder not passed!";
 
+		
 		final List<Path> filePaths = Files.list(pgnFolder).collect(Collectors.toList());
-
+		filePaths.sort((a, b) -> a.getFileName().compareTo(b.getFileName()));
+		
 		filePaths.forEach(x ->
 		{
-			assert x.getFileName().toString().endsWith(PGN_EXT) : "Non pgn file passed!";
+			assert x.getFileName().toString().endsWith(ZIP_EXT) : "Non zip file passed!";
 		});
 
 		final Path outFilePath = Paths.get(DB_FOLDER, outputFileName);
@@ -67,8 +70,21 @@ public class DatabaseWriter
 		//		}
 		//		Files.list(Paths.get(DB_FOLDER)).forEach(x -> System.out.println(x.toString()));
 
-		final Path folder = Paths.get("F:", "chessopenings", "queensgambit");
-		writePgnFileToDbFormatTxtFile(folder, "test", Side.B);
+		String sideName = TO_WRITE_FOR.name().toLowerCase();
+		
+		String[] names = {
+				"modernkings",
+				"classickings",
+				"modernqueens",
+				"classicqueens",
+				"flank"
+		};
+		
+		for (String name : names)
+		{
+			System.out.println("Next");
+			final Path folder = Paths.get("/home", "t", "chessopenings", name);
+			writePgnFileToDbFormatTxtFile(folder, sideName + name, TO_WRITE_FOR);
+		}
 	}
-
 }

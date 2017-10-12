@@ -564,7 +564,7 @@ public class BoardStateImplV2 implements BoardState
 				System.out.println();
 				System.out.println(getFriendlySide().name());
 				System.out.println(mv.toString());
-				throw new RuntimeException();
+				throw new AmbiguousPgnException();
 			}
 			if (mv.getTarget() == targ && p.getPieceType() == com.getPieceToMove())
 			{
@@ -596,7 +596,7 @@ public class BoardStateImplV2 implements BoardState
 		{
 			System.out.println(com.getAsString());
 			System.out.println(getFriendlySide().name());
-			throw new AssertionError("Not found a move correctly.");
+			throw new AmbiguousPgnException("Not found a move correctly.");
 		}
 		else if (possibleMoves.size() == 2)
 		{

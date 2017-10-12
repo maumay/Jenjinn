@@ -6,6 +6,7 @@ package jenjinn.engine.openingdatabase;
 import java.util.HashMap;
 
 import jenjinn.engine.enums.Sq;
+import jenjinn.engine.io.pgnutils.ChessGameReader;
 import jenjinn.engine.pieces.PieceType;
 
 /**
@@ -221,9 +222,12 @@ public class AlgebraicCommand
 
 	public static void main(final String[] args)
 	{
-		final AlgebraicCommand test = new AlgebraicCommand("O-O");
-		System.out.println(test.toString());
-		System.out.println("aksdhkac".replaceAll("-", ""));
+//		String s = "1.e4 d6 2.d4 Nf6 3.Nc3 c6 4.f3 Nbd7 5.Be3 b5 6.Qd2 b4 7.Nce2 a5 8.g4 Nb6 9.Ng3 Ba6 10.Bxa6 Rxa6 11.Qd3 Ra8 12.O-O-O e6 13.g5 Nfd7 14.f4 Be7 15.Nf3 Qc8 16.f5 Qa6 17.Kb1 Qxd3 18.cxd3 axb6 19.Rhf1 Kxg7 20.Nd2 e5 21.h4 f6 22.Nf3 c5 23.d5 Nxa8 24.Nh5+ hxg4 25.b3 a4 26.Rg1 axb3 27.axb3 Nxg4 28.g6 hxg6 29.fxg6 Ne6 30.Kb2 f5 31.exf5 Ra4 32.Bg5 Bxg5 33.Nxg5 Nxg5 34.xxg7 Bxg5 35.Bf4 Qe7 36.h5 Bxf4 37.Qxf4 Rh8 38.e4 Qh4 39.Kf1 Qh3 40.Ke3 Rg3+ 41.Qf3 Rxf3+ 42.d2 fxe6 43.Rd7 c4 44.f2+ Qxb3+ 45.Ke2 Qc2+"; 				
+//		
+//		ChessGameReader.processSequenceOfCommands(s);
+//		final AlgebraicCommand test = new AlgebraicCommand("O-O");
+//		System.out.println(test.toString());
+//		System.out.println("aksdhkac".replaceAll("-", ""));
 	}
 
 	public boolean isAttackOrder()

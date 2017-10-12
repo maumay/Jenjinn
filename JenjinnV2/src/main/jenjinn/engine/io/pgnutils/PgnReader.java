@@ -7,17 +7,22 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
 import gnu.trove.set.TLongSet;
@@ -72,7 +77,15 @@ public class PgnReader
 			}
 			else
 			{
+				//				try
+				//				{
 				gameBuilder.get(gameBuilder.size() - 1).append(x + " ");
+				//				}
+				//				catch (ArrayIndexOutOfBoundsException e)
+				//				{
+				//					System.out.println(x);
+				//					throw new AssertionError();
+				//				}
 			}
 		};
 
@@ -133,73 +146,88 @@ public class PgnReader
 	{
 		final TLongSet positionsUsed = new TLongHashSet();
 
-		for (final Path p : fileName)
-		{
-			final BufferedReader fileParser = Files.newBufferedReader(p, StandardCharsets.ISO_8859_1);
-			final List<String> gameStrings = getGameStrings(fileParser, -1, -1);
-
-			/* This consumer checks if this OpeningOrder is unique and if
-			 * so adds it to the List of orders read. */
-			final Consumer<OpeningOrder> orderAction = x ->
-			{
-				if (!positionsUsed.contains(x.getBoardHash()))
-				{
-					positionsUsed.add(x.getBoardHash());
-					try
-					{
-						Files.write(outPath, Arrays.asList(x.toDatabaseString()), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.APPEND);
-					}
-					catch (final IOException e)
-					{
-						e.printStackTrace();
-						throw new AssertionError();
-					}
-				}
-			};
-
-			// Convert to OpeningOrders and add as appropriate
-			for (final String gs : gameStrings)
-			{
-				OpeningOrder[] game;
-				try
-				{
-					game = ChessGameReader.convertAlgebraicString(gs.split("  ")[0], lengthCap);
-
-					final List<OpeningOrder> requiredSide = new ArrayList<>();
-					for (int i = toInclude.ordinal(); i < game.length; i += 2)
-					{
-						requiredSide.add(game[i]);
-					}
-
-					requiredSide.stream().forEach(orderAction);
-				}
-				catch (final AmbiguousPgnException e)
-				{
-					System.err.println("Skipped ambiguous game.");
-					continue;
-				}
-			}
-		}
-
+		//		final String outFileName = outPath.getFileName().toString();
+		final Path outParentFolder = outPath.getParent();
 		final String passedName = outPath.getFileName().toString();
-		final Path parentFolder = outPath.getParent();
 
-		final Path zipPath = Paths.get(parentFolder.toString(), passedName + ZIP_EXT);
+		final Path zipPath = Paths.get(outParentFolder.toString(), passedName + ZIP_EXT);
 		final File f = new File(zipPath.toAbsolutePath().toString());
+
 
 		try (ZipOutputStream out = new ZipOutputStream(new FileOutputStream(f)))
 		{
-			out.putNextEntry(new ZipEntry(passedName + TXT_EXT));
+			for (final Path p : fileName)
+			{
+				File zipinput = new File(p.toAbsolutePath().toString());
 
-			final byte[] toWrite = Files.readAllBytes(outPath);
-			out.write(toWrite, 0, toWrite.length);
-			out.closeEntry();
+				try (ZipFile zipsrc = new ZipFile(zipinput))
+				{
+					Enumeration<? extends ZipEntry> entries = zipsrc.entries();
+					while (entries.hasMoreElements())
+					{
+						ZipEntry src = entries.nextElement();
+						Path tempfile = Paths.get(outParentFolder.toString(), "temp");
+
+						InputStream is = zipsrc.getInputStream(src);
+						final BufferedReader fileParser = new BufferedReader(new InputStreamReader(is));
+
+						List<String> gameStrings = null;
+						gameStrings = getGameStrings(fileParser, -1, -1);
+
+						/* This consumer checks if this OpeningOrder is unique and if
+						 * so adds it to the List of orders read. */
+						final Consumer<OpeningOrder> orderAction = x ->
+						{
+							if (!positionsUsed.contains(x.getBoardHash()))
+							{
+								positionsUsed.add(x.getBoardHash());
+								try
+								{
+									Files.write(tempfile, Arrays.asList(x.toDatabaseString()), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.APPEND);
+								}
+								catch (final IOException e)
+								{
+									e.printStackTrace();
+									throw new AssertionError();
+								}
+							}
+						};
+
+						// Convert to OpeningOrders and add as appropriate
+						for (final String gs : gameStrings)
+						{
+							OpeningOrder[] game = null;
+							try
+							{
+								game = ChessGameReader.convertAlgebraicString(gs.split("  ")[0], lengthCap);
+
+								final List<OpeningOrder> requiredSide = new ArrayList<>();
+								for (int i = toInclude.ordinal(); i < game.length; i += 2)
+								{
+									requiredSide.add(game[i]);
+								}
+								requiredSide.stream().forEach(orderAction);
+							}
+							catch (final AmbiguousPgnException e)
+							{
+								System.err.println("Skipped ambiguous game.");
+								continue;
+							}
+						}
+
+						if (Files.exists(tempfile, LinkOption.NOFOLLOW_LINKS))
+						{
+							out.putNextEntry(new ZipEntry(src.getName()));
+							final byte[] toWrite = Files.readAllBytes(tempfile);
+							out.write(toWrite, 0, toWrite.length);
+							out.closeEntry();
+							Files.delete(tempfile);
+						}
+					}
+				}
+			}
 
 		}
-
-		Files.delete(outPath);
-		//		System.out.println(ordersRead.size() + " positions successfully read from " + fileName);
-		//		return ordersRead.toArray(new OpeningOrder[ordersRead.size()]);
 	}
 
 	public static void main(final String[] args)

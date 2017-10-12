@@ -4,13 +4,11 @@
 package jenjinn.engine.entity;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 import jenjinn.engine.boardstate.BoardState;
 import jenjinn.engine.enums.Side;
 import jenjinn.engine.evaluation.BoardEvaluator;
 import jenjinn.engine.gametree.MoveCalculator;
-import jenjinn.engine.gametree.NegaAlphaBeta;
 import jenjinn.engine.gametree.TTAlphaBetaV1_2;
 import jenjinn.engine.moves.ChessMove;
 import jenjinn.engine.openingdatabase.OpeningDBv4;

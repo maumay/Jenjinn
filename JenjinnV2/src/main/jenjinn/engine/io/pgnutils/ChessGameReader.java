@@ -26,7 +26,18 @@ public class ChessGameReader
 	{
 		final ArrayList<OpeningOrder> ans = new ArrayList<>();
 		final String trimmed = s.trim();
-		final AlgebraicCommand[] commands = processSequenceOfCommands(trimmed);
+		
+		AlgebraicCommand[] commands = null;
+		try
+		{
+			commands = processSequenceOfCommands(trimmed);
+		}
+		catch (NullPointerException npe)
+		{
+			System.out.println(s);
+			throw npe;
+		}
+		
 		BoardState state = BoardStateImplV2.getStartBoard();
 
 		int counter = 0;
@@ -45,14 +56,21 @@ public class ChessGameReader
 		return ans.toArray(new OpeningOrder[ans.size()]);
 	}
 
-	public static AlgebraicCommand[] processSequenceOfCommands(final String trimmed)
+	public static AlgebraicCommand[] processSequenceOfCommands(final String trimmed) throws AmbiguousPgnException
 	{
 		final String[] initialSplit = trimmed.split(" ");
 		final AlgebraicCommand[] finalSplit = new AlgebraicCommand[initialSplit.length];
 		int idx = 0;
 		for (final String s : initialSplit)
 		{
-			finalSplit[idx] = new AlgebraicCommand(s);
+			try
+			{
+				finalSplit[idx] = new AlgebraicCommand(s);
+			}
+			catch (Throwable t)
+			{
+				throw new AmbiguousPgnException();
+			}
 			idx++;
 		}
 		return finalSplit;

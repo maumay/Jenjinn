@@ -30,6 +30,15 @@ public final class Openings
 			"topalovdb.txt",
 			"grischukdb.txt",
 			};
+	
+	private static final String[] ORDERIN3 = {
+			"bmodernkings.zip",
+			"bclassickings.zip",
+			"bclassicqueens.zip",
+			"bmodernqueens.zip",
+			"bflank.zip"
+	};
+	
 
 
 	/**
@@ -42,7 +51,7 @@ public final class Openings
 	
 	public static List<String> getQualifyedNames()
 	{
-		return Arrays.stream(ORDERIN2).map(s -> "/" + s).collect(Collectors.toList());
+		return Arrays.stream(ORDERIN3).map(s -> "/" + s).collect(Collectors.toList());
 	}
 
 }
