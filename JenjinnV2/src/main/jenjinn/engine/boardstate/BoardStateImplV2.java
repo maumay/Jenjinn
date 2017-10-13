@@ -16,6 +16,8 @@ import gnu.trove.list.TByteList;
 import gnu.trove.list.TLongList;
 import gnu.trove.list.array.TByteArrayList;
 import gnu.trove.list.array.TLongArrayList;
+import gnu.trove.map.TLongIntMap;
+import gnu.trove.map.hash.TLongIntHashMap;
 import jenjinn.engine.bitboarddatabase.BBDB;
 import jenjinn.engine.enums.Side;
 import jenjinn.engine.enums.Sq;
@@ -224,13 +226,27 @@ public class BoardStateImplV2 implements BoardState
 		}
 
 		// Check for repetition draw // TODO - Remove stream to increase performance?
-		final int uniqueHashings = (int) Arrays.stream(recentHashings).distinct().count();
-		assert uniqueHashings >= 2;
 
-		if (uniqueHashings == 2 && Arrays.stream(recentHashings).filter(x -> x == recentHashings[0]).count() != 2)
+		final TLongIntMap m = new TLongIntHashMap(4);
+		for (final long hash : recentHashings)
 		{
-			termType = TerminationType.DRAW;
-			return termType;
+			if (m.containsKey(hash))
+			{
+				m.increment(hash);
+			}
+			else
+			{
+				m.put(hash, 1);
+			}
+		}
+		for (final long key : m.keys())
+		{
+			if (m.get(key) >= 3)
+			{
+				termType = TerminationType.DRAW;
+				System.out.println("Hi");
+				return termType;
+			}
 		}
 
 		if (isStaleMate())
