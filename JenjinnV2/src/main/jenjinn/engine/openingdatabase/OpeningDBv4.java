@@ -43,21 +43,21 @@ public class OpeningDBv4
 	 * @param stateHashing
 	 * @return
 	 * @throws IOException
-	 * @throws URISyntaxException 
+	 * @throws URISyntaxException
 	 */
 	public ChessMove getMoveForPosition(final long stateHashing) throws IOException, URISyntaxException
 	{
-		for (String s : srcpaths)
+		for (final String s : srcpaths)
 		{
 			try (ZipFile zipsrc = new ZipFile(new File(getClass().getResource(s).toURI())))
 			{
-				Enumeration<? extends ZipEntry> entries = zipsrc.entries();
-				
+				final Enumeration<? extends ZipEntry> entries = zipsrc.entries();
+
 				while (entries.hasMoreElements())
 				{
-					ZipEntry entry = entries.nextElement();
-					System.out.println(entry.getName());
-					InputStream is = zipsrc.getInputStream(entry);
+					final ZipEntry entry = entries.nextElement();
+					final InputStream is = zipsrc.getInputStream(entry);
+
 					try (final BufferedReader reader = new BufferedReader(new InputStreamReader(is)))
 					{
 						String line;
@@ -80,34 +80,34 @@ public class OpeningDBv4
 	public ChessMove getMoveForPosition(final BoardState state) throws IOException
 	{
 		try {
-			
+
 			return getMoveForPosition(state.getHashing());
-		} 
-		catch (URISyntaxException e) 
+		}
+		catch (final URISyntaxException e)
 		{
 			e.printStackTrace();
 			throw new AssertionError();
 		}
 	}
 
-//	public static void main(final String[] args)
-//	{
-//		final OpeningDBv4 db = new OpeningDBv4("testdb.txt");
-//		BoardState state = BoardStateImplV2.getStartBoard();
-//
-//		state = StandardMove.get(Sq.e2, Sq.e4).evolve(state);
-//		state = StandardMove.get(Sq.e7, Sq.e5).evolve(state);
-//
-//		try
-//		{
-//			System.out.println(db.getMoveForPosition(state.getHashing()).toString());
-//		}
-//		catch (final IOException e)
-//		{
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//	}
+	//	public static void main(final String[] args)
+	//	{
+	//		final OpeningDBv4 db = new OpeningDBv4("testdb.txt");
+	//		BoardState state = BoardStateImplV2.getStartBoard();
+	//
+	//		state = StandardMove.get(Sq.e2, Sq.e4).evolve(state);
+	//		state = StandardMove.get(Sq.e7, Sq.e5).evolve(state);
+	//
+	//		try
+	//		{
+	//			System.out.println(db.getMoveForPosition(state.getHashing()).toString());
+	//		}
+	//		catch (final IOException e)
+	//		{
+	//			// TODO Auto-generated catch block
+	//			e.printStackTrace();
+	//		}
+	//	}
 }
 
 /* ---------------------------------------------------------------------*

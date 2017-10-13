@@ -45,8 +45,6 @@ public class PgnReader
 	private static final String DRAW = "1/2-1/2";
 	private static final String BLACK_WINS = "0-1";
 
-	private static final String OPENING_FOLDER_PATH = "JenjinnV2/pgnfiles";
-
 	public static List<String> getGameStrings(final Path filePath, final int moveCap, final int gameCap) throws IOException
 	{
 		return getGameStrings(getReader(filePath), moveCap, gameCap);
@@ -158,17 +156,17 @@ public class PgnReader
 		{
 			for (final Path p : fileName)
 			{
-				File zipinput = new File(p.toAbsolutePath().toString());
+				final File zipinput = new File(p.toAbsolutePath().toString());
 
 				try (ZipFile zipsrc = new ZipFile(zipinput))
 				{
-					Enumeration<? extends ZipEntry> entries = zipsrc.entries();
+					final Enumeration<? extends ZipEntry> entries = zipsrc.entries();
 					while (entries.hasMoreElements())
 					{
-						ZipEntry src = entries.nextElement();
-						Path tempfile = Paths.get(outParentFolder.toString(), "temp");
+						final ZipEntry src = entries.nextElement();
+						final Path tempfile = Paths.get(outParentFolder.toString(), "temp");
 
-						InputStream is = zipsrc.getInputStream(src);
+						final InputStream is = zipsrc.getInputStream(src);
 						final BufferedReader fileParser = new BufferedReader(new InputStreamReader(is));
 
 						List<String> gameStrings = null;

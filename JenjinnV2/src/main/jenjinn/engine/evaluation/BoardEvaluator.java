@@ -74,8 +74,8 @@ public class BoardEvaluator
 	{
 		return new BoardEvaluator(
 				Arrays.asList(
-						new PawnStructureV1(), 
-						new KingSafetyV1(), 
+						new PawnStructureV1(),
+						new KingSafetyV1(),
 						new MobilityV1(),
 						new DevelpmentV1()
 						)

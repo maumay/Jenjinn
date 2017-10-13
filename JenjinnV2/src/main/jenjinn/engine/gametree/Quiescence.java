@@ -33,14 +33,13 @@ public class Quiescence
 	private final BoardEvaluator evaluator;
 	private final SEE see = new SEE();
 
-	public short search(final BoardState root, int alpha, final int beta) throws InterruptedException
+	public short search(final BoardState root, int alpha, final int beta, final boolean interruptionAllowed) throws InterruptedException
 	{
-		
-		if (Thread.currentThread().isInterrupted())
+		if (interruptionAllowed && Thread.currentThread().isInterrupted())
 		{
 			throw new InterruptedException();
 		}
-		
+
 		currentDepth++;
 		if (currentDepth > maxDepth)
 		{
@@ -87,7 +86,7 @@ public class Quiescence
 		{
 			final BoardState newState = mv.evolve(root);
 
-			final int score = -search(newState, -beta, -alpha);
+			final int score = -search(newState, -beta, -alpha, interruptionAllowed);
 
 			if (score >= beta)
 			{

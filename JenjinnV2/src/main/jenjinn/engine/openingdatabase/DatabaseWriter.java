@@ -22,11 +22,11 @@ public class DatabaseWriter
 {
 	private static final String ZIP_EXT = ".zip";
 	private static final int LENGTH_CAP = 16;
-	
-	private static final Side TO_WRITE_FOR = Side.B;
+
+	private static final Side TO_WRITE_FOR = Side.W;
 
 
-	private static final String DB_FOLDER = "JenjinnV2/dbresources";
+	private static final String DB_FOLDER = "dbresources";
 
 	/**
 	 *
@@ -39,10 +39,10 @@ public class DatabaseWriter
 	{
 		assert Files.isDirectory(pgnFolder) : "Folder not passed!";
 
-		
+
 		final List<Path> filePaths = Files.list(pgnFolder).collect(Collectors.toList());
 		filePaths.sort((a, b) -> a.getFileName().compareTo(b.getFileName()));
-		
+
 		filePaths.forEach(x ->
 		{
 			assert x.getFileName().toString().endsWith(ZIP_EXT) : "Non zip file passed!";
@@ -70,20 +70,20 @@ public class DatabaseWriter
 		//		}
 		//		Files.list(Paths.get(DB_FOLDER)).forEach(x -> System.out.println(x.toString()));
 
-		String sideName = TO_WRITE_FOR.name().toLowerCase();
-		
-		String[] names = {
+		final String sideName = TO_WRITE_FOR.name().toLowerCase();
+
+		final String[] names = {
 				"modernkings",
 				"classickings",
 				"modernqueens",
 				"classicqueens",
 				"flank"
 		};
-		
-		for (String name : names)
+
+		for (final String name : names)
 		{
 			System.out.println("Next");
-			final Path folder = Paths.get("/home", "t", "chessopenings", name);
+			final Path folder = Paths.get("F:", "chessopenings", name);
 			writePgnFileToDbFormatTxtFile(folder, sideName + name, TO_WRITE_FOR);
 		}
 	}

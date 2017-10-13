@@ -25,6 +25,8 @@ public interface ChessGameModel
 
 	List<BoardState> getGameStatesCopy();
 
+	void setMoveTimeLimit(final double scaleFactor);
+
 	default void fireDisplayUpdate()
 	{
 		try

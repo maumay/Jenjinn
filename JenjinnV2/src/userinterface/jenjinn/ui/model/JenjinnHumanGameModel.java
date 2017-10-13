@@ -4,6 +4,7 @@
 package jenjinn.ui.model;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
@@ -18,6 +19,7 @@ import jenjinn.engine.boardstate.BoardStateImplV2;
 import jenjinn.engine.entity.Jenjinn;
 import jenjinn.engine.enums.Side;
 import jenjinn.engine.enums.Sq;
+import jenjinn.engine.enums.TerminationType;
 import jenjinn.engine.evaluation.BoardEvaluator;
 import jenjinn.engine.misc.EngineUtils;
 import jenjinn.engine.moves.ChessMove;
@@ -29,12 +31,14 @@ import jenjinn.ui.controller.ChessGameController;
  */
 public class JenjinnHumanGameModel implements ChessGameModel
 {
-	private static final double MOVE_TIME = 30;
-	
-	
+	private static final int DEFAULT_SIG_FIG = 5;
+
+	private static final double MIN_MOVE_TIME = 0.5;
+	private static final double MAX_MOVE_TIME = 45;
+
+
 	private static final String REPORT_FOLDER = "matchreports/";
 
-	private static final String DEFAULT_DB = "testdb.txt";
 
 	private ChessGameController gameController;
 
@@ -43,18 +47,21 @@ public class JenjinnHumanGameModel implements ChessGameModel
 	private Jenjinn jenjinn;
 	private StoredUserSelection userSelection;
 
+	private double moveTime = 15;
+
 	private JenjinnHumanGameModel()
 	{
 	}
 
-	public static JenjinnHumanGameModel createNewModel(final Side humanSide)
+	public static JenjinnHumanGameModel createNewModel(final Side humanSide, final ChessGameController controller)
 	{
 		final JenjinnHumanGameModel newModel = new JenjinnHumanGameModel();
 		newModel.gameStates = new ArrayList<>(Arrays.asList(BoardStateImplV2.getStartBoard()));
 		newModel.movesPlayed = new ArrayList<>();
 		newModel.userSelection = new StoredUserSelection();
-		newModel.jenjinn = new Jenjinn(humanSide.otherSide(), 4, BoardEvaluator.getDefault(), DEFAULT_DB);
-		newModel.gameController = ChessGameController.getInstance();
+		newModel.jenjinn = new Jenjinn(humanSide.otherSide(), BoardEvaluator.getDefault());
+		newModel.gameController = controller;
+		controller.setModel(newModel);
 
 		if (humanSide == Side.B)
 		{
@@ -69,10 +76,18 @@ public class JenjinnHumanGameModel implements ChessGameModel
 		final BoardState currentState = getPresentGameState();
 		movesPlayed.add(chosenMove);
 		gameStates.add(chosenMove.evolve(currentState));
-		System.out.println("User: " + getPresentGameState().getHashing());
 		userSelection.reset();
 		fireDisplayUpdate();
-		performAiMove();
+
+		if (getPresentGameState().getTerminationState().isTerminal())
+		{
+			disableUserInteraction();
+			triggerEndOfGame();
+		}
+		else
+		{
+			performAiMove();
+		}
 	}
 
 	@Override
@@ -112,7 +127,9 @@ public class JenjinnHumanGameModel implements ChessGameModel
 	{
 		ChessMove indicatedMove = null;
 		final Sq firstClick = userSelection.getStoredSquare();
-		final List<ChessMove> possibleMoves = getPresentGameState().getMoves();
+
+
+		final List<ChessMove> possibleMoves = getLegalMoves();//getPresentGameState().getMoves();
 
 		for (final ChessMove possibleMove : possibleMoves)
 		{
@@ -123,6 +140,25 @@ public class JenjinnHumanGameModel implements ChessGameModel
 			}
 		}
 		return indicatedMove;
+	}
+
+	private List<ChessMove> getLegalMoves()
+	{
+		final BoardState present = getPresentGameState();
+		final List<ChessMove> moves = present.getMoves();
+
+		for (int i = moves.size() - 1; i >= 0; i--)
+		{
+			final BoardState nextState = moves.get(i).evolve(present);
+			final TerminationType termStatus = nextState.getTerminationState();
+
+			if (termStatus.isWin())
+			{
+				moves.remove(i);
+			}
+		}
+
+		return moves;
 	}
 
 	private void processFirstClick(final Sq userClick)
@@ -187,8 +223,8 @@ public class JenjinnHumanGameModel implements ChessGameModel
 		 * another timer thread which upon finishing interrupts this other
 		 * thread which should now terminate because of work done in
 		 * TTAlphaBeta class. */
-		
-		
+
+
 		final Thread jenjinnJob = new Thread(() ->
 		{
 			synchronized (gameStates)
@@ -198,44 +234,59 @@ public class JenjinnHumanGameModel implements ChessGameModel
 				gameStates.add(jenjinnMove.evolve(presentState));
 				movesPlayed.add(jenjinnMove);
 
+				final boolean terminal = getPresentGameState().getTerminationState().isTerminal();
+
 				// Tell the FX thread to do the updates.
 				Platform.runLater(() ->
 				{
 					fireDisplayUpdate();
-					enableUserInteraction();
+
+					if (!terminal)
+					{
+						enableUserInteraction();
+					}
+					else
+					{
+						triggerEndOfGame();
+					}
 				});
 			}
 		});
-		
+
 		jenjinnJob.start();
-		
-		Thread timer = new Thread(() ->  
+
+		final Thread timer = new Thread(() ->
 		{
-			try 
+			try
 			{
-				long t = System.nanoTime();
-				Thread.sleep((long) MOVE_TIME * 1000);
-				
+				final long t = System.nanoTime();
+				Thread.sleep((long) moveTime * 1000);
+
 				if (jenjinnJob.isAlive())
 				{
-					System.out.println("Interrupted after: " + (System.nanoTime() - t));
+					System.out.println("Interrupted after: " + toSeconds(System.nanoTime() - t) + " s");
 					jenjinnJob.interrupt();
 				}
-				
-			} catch (InterruptedException e) 
+
+			} catch (final InterruptedException e)
 			{
 				throw new AssertionError();
 			}
 		});
-		
+
 		timer.start();
 	}
 
-	private short evalPiecePositions(final BoardState state)
+	private void triggerEndOfGame()
 	{
-		final short midGameEval = state.getMidgamePositionalEval(), endGameEval = state.getEndgamePositionalEval();
-		final short gamePhase = state.getGamePhase();
-		return (short) (((midGameEval * (256 - gamePhase)) + (endGameEval * gamePhase)) / 256);
+
+	}
+
+	private String toSeconds(final long nstime)
+	{
+		final BigDecimal bill = BigDecimal.valueOf(1_000_000_000);
+		final String result = String.format("%." + DEFAULT_SIG_FIG + "G", BigDecimal.valueOf(nstime).divide(bill));
+		return result;
 	}
 
 	@Override
@@ -268,5 +319,22 @@ public class JenjinnHumanGameModel implements ChessGameModel
 		{
 			ioe.printStackTrace();
 		}
+	}
+
+	public double getMoveTime()
+	{
+		return moveTime;
+	}
+
+	@Override
+	public void setMoveTimeLimit(final double scaleFactor)
+	{
+		final double scaled = MIN_MOVE_TIME + scaleFactor*(MAX_MOVE_TIME - MIN_MOVE_TIME);
+		this.moveTime = scaled < MIN_MOVE_TIME ? MIN_MOVE_TIME : (scaled > MAX_MOVE_TIME ? MAX_MOVE_TIME : scaled);
+	}
+
+	public void setGameController(final ChessGameController gameController)
+	{
+		this.gameController = gameController;
 	}
 }

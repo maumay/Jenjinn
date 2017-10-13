@@ -20,6 +20,8 @@ public final class Infinity
 
 	public static final short SHORT_INFINITY = Short.MAX_VALUE - 1;
 
+	public static final int IC_ALPHA = -INT_INFINITY/2, IC_BETA = INT_INFINITY/2;
+
 	private Infinity()
 	{
 	}

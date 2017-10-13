@@ -16,19 +16,15 @@ import jenjinn.ui.model.ChessGameModel;
  */
 public final class ChessGameController
 {
-	private static ChessGameController instance = new ChessGameController();
+	private ChessGameModel model;
+	private final ChessBoard board;
 
-	private ChessGameController()
+	public ChessGameController(final ChessBoard board)
 	{
-	};
-
-	public static ChessGameController getInstance()
-	{
-		return instance;
+		this.board = board;
+		board.setController(this);
 	}
 
-	private ChessGameModel model;
-	private ChessBoard board;
 
 	public void processUserClick(final Sq squareClicked)
 	{
@@ -84,11 +80,11 @@ public final class ChessGameController
 	{
 		this.model = model;
 	}
-
-	public void setChessboard(final ChessBoard board)
-	{
-		this.board = board;
-	}
+	//
+	//	public void setChessboard(final ChessBoard board)
+	//	{
+	//		this.board = board;
+	//	}
 
 	public void setUserInteractionLocked(final boolean locked)
 	{

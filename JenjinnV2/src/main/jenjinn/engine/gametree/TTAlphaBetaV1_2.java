@@ -38,8 +38,6 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 
 	private static final String DESCRIPTOR = "[NegaAlphaBeta - no pv override 1 bucket tt - pv extraction - tt impl v1_2]";
 
-	private static final int IC_ALPHA = -Infinity.INT_INFINITY, IC_BETA = Infinity.INT_INFINITY;
-
 	/**
 	 * The heuristic position evaluator. It performs a quiescence search to make sure
 	 * only quiet positions are evaluated to avoid overlooking any nasty tactics.
@@ -52,9 +50,10 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 	private TranspositionTable tt;
 
 	/**
-	 * Depth we will search at.
+	 * Depth we will search at. Default to no max depth, i.e the
+	 * search is just time limited.
 	 */
-	private int maxSearchDepth = 8;
+	private int maxSearchDepth = 100;
 
 	private int bestFirstMoveIndex = -1;
 
@@ -79,12 +78,22 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 	{
 		tt.clear();
 		bestFirstMoveIndex = -1;
-		ChessMove bestMove = null;
-		for (int depth = 1; depth <= maxSearchDepth; depth++)
+		ChessMove bestMove;
+		try
+		{
+			bestMove = getBestMoveFrom(root, 1, false);
+		}
+		catch (final InterruptedException e1)
+		{
+			// We should not be getting here
+			e1.printStackTrace();
+			throw new AssertionError();
+		}
+		for (int depth = 2; depth <= maxSearchDepth; depth++)
 		{
 			try
 			{
-				final ChessMove newBestMove = getBestMoveFrom(root, depth);
+				final ChessMove newBestMove = getBestMoveFrom(root, depth, true);
 				bestMove = newBestMove;
 			}
 			catch (final InterruptedException e)
@@ -139,12 +148,12 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 		return pv;
 	}
 
-	private ChessMove getBestMoveFrom(final BoardState root, final int depth) throws InterruptedException
+	private ChessMove getBestMoveFrom(final BoardState root, final int depth, final boolean interruptionAllowed) throws InterruptedException
 	{
-		System.out.println("HELLO FROM DEPTH: " + depth);
+		System.out.println("Starting search of DEPTH: " + depth);
 		// Initialise variables
 		int bestMoveIndex = -1;
-		int alpha = IC_ALPHA; // Here alpha is the calculated value of our best move.
+		int alpha = Infinity.IC_ALPHA; // Here alpha is the calculated value of our best move.
 		final TIntList pv = getPrincipalVariation(root, depth);
 		final List<ChessMove> possibleMoves = root.getMoves();
 
@@ -164,7 +173,7 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 		for (final int idx : indices)
 		{
 			final ChessMove mv = possibleMoves.get(idx);
-			final int bestBlackReply = -negamax(mv.evolve(root), -IC_BETA, -alpha, depth - 1);
+			final int bestBlackReply = -negamax(mv.evolve(root), -Infinity.IC_BETA, -alpha, depth - 1, interruptionAllowed);
 
 			if (bestBlackReply > alpha) // We want to maximise the value of best opponent reply
 			{
@@ -185,9 +194,9 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 	 * @param depth
 	 * @return
 	 */
-	public int negamax(final BoardState root, int alpha, int beta, final int depth) throws InterruptedException
+	public int negamax(final BoardState root, int alpha, int beta, final int depth, final boolean interruptionAllowed) throws InterruptedException
 	{
-		if (Thread.currentThread().isInterrupted())
+		if (interruptionAllowed && Thread.currentThread().isInterrupted())
 		{
 			throw new InterruptedException();
 		}
@@ -233,7 +242,8 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 		if (depth == 0)
 		{
 			assert Quiescence.currentDepth == 0;
-			return quiescence.search(root, alpha, beta);// quiescence.getEvaluator().evaluate(root);//
+			// We quiesce with new window constraints, think this is more stable as I was getting weird buggy cutoffs
+			return quiescence.search(root, Infinity.IC_ALPHA, Infinity.IC_BETA, interruptionAllowed);// quiescence.getEvaluator().evaluate(root);//
 		}
 
 		int bestValue = -Infinity.INT_INFINITY;
@@ -247,7 +257,7 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 		for (final int i : indices)
 		{
 			final ChessMove mv = possibleMoves.get(i);
-			final int bestReply = -negamax(mv.evolve(root), -beta, -alpha, depth - 1);
+			final int bestReply = -negamax(mv.evolve(root), -beta, -alpha, depth - 1, interruptionAllowed);
 
 			final int oldBestValue = bestValue;
 			bestValue = Math.max(bestValue, bestReply);
@@ -309,7 +319,7 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 		}
 		else
 		{
-//			final boolean replace = newEntry.getDepthSearched() >= oldEntry.getDepthSearched();
+			//			final boolean replace = newEntry.getDepthSearched() >= oldEntry.getDepthSearched();
 			tt.set(newEntry);//replace ? newEntry : oldEntry);
 		}
 	}

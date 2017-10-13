@@ -80,6 +80,8 @@ public class BoardStateImplV2 implements BoardState
 
 	private final long[] pieceLocations;
 
+	private TerminationType termType;
+
 	public BoardStateImplV2(final long[] recentHashings,
 			final long friendlySide,
 			final long castleRights,
@@ -192,6 +194,101 @@ public class BoardStateImplV2 implements BoardState
 		}
 
 		return moves;
+	}
+
+	/**
+	 * Have a simple cache mechanism for multiple calls whilst allowing for the
+	 * case where we don't need to calculate the term state.
+	 */
+	@Override
+	public TerminationType getTerminationState()
+	{
+		if (termType != null)
+		{
+			return termType;
+		}
+
+		if (getClockValue() == 100)
+		{
+			termType = TerminationType.DRAW;
+			return termType;
+		}
+
+		// First check for taking of king
+		final Side friendlySide = getFriendlySide();
+
+		if (isTerminalWin())
+		{
+			termType = friendlySide == Side.W ? TerminationType.WHITE_WIN : TerminationType.BLACK_WIN;
+			return termType;
+		}
+
+		// Check for repetition draw // TODO - Remove stream to increase performance?
+		final int uniqueHashings = (int) Arrays.stream(recentHashings).distinct().count();
+		assert uniqueHashings >= 2;
+
+		if (uniqueHashings == 2 && Arrays.stream(recentHashings).filter(x -> x == recentHashings[0]).count() != 2)
+		{
+			termType = TerminationType.DRAW;
+			return termType;
+		}
+
+		if (isStaleMate())
+		{
+			termType = TerminationType.DRAW;
+			return termType;
+		}
+
+		termType = TerminationType.NOT_TERMINAL;
+		return termType;
+	}
+
+	/**
+	 * @return
+	 */
+	private boolean isStaleMate()
+	{
+		/* Can't imagine stalemate before this point. */
+		if (getPiecePhase() > 15)
+		{
+			return false;
+		}
+
+		/* If we are in check then not stalemate */
+		if ((getSquaresAttackedBy(getEnemySide()) & pieceLocations[getFriendlySide().index() + 5]) != 0)
+		{
+			return false;
+		}
+
+		final long friendly = getSideLocations(getFriendlySide()), enemy = getSideLocations(getEnemySide());
+		final int lower = getFriendlySideValue()*6, upper = lower + 6;
+
+		for (int i = lower; i < upper; i++)
+		{
+			final ChessPiece p = ChessPiece.get(i);
+			for (final byte loc : EngineUtils.getSetBits(pieceLocations[i]))
+			{
+				final long mvset = p.getMoveset(loc, friendly, enemy);
+
+				for (final byte targ : EngineUtils.getSetBits(mvset))
+				{
+					final BoardStateImplV2 evolved = (BoardStateImplV2) StandardMove.get(loc, targ).evolve(this);
+					if (!evolved.isTerminalWin())
+					{
+						return false;
+					}
+				}
+			}
+		}
+
+		/* If we here, not in check and every move puts us in check, so stalemate */
+		return true;
+	}
+
+	private boolean isTerminalWin()
+	{
+		final Side friendlySide = getFriendlySide();
+		return (getSquaresAttackedBy(friendlySide) & pieceLocations[friendlySide.otherSide().index() + 5]) != 0;
 	}
 
 	/**
@@ -420,35 +517,6 @@ public class BoardStateImplV2 implements BoardState
 	public Side getEnemySide()
 	{
 		return getFriendlySideValue() == 0 ? Side.B : Side.W;
-	}
-
-	@Override
-	public TerminationType getTerminationState()
-	{
-		if (getClockValue() == 100)
-		{
-			return TerminationType.DRAW;
-		}
-
-		// First check for taking of king
-		final Side friendlySide = getFriendlySide();
-
-		if ((getSquaresAttackedBy(friendlySide) & pieceLocations[friendlySide.otherSide().index() + 5]) != 0)
-		{
-			return friendlySide == Side.W ? TerminationType.WHITE_WIN : TerminationType.BLACK_WIN;
-		}
-
-		// Check for repetition draw // TODO - Remove stream to increase performance?
-		final int uniqueHashings = (int) Arrays.stream(recentHashings).distinct().count();
-
-		assert uniqueHashings >= 2;
-
-		if (uniqueHashings == 2 && Arrays.stream(recentHashings).filter(x -> x == recentHashings[0]).count() != 2)
-		{
-			return TerminationType.DRAW;
-		}
-
-		return TerminationType.NOT_TERMINAL;
 	}
 
 	@Override

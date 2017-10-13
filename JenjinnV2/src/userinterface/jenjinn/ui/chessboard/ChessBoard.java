@@ -75,6 +75,8 @@ public class ChessBoard extends Region
 
 	private Side currentPerspective = Side.B;
 
+	private ChessGameController controller;
+
 	public ChessBoard(final BoardColorScheme colorScheme)
 	{
 		this.colorScheme = colorScheme;
@@ -274,7 +276,7 @@ public class ChessBoard extends Region
 			{
 				if (Math.abs(p.getX() - evt.getX()) < squareLength / 2 && Math.abs(p.getY() - evt.getY()) < squareLength / 2)
 				{
-					ChessGameController.getInstance().processUserClick(squareLocations.get(p));
+					controller.processUserClick(squareLocations.get(p));
 					break;
 				}
 			}
@@ -337,6 +339,11 @@ public class ChessBoard extends Region
 	public MarkerLocations getMarkers()
 	{
 		return markers;
+	}
+
+	public void setController(final ChessGameController controller)
+	{
+		this.controller = controller;
 	}
 
 	// public static void main(String[] args)

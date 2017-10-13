@@ -28,6 +28,11 @@ public enum TerminationType
 		return this != NOT_TERMINAL;
 	}
 
+	public boolean isWin()
+	{
+		return this == WHITE_WIN || this == BLACK_WIN;
+	}
+
 	@SuppressWarnings("incomplete-switch")
 	public boolean matches(final Side s)
 	{

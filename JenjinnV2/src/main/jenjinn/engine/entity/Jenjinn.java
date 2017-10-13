@@ -27,12 +27,12 @@ public final class Jenjinn
 
 	private int outsideOpeningCounter = 0;
 
-	public Jenjinn(final Side side, final int plyCount, final BoardEvaluator evaluator, final String openingdbFileName)
+	public Jenjinn(final Side side, final BoardEvaluator evaluator)
 	{
 		this.side = side;
 		// gts = new TTAlphaBetaV1_2(evaluator);
 		gts = new TTAlphaBetaV1_2(evaluator);
-		openings = new OpeningDBv4(Openings.getQualifyedNames());
+		openings = new OpeningDBv4(side.isWhite() ? Openings.getWhiteOpenings() : Openings.getBlackOpenings());
 	}
 
 	public ChessMove calculateBestMove(final BoardState root)

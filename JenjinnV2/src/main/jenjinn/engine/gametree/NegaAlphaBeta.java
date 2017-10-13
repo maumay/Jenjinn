@@ -23,7 +23,7 @@ public class NegaAlphaBeta implements MoveCalculator
 	 * on whether white or black is to move.
 	 */
 	private Quiescence quiescence;
-	private int depth = 5;
+	private int depth = 1;
 
 	public NegaAlphaBeta(final BoardEvaluator eval)
 	{
@@ -38,7 +38,27 @@ public class NegaAlphaBeta implements MoveCalculator
 
 		for (final ChessMove mv : root.getMoves())
 		{
-			final int bestReply = -nAlphaBeta(mv.evolve(root), -Infinity.INT_INFINITY, -alpha, depth - 1);
+			System.out.println("---------------------");
+			System.out.println(mv.toString());
+
+			if (mv.toString().equals("S[b8, c6]"))
+			{
+				System.out.println("Wait");
+			}
+			int bestReply = 0;
+			try
+			{
+				bestReply = -nAlphaBeta(mv.evolve(root), -Infinity.INT_INFINITY, -alpha, depth - 1);
+			}
+			catch (final InterruptedException e)
+			{
+				e.printStackTrace();
+				throw new AssertionError();
+			}
+
+
+			System.out.println("Current alpha: " + alpha + "\nBest reply: " + bestReply);
+			System.out.println("---------------------");
 
 			if (bestReply > alpha) // We want to maximise the value of best reply
 			{
@@ -58,12 +78,15 @@ public class NegaAlphaBeta implements MoveCalculator
 	 * @param beta
 	 * @param depth
 	 * @return
+	 * @throws InterruptedException
 	 */
-	public int nAlphaBeta(final BoardState root, int alpha, final int beta, final int depth)
+	public int nAlphaBeta(final BoardState root, int alpha, final int beta, final int depth) throws InterruptedException
 	{
 		if (depth == 0 || root.isTerminal())
 		{
-			return quiescence.search(root, alpha, beta);// getEvaluator().evaluate(root);//
+			System.out.println((depth == 0) + ", " + root.isTerminal());
+			System.out.println("Quiescence: " + quiescence.search(root, Infinity.IC_ALPHA, Infinity.IC_BETA, false));
+			return quiescence.search(root, Infinity.IC_ALPHA, Infinity.IC_BETA, false);// getEvaluator().evaluate(root);//
 		}
 
 		for (final ChessMove mv : root.getMoves())
@@ -130,6 +153,11 @@ public class NegaAlphaBeta implements MoveCalculator
 		// state = ChessMove.fromCompactString2("0_d1_d5").evolve(state);
 		// state = ChessMove.fromCompactString2("0_c6_d5").evolve(state);
 		// state = ChessMove.fromCompactString2("0_e4_d5").evolve(state);
+	}
+
+	public Quiescence getQuiescence()
+	{
+		return quiescence;
 	}
 }
 
