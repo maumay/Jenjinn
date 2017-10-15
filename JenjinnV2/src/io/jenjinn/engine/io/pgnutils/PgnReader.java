@@ -39,7 +39,7 @@ import jenjinn.engine.openingdatabase.OpeningOrder;
  */
 public class PgnReader
 {
-	private static final String TXT_EXT = ".txt", ZIP_EXT = ".zip";
+	private static final String ZIP_EXT = ".zip";
 
 	private static final String WHITE_WINS = "1-0";
 	private static final String DRAW = "1/2-1/2";

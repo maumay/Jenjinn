@@ -654,6 +654,12 @@ public final class TBoardState implements BoardState
 	{
 		throw new RuntimeException("Not yet impl");
 	}
+
+	@Override
+	public long getPawnHash() 
+	{
+		throw new RuntimeException("Impl this");
+	}
 }
 /* ---------------------------------------------------------------------*
  * This software is the confidential and proprietary

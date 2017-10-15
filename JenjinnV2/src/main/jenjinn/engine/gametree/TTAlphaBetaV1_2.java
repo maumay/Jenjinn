@@ -388,29 +388,29 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 	// return alpha;
 	// }
 
-	private TIntList generateIndexList(final int length)
-	{
-		final TIntList indexList = new TIntArrayList();
-		for (int i = 0; i < length; i++)
-		{
-			indexList.add(i);
-		}
-		return indexList;
-	}
-
-	/**
-	 * This method ONLY works once on a List
-	 *
-	 * @param indexList
-	 * @param toGoFirst
-	 */
-	private <T> void changeFirstIndex(final List<T> x, final int toGoFirst)
-	{
-		if (toGoFirst > -1)
-		{
-			x.add(0, x.remove(toGoFirst));
-		}
-	}
+//	private TIntList generateIndexList(final int length)
+//	{
+//		final TIntList indexList = new TIntArrayList();
+//		for (int i = 0; i < length; i++)
+//		{
+//			indexList.add(i);
+//		}
+//		return indexList;
+//	}
+//
+//	/**
+//	 * This method ONLY works once on a List
+//	 *
+//	 * @param indexList
+//	 * @param toGoFirst
+//	 */
+//	private <T> void changeFirstIndex(final List<T> x, final int toGoFirst)
+//	{
+//		if (toGoFirst > -1)
+//		{
+//			x.add(0, x.remove(toGoFirst));
+//		}
+//	}
 
 	static volatile ChessMove m;
 

@@ -85,8 +85,8 @@ public class NegaAlphaBeta implements MoveCalculator
 		if (depth == 0 || root.isTerminal())
 		{
 			System.out.println((depth == 0) + ", " + root.isTerminal());
-			System.out.println("Quiescence: " + quiescence.search(root, Infinity.IC_ALPHA, Infinity.IC_BETA, false));
-			return quiescence.search(root, Infinity.IC_ALPHA, Infinity.IC_BETA, false);// getEvaluator().evaluate(root);//
+			System.out.println("Quiescence: " + quiescence.search(root, Infinity.IC_ALPHA, Infinity.IC_BETA, 30, false));
+			return quiescence.search(root, Infinity.IC_ALPHA, Infinity.IC_BETA, 30, false);// getEvaluator().evaluate(root);//
 		}
 
 		for (final ChessMove mv : root.getMoves())

@@ -13,23 +13,23 @@ import java.util.stream.Collectors;
  */
 public final class Openings
 {
-	private static final String[] ORDERING1 = {"petrosiandb.txt",
-			"karpovdb.txt",
-			"carlsendb.txt",
-			"fischerdb.txt",
-			"topalovdb.txt",
-			"taldb.txt",
-			"grischukdb.txt",
-	};
-
-	private static final String[] ORDERIN2 = {"carlsendb.txt",
-			"petrosiandb.txt",
-			"fischerdb.txt",
-			"taldb.txt",
-			"karpovdb.txt",
-			"topalovdb.txt",
-			"grischukdb.txt",
-	};
+//	private static final String[] ORDERING1 = {"petrosiandb.txt",
+//			"karpovdb.txt",
+//			"carlsendb.txt",
+//			"fischerdb.txt",
+//			"topalovdb.txt",
+//			"taldb.txt",
+//			"grischukdb.txt",
+//	};
+//
+//	private static final String[] ORDERIN2 = {"carlsendb.txt",
+//			"petrosiandb.txt",
+//			"fischerdb.txt",
+//			"taldb.txt",
+//			"karpovdb.txt",
+//			"topalovdb.txt",
+//			"grischukdb.txt",
+//	};
 
 	private static final String[] B_ORDERING = {
 			"bmodernkings.zip",

@@ -262,62 +262,6 @@ public class PawnStructureV1 implements EvaluatingComponent
 		return penalty;
 	}
 
-	private short getPassedPawnScore(final BoardState state)
-	{
-		final short score = 0;
-
-		return score;
-	}
-
-	private short getBackwardPawnScore(final BoardState state)
-	{
-		short score = 0;
-
-		final long wPawns = state.getPieceLocations(0), bPawns = state.getPieceLocations(6);
-		final long whiteAttacks = state.getSquaresAttackedBy(Side.W), blackAttacks = state.getSquaresAttackedBy(Side.B);
-
-		for (int i = 0; i < 8; i++)
-		{
-			final byte[] wSetBits = EngineUtils.getSetBits(wPawns & BBDB.FILE[i]);
-			final byte[] bSetBits = EngineUtils.getSetBits(bPawns & BBDB.FILE[i]);
-
-			if (wSetBits.length > 0)
-			{
-				final long adjacentPawns = getAdjacentFilePawns(wPawns, i);
-
-				final long lowestBit = Long.lowestOneBit(adjacentPawns);
-
-				for (final byte pawnLoc : wSetBits)
-				{
-					final long pLoc = 1L << pawnLoc;
-
-					if (pLoc < lowestBit && (pLoc << 1) != lowestBit && ((pLoc << 8) & blackAttacks) != 0)
-					{
-						score -= (BBDB.FILE[i] & bPawns) != 0 ? SEMIOPEN_FILE * BACKWARD_PENALTY : BACKWARD_PENALTY;
-					}
-				}
-			}
-
-			if (bSetBits.length > 0)
-			{
-				final long adjacentPawns = getAdjacentFilePawns(bPawns, i);
-
-				final long highestBit = Long.highestOneBit(adjacentPawns);
-
-				for (final byte pawnLoc : bSetBits)
-				{
-					final long pLoc = 1L << pawnLoc;
-
-					if (pLoc > highestBit && (pLoc >>> 1) != highestBit && ((pLoc >>> 8) & whiteAttacks) != 0)
-					{
-						score += (BBDB.FILE[i] & wPawns) != 0 ? SEMIOPEN_FILE * BACKWARD_PENALTY : BACKWARD_PENALTY;
-					}
-				}
-			}
-		}
-		return score;
-	}
-
 	private long getAdjacentFilePawns(final long pawns, final int fileNumber)
 	{
 		if (fileNumber == 0)
@@ -334,46 +278,6 @@ public class PawnStructureV1 implements EvaluatingComponent
 		}
 	}
 
-	/**
-	 * Improed version
-	 *
-	 * @param whitePawns
-	 * @param blackPawns
-	 * @return
-	 */
-	private short getIsolatedPawnScore2(final long whitePawns, final long blackPawns)
-	{
-		int score = 0;
-
-		for (int i = 0; i < 8; i++)
-		{
-			final long wFilePawns = BBDB.FILE[i] & whitePawns, bFilePawns = BBDB.FILE[i] & blackPawns;
-
-			if (wFilePawns > 0)
-			{
-				final long wAdjPawns = getAdjacentFilePawns(whitePawns, i);
-
-				if (wAdjPawns == 0)
-				{
-					final int penalty = Long.bitCount(wFilePawns) * ISOLATED_PENALTY;
-					score -= bFilePawns == 0 ? SEMIOPEN_FILE * penalty : penalty;
-				}
-
-			}
-			if (bFilePawns > 0)
-			{
-				final long bAdjPawns = getAdjacentFilePawns(blackPawns, i);
-
-				if (bAdjPawns == 0)
-				{
-					final int penalty = Long.bitCount(bFilePawns) * ISOLATED_PENALTY;
-					score += wFilePawns == 0 ? SEMIOPEN_FILE * penalty : penalty;
-				}
-			}
-		}
-
-		return (short) score;
-	}
 
 	private short getIsolatedPawnScore(final long whitePawns, final long blackPawns)
 	{
@@ -431,30 +335,6 @@ public class PawnStructureV1 implements EvaluatingComponent
 		assert score == (short) score; // Assert no numerical overflow.
 
 		return (short) score;
-	}
-
-	private short getDoubledPenalty(final long pawns)
-	{
-		int penalty = 0;
-
-		for (int i = 0; i < 8; i++)
-		{
-			final long fileAndPawns = BBDB.FILE[i] & pawns;
-
-			if (Long.bitCount(fileAndPawns) > 1)
-			{
-				final byte[] dPawns = EngineUtils.getSetBits(fileAndPawns);
-
-				for (int j = 0; j < dPawns.length - 1; j++)
-				{
-					if (Math.abs(dPawns[j] - dPawns[j + 1]) / 8 == 1)
-					{
-						penalty -= (i == 0) || (i == 7) ? OUTSIDE_FILE * DOUBLED_PENALTY : DOUBLED_PENALTY;
-					}
-				}
-			}
-		}
-		return (short) penalty;
 	}
 
 	public static long[] getPawnAttacksFromLocs(final long locs, final Side pawnSide)

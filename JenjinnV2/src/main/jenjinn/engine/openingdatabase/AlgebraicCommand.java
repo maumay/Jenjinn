@@ -6,7 +6,6 @@ package jenjinn.engine.openingdatabase;
 import java.util.HashMap;
 
 import jenjinn.engine.enums.Sq;
-import jenjinn.engine.io.pgnutils.ChessGameReader;
 import jenjinn.engine.pieces.PieceType;
 
 /**

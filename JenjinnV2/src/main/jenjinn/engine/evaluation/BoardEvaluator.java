@@ -12,9 +12,7 @@ import java.util.List;
 
 import jenjinn.engine.boardstate.BoardState;
 import jenjinn.engine.evaluation.componentimpl.DevelpmentV1;
-import jenjinn.engine.evaluation.componentimpl.KingSafetyV1;
 import jenjinn.engine.evaluation.componentimpl.MobilityAndKingSafetyV2;
-import jenjinn.engine.evaluation.componentimpl.MobilityV1;
 import jenjinn.engine.evaluation.componentimpl.PawnStructureV1;
 
 /**

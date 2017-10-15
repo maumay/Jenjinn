@@ -1,7 +1,7 @@
 /**
  *
  */
-package jenjinn.engine.openingdatabase;
+package jenjinn.engine.io.filewriters;
 
 import java.io.IOException;
 import java.nio.file.Files;

@@ -4,12 +4,7 @@
 package jenjinn.ui.launchers;
 
 import javafx.application.Application;
-import javafx.event.EventHandler;
-import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import jenjinn.engine.enums.Side;
 import jenjinn.ui.chessboard.ChessBoard;
