@@ -1,5 +1,5 @@
 /**
- * Copyright © 2017 Lhasa Limited
+ * Copyright ï¿½ 2017 Lhasa Limited
  * File created: 13 Oct 2017 by ThomasB
  * Creator : ThomasB
  * Version : $Id$
@@ -40,11 +40,18 @@ public class KingSafetyTable
 	}
 
 	private static final int[] ATTACK_UNITS = { 2, 2, 3, 5 };
+	
+	private static final int[] CHECK_BONUS  = { 0, 0, 2, 6 };
 
 
 	public static int indexSafetyTable(final int idx)
 	{
 		return SAFETY_TABLE[idx];
+	}
+	
+	public static int indexBonusTable(final int idx)
+	{
+		return CHECK_BONUS[idx];
 	}
 
 	public static int indexAttackUnits(final int idx)

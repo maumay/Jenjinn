@@ -33,7 +33,7 @@ public class Quiescence
 	private final BoardEvaluator evaluator;
 	private final SEE see = new SEE();
 
-	public short search(final BoardState root, int alpha, final int beta, final boolean interruptionAllowed) throws InterruptedException
+	public short search(final BoardState root, int alpha, final int beta, int depth, final boolean interruptionAllowed) throws InterruptedException
 	{
 		if (interruptionAllowed && Thread.currentThread().isInterrupted())
 		{
@@ -46,7 +46,7 @@ public class Quiescence
 			maxDepth = currentDepth;
 			System.out.println("Newmax qdepth: " + maxDepth);
 		}
-
+		
 		if (root.isTerminal())
 		{
 			currentDepth--;
@@ -61,6 +61,12 @@ public class Quiescence
 			assert (short) beta == beta;
 			currentDepth--;
 			return (short) beta;
+		}
+		
+		if (depth == 0)
+		{
+			currentDepth--;
+			return (short) Math.max(standPat, alpha);
 		}
 
 		// Rough delta prune
@@ -86,7 +92,7 @@ public class Quiescence
 		{
 			final BoardState newState = mv.evolve(root);
 
-			final int score = -search(newState, -beta, -alpha, interruptionAllowed);
+			final int score = -search(newState, -beta, -alpha, depth - 1, interruptionAllowed);
 
 			if (score >= beta)
 			{

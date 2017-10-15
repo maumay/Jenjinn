@@ -13,6 +13,7 @@ import java.util.List;
 import jenjinn.engine.boardstate.BoardState;
 import jenjinn.engine.evaluation.componentimpl.DevelpmentV1;
 import jenjinn.engine.evaluation.componentimpl.KingSafetyV1;
+import jenjinn.engine.evaluation.componentimpl.MobilityAndKingSafetyV2;
 import jenjinn.engine.evaluation.componentimpl.MobilityV1;
 import jenjinn.engine.evaluation.componentimpl.PawnStructureV1;
 
@@ -75,8 +76,9 @@ public class BoardEvaluator
 		return new BoardEvaluator(
 				Arrays.asList(
 						new PawnStructureV1(),
-						new KingSafetyV1(),
-						new MobilityV1(),
+//						new KingSafetyV1(),
+//						new MobilityV1(),
+						new MobilityAndKingSafetyV2(),
 						new DevelpmentV1()
 						)
 				);

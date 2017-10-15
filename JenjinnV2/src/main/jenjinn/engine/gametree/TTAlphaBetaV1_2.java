@@ -34,7 +34,9 @@ import jenjinn.engine.openingdatabase.AlgebraicCommand;
  */
 public class TTAlphaBetaV1_2 implements MoveCalculator
 {
-	private static final int DEFAULT_TABLE_SIZE = 20;
+	private static final int QUIESCENCE_DEPTH_CAP = 30;
+	
+	private static final int DEFAULT_TABLE_SIZE = 17;
 
 	private static final String DESCRIPTOR = "[NegaAlphaBeta - no pv override 1 bucket tt - pv extraction - tt impl v1_2]";
 
@@ -76,7 +78,6 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 	@Override
 	public ChessMove getBestMoveFrom(final BoardState root)
 	{
-		tt.clear();
 		bestFirstMoveIndex = -1;
 		ChessMove bestMove;
 		try
@@ -103,6 +104,8 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 				break;
 			}
 		}
+		System.out.println("Pawn table used: " + PawnStructureV1.usedTable);
+		System.out.println("Pawn table not used: " + PawnStructureV1.notUsedTable);
 		return bestMove;
 	}
 
@@ -241,9 +244,14 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 
 		if (depth == 0)
 		{
-			assert Quiescence.currentDepth == 0;
+			Quiescence.currentDepth = 0;
 			// We quiesce with new window constraints, think this is more stable as I was getting weird buggy cutoffs
-			return quiescence.search(root, Infinity.IC_ALPHA, Infinity.IC_BETA, interruptionAllowed);// quiescence.getEvaluator().evaluate(root);//
+			return quiescence.search(
+					root, 
+					Infinity.IC_ALPHA, 
+					Infinity.IC_BETA, 
+					QUIESCENCE_DEPTH_CAP, 
+					interruptionAllowed);
 		}
 
 		int bestValue = -Infinity.INT_INFINITY;

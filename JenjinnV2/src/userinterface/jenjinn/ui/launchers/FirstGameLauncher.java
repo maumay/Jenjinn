@@ -41,43 +41,43 @@ public class FirstGameLauncher extends Application
 	public ChessBoard getInitialisedGame(final BoardColorScheme colors)
 	{
 		final Side humanSide = Side.W;
-		final JenjinnHumanGameModel model = JenjinnHumanGameModel.createNewModel(humanSide);
 		final ChessBoard board = new ChessBoard(colors);
+		ChessGameController controller = new ChessGameController(board);
+		final JenjinnHumanGameModel model = JenjinnHumanGameModel.createNewModel(humanSide, controller);
+		
 		board.rotateToSuitSide(humanSide, false);
-		ChessGameController.getInstance().setModel(model);
-		ChessGameController.getInstance().setChessboard(board);
 		model.fireDisplayUpdate();
 		return board;
 	}
 
-	public HBox getInitialisedRootWithReportWriter(final int squareLength, final BoardColorScheme colors)
-	{
-		final HBox root = new HBox();
-		root.setAlignment(Pos.CENTER);
-
-		final Side humanSide = Side.W;
-		final JenjinnHumanGameModel model = JenjinnHumanGameModel.createNewModel(humanSide);
-		final ChessBoard board = new ChessBoard(colors);
-		board.rotateToSuitSide(humanSide, false);
-		ChessGameController.getInstance().setModel(model);
-		ChessGameController.getInstance().setChessboard(board);
-		model.fireDisplayUpdate();
-		root.getChildren().add(board);
-
-		final Button reportWriter = new Button("Write moves played");
-		reportWriter.addEventHandler(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>()
-		{
-
-			@Override
-			public void handle(final MouseEvent event)
-			{
-				model.writeGameRecord();
-			}
-		});
-		root.getChildren().add(reportWriter);
-
-		return root;
-	}
+//	public HBox getInitialisedRootWithReportWriter(final int squareLength, final BoardColorScheme colors)
+//	{
+//		final HBox root = new HBox();
+//		root.setAlignment(Pos.CENTER);
+//
+//		final Side humanSide = Side.W;
+//		final JenjinnHumanGameModel model = JenjinnHumanGameModel.createNewModel(humanSide);
+//		final ChessBoard board = new ChessBoard(colors);
+//		board.rotateToSuitSide(humanSide, false);
+//		ChessGameController.getInstance().setModel(model);
+//		ChessGameController.getInstance().setChessboard(board);
+//		model.fireDisplayUpdate();
+//		root.getChildren().add(board);
+//
+//		final Button reportWriter = new Button("Write moves played");
+//		reportWriter.addEventHandler(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>()
+//		{
+//
+//			@Override
+//			public void handle(final MouseEvent event)
+//			{
+//				model.writeGameRecord();
+//			}
+//		});
+//		root.getChildren().add(reportWriter);
+//
+//		return root;
+//	}
 
 	/**
 	 * @param args

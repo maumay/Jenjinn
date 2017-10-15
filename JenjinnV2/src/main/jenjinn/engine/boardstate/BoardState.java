@@ -111,6 +111,8 @@ public interface BoardState
 	long getDevelopmentStatus();
 
 	long getHashing();
+	
+	long getPawnHash();
 
 	byte getEnPassantSq();
 

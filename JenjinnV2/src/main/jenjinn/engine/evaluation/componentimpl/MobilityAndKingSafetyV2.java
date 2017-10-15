@@ -1,5 +1,5 @@
 /**
- * Copyright © 2017 Lhasa Limited
+ * Copyright ï¿½ 2017 Lhasa Limited
  * File created: 13 Oct 2017 by ThomasB
  * Creator : ThomasB
  * Version : $Id$
@@ -15,6 +15,7 @@ import gnu.trove.list.TByteList;
 import gnu.trove.list.TLongList;
 import gnu.trove.list.array.TByteArrayList;
 import gnu.trove.list.array.TLongArrayList;
+import jenjinn.engine.bitboarddatabase.BBDB;
 import jenjinn.engine.boardstate.BoardState;
 import jenjinn.engine.enums.Side;
 import jenjinn.engine.evaluation.EvaluatingComponent;
@@ -30,9 +31,9 @@ import jenjinn.engine.pieces.ChessPiece;
 public class MobilityAndKingSafetyV2 implements EvaluatingComponent
 {
 	// Pawn shield/storm static variables
-	private static final short MID_PAWN_SHIELD_BONUS = 10, END_PAWN_SHIELD_BONUS = 7;
-	private static final short MID_DIRECT_SHIELD_BONUS = 12, END_DIRECT_SHIELD_BONUS = 0;
-	private static final short MID_OPEN_FILE_PENALTY = 35, END_OPEN_FILE_PENALTY = 2;
+	private static final short MID_PAWN_SHIELD_BONUS = 40, END_PAWN_SHIELD_BONUS = 7;
+	private static final short MID_DIRECT_SHIELD_BONUS = 25, END_DIRECT_SHIELD_BONUS = 0;
+	private static final short MID_OPEN_FILE_PENALTY = 100, END_OPEN_FILE_PENALTY = 20;
 
 	// Mobility static variables
 	/**
@@ -75,35 +76,60 @@ public class MobilityAndKingSafetyV2 implements EvaluatingComponent
 		evaluateKnightMobility();
 		evaluateRookMobility();
 		evaluateQueenMobility();
+		
+		calcKingSafety(Side.W);
+		calcKingSafety(Side.B);
 
-
-
-		// TODO Auto-generated method stub
 		final short gamePhase = state.getGamePhase();
 		return (short) (((midEval * (256 - gamePhase)) + (endEval * gamePhase)) / 256);
 	}
 
-	private void calcKingSafety()
+	private void calcKingSafety(Side s)
 	{
+		int totalattckunits = 0;
+		int totalattckingpieces = 0;
 		// First for white
-		final byte wKingLoc = EngineUtils.getSetBits(state.getPieceLocations(5))[0];
-		final long mvset = ChessPiece.get(5).getMoveset(wKingLoc, wLocs, bLocs);
+		int kindex = 5 + s.index();
+		final byte kingLoc = EngineUtils.getSetBits(state.getPieceLocations(kindex))[0];
+		long kloc = (1L << kingLoc);
+		
+		long friendly = s.isWhite()? wLocs : bLocs, enemy = s.isWhite()? bLocs : wLocs;
+		final long mvset = ChessPiece.get(kindex).getMoveset(kingLoc, friendly, enemy);
 
-		final int fileNum = 7 - (wKingLoc % 8);
-
-		if (fileNum == 0)
+		final int fileNum = 7 - (kingLoc % 8), rnk = kingLoc / 8;
+		final boolean bckrnk = s.isWhite()? rnk == 7 : rnk == 0;
+		
+		int ebaIdxShift = (fileNum == 0)? -1 : ((fileNum == 7) ? 1 : 0);
+		long eba = BBDB.EBA[6][kingLoc + ebaIdxShift];
+		long kingzone = 
+				(bckrnk? 0L : (eba & BBDB.RNK[rnk + (s.isWhite()? 1 : -1)])) 
+				| (eba & mvset) 
+				| kloc;
+		
+		int lower = s.isWhite()? 4 : 0, upper = lower + 4;
+		for (int i = lower; i < upper; i++)
 		{
-
+			TLongList pAtts = atts.get(i);
+			int attckunits = KingSafetyTable.indexAttackUnits(i%4);
+			int checkbonus = KingSafetyTable.indexBonusTable(i%4);
+			
+			for (int j = 0; j < pAtts.size(); j++)
+			{
+				long attcks = pAtts.get(j);
+				int card = Long.bitCount(kingzone & attcks);
+				totalattckingpieces += card > 0 ? 1 : 0;
+				totalattckunits += card*attckunits;
+				totalattckunits += Long.bitCount(kloc & attcks)*checkbonus;
+			}
 		}
-		else if (fileNum == 7)
+		
+		if (totalattckingpieces > 1)
 		{
-
+			totalattckunits = totalattckingpieces == 2 ? totalattckunits/2 : totalattckunits;
+			int sgn = -s.orientation();
+			midEval += sgn*KingSafetyTable.indexSafetyTable(totalattckunits);
+			endEval += sgn*KingSafetyTable.indexSafetyTable(totalattckunits);
 		}
-		else
-		{
-
-		}
-		//		long wKingZone =
 	}
 
 

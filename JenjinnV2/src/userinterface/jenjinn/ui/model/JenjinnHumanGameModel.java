@@ -47,7 +47,7 @@ public class JenjinnHumanGameModel implements ChessGameModel
 	private Jenjinn jenjinn;
 	private StoredUserSelection userSelection;
 
-	private double moveTime = 15;
+	private double moveTime = 25;
 
 	private JenjinnHumanGameModel()
 	{

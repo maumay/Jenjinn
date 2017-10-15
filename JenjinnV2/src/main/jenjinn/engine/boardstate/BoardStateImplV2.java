@@ -785,6 +785,21 @@ public class BoardStateImplV2 implements BoardState
 		}
 		return null;
 	}
+
+	@Override
+	public long getPawnHash() 
+	{
+		long hash = 0L;
+		for (byte ploc : EngineUtils.getSetBits(pieceLocations[0]))
+		{
+			hash ^= BoardState.HASHER.getSquarePieceFeature(ploc, ChessPiece.get(0));
+		}
+		for (byte ploc : EngineUtils.getSetBits(pieceLocations[6]))
+		{
+			hash ^= BoardState.HASHER.getSquarePieceFeature(ploc, ChessPiece.get(6));
+		}
+		return hash;
+	}
 }
 
 /* ---------------------------------------------------------------------*

@@ -20,44 +20,59 @@ import jenjinn.engine.misc.EngineUtils;
  */
 public class PawnStructureV1 implements EvaluatingComponent
 {
+	public static long usedTable = 0, notUsedTable = 0;
+	
 	// Multipliers
-	static final double SEMIOPEN_FILE = 1.1;
+	static final double SEMIOPEN_FILE = 1.5;
 
-	static final double OUTSIDE_FILE = 1.1;
+	static final double OUTSIDE_FILE = 1.5;
 
-	static final double ENEMY_CENTRAL_TERRITORY = 1.1;
+	static final double ENEMY_CENTRAL_TERRITORY = 1.5;
 
 	// PENALTIES
-	static final short DOUBLED_PENALTY = 20;
+	static final short DOUBLED_PENALTY = 100;
 
-	static final short ISOLATED_PENALTY = 30;
+	static final short ISOLATED_PENALTY = 70;
 
-	static final short BACKWARD_PENALTY = 15;
+	static final short BACKWARD_PENALTY = 70;
 
 	// BONUSES
-	static final short PASSED_BONUS = 40;
+	static final short PASSED_BONUS = 100;
 
 	static final short DOUBLE_PHALANX_BONUS = 20;
 
 	static final short TRIPLE_PHALANX_BONUS = 25;
 
-	static final short CENTRAL_BONUS = 30;
+	static final short CENTRAL_BONUS = 70;
 
-	static final short CHAIN_BONUS = 4;
+	static final short CHAIN_BONUS = 7;
 
 	static final short[] PHALANX_BONUSES = { 0, 20, 25, 0, 0, 0, 0, 0 };
 
 	// Central area
 	static final long CENTRAL_AREA = 0b0011110000111100L << (3 * 8);
+	
+	private final PawnTable table = PawnTable.createDefault();
 
 	@Override
 	public short evaluate(final BoardState state)
 	{
+		long phash = state.getPawnHash();
+		PawnTableEntry record = table.get(phash);
+		
+		if (record != null && record.posHash == phash)
+		{
+			usedTable++;
+			return record.eval;
+		}
+		notUsedTable++;
+		
 		short overallEval = getIsolatedPawnScore(state.getPieceLocations(0), state.getPieceLocations(6));
 
 		overallEval += evaluateIndividualPawnProperties(state);
 		overallEval += evaluateGlobalPawnProperties(state);
-
+		
+		table.set(new PawnTableEntry(phash, overallEval));
 		return overallEval;
 	}
 
