@@ -4,7 +4,7 @@
  * Creator : thomasb
  * Version : $Id$
  */
-package jenjinn.engine.io.filewriters;
+package jenjinn.io.filewriters;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -13,7 +13,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
 
-import jenjinn.engine.io.pgnutils.PgnReader;
+import jenjinn.io.pgnutils.PgnReader;
 
 /**
  * @author thomasb

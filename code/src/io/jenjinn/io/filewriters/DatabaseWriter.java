@@ -1,7 +1,7 @@
 /**
  *
  */
-package jenjinn.engine.io.filewriters;
+package jenjinn.io.filewriters;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import jenjinn.engine.enums.Side;
-import jenjinn.engine.io.pgnutils.PgnReader;
+import jenjinn.io.pgnutils.PgnReader;
 
 /**
  * @author ThomasB

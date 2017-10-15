@@ -25,10 +25,10 @@ import jenjinn.engine.boardstate.BoardState;
 import jenjinn.engine.boardstate.BoardStateImplV2;
 import jenjinn.engine.enums.Side;
 import jenjinn.engine.exceptions.AmbiguousPgnException;
-import jenjinn.engine.io.pgnutils.ChessGameReader;
 import jenjinn.engine.moves.ChessMove;
 import jenjinn.engine.openingdatabase.AlgebraicCommand;
 import jenjinn.engine.pieces.ChessPiece;
+import jenjinn.io.pgnutils.ChessGameReader;
 import jenjinn.testingengine.boardstate.TBoardState;
 
 /**

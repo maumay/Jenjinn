@@ -1,7 +1,7 @@
 /**
  * 
  */
-package jenjinn.engine.io.filewriters;
+package jenjinn.io.filewriters;
 
 /**
  * @author t

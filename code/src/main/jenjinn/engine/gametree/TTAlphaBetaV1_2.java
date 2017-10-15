@@ -24,9 +24,9 @@ import jenjinn.engine.evaluation.componentimpl.KingSafetyV1;
 import jenjinn.engine.evaluation.componentimpl.MobilityV1;
 import jenjinn.engine.evaluation.componentimpl.PawnStructureV1;
 import jenjinn.engine.exceptions.AmbiguousPgnException;
-import jenjinn.engine.io.pgnutils.ChessGameReader;
 import jenjinn.engine.moves.ChessMove;
 import jenjinn.engine.openingdatabase.AlgebraicCommand;
+import jenjinn.io.pgnutils.ChessGameReader;
 
 /**
  * @author t
