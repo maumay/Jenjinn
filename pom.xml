@@ -4,6 +4,7 @@
   <artifactId>Jenjinn</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <name>Jenjinn</name>
+  
   <dependencies>
   	<dependency>
     	<groupId>net.sf.trove4j</groupId>
@@ -22,6 +23,7 @@
     	<version>22.0</version>
 	</dependency>
   </dependencies>
+  
   <build>
     <plugins>
       <plugin>
@@ -32,6 +34,18 @@
           <target>1.8</target>
         </configuration>
       </plugin>
+      <plugin>
+		<groupId>org.apache.maven.plugins</groupId>
+		<artifactId>maven-source-plugin</artifactId>
+		<executions>
+			<execution>
+				<id>attach-sources</id>
+				<goals>
+					<goal>jar</goal>
+				</goals>
+			</execution>
+		</executions>
+	   </plugin>
     </plugins>
   </build>
 </project>

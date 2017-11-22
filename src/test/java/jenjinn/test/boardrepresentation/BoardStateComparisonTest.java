@@ -12,9 +12,9 @@ import static org.junit.Assert.fail;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -48,8 +48,6 @@ public class BoardStateComparisonTest
 			"topalovprovider.txt"
 	};
 
-	private static final String PROVIDER_FOLDER = "positionproviders";
-
 	@Test
 	public void test()
 	{
@@ -57,13 +55,12 @@ public class BoardStateComparisonTest
 		{
 			try
 			{
-				final BufferedReader reader = Files.newBufferedReader(
-						Paths.get(PROVIDER_FOLDER, posProvider), StandardCharsets.ISO_8859_1);
+				final InputStream is = getClass().getResourceAsStream("/" + posProvider);
+				final BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.ISO_8859_1));
 
 				String game;
 				while ((game = reader.readLine()) != null)
 				{
-
 					try
 					{
 						testGame(game);
@@ -143,14 +140,14 @@ public class BoardStateComparisonTest
 		boolean sameMoves = cMoves.containsAll(tMoves) && tMoves.containsAll(cMoves);
 
 		assertTrue(errorOutput + "\n\n" + "Constraint has " + cMoves.size() + " moves:" + cMoves.toString()
-				+ "\n\nTotest has " + tMoves.size() + " moves:" + tMoves.toString(), sameMoves);
+		+ "\n\nTotest has " + tMoves.size() + " moves:" + tMoves.toString(), sameMoves);
 
 		cMoves = cons.getAttackMoves().stream().map(x -> x.toString()).collect(Collectors.toSet());
 		tMoves = test.getAttackMoves().stream().map(x -> x.toString()).collect(Collectors.toSet());
 		sameMoves = cMoves.containsAll(tMoves) && tMoves.containsAll(cMoves);
 
 		assertTrue(errorOutput + "\n\n" + "Constraint has " + cMoves.size() + " moves:" + cMoves.toString()
-				+ "\n\nTotest has " + tMoves.size() + " moves:" + tMoves.toString(), sameMoves);
+		+ "\n\nTotest has " + tMoves.size() + " moves:" + tMoves.toString(), sameMoves);
 
 		assertEquals(errorOutput, cons.getTerminationState(), test.getTerminationState());
 		assertEquals(errorOutput, cons.getHashing(), test.getHashing());

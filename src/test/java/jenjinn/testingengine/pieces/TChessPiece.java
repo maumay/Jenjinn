@@ -39,8 +39,8 @@ public abstract class TChessPiece extends ChessPiece
 
 		for (int i = 0; i < PieceType.values().length; i++)
 		{
-			WPIECES[i] = PieceType.values()[i].generateTPiece(Side.W);
-			BPIECES[i] = PieceType.values()[i].generateTPiece(Side.B);
+			WPIECES[i] = TPieceType.values()[i].generatePiece(Side.W);
+			BPIECES[i] = TPieceType.values()[i].generatePiece(Side.B);
 
 			PIECES[i] = WPIECES[i];
 			PIECES[6 + i] = BPIECES[i];
