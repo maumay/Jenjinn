@@ -30,7 +30,7 @@ public final class StandardisedBacking
 
 	public static final Rectangle getShadowedBackground(final double w, final double h)
 	{
-		final Color c = Color.web("#7a7a7a");
+		final Color c = Color.web("#0d2c5e");//#7a7a7a
 		final Rectangle back = new Rectangle(w, h, c);
 		final InnerShadow shadeEffect = new InnerShadow();
 		shadeEffect.setWidth(w/2);

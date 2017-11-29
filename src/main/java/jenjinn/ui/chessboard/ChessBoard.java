@@ -82,7 +82,7 @@ public class ChessBoard extends Region
 		this.colorScheme = colorScheme;
 		getChildren().addAll(Arrays.asList(backingCanvas, boardCanvas, markerCanvas, pieceCanvas, interactionLayer));
 		interactionLayer.toFront();
-		pieceLocationMap.put(Sq.c5, ChessPiece.BPIECES[1]);
+		//		pieceLocationMap.put(Sq.c5, ChessPiece.BPIECES[1]);
 		interactionLayer.setOnMouseClicked(evt -> processClick(evt));
 		// setUserInterationDisabled(true);
 	}

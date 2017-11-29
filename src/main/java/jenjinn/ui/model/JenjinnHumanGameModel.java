@@ -34,7 +34,7 @@ public class JenjinnHumanGameModel implements ChessGameModel
 	private static final int DEFAULT_SIG_FIG = 5;
 
 	private static final double MIN_MOVE_TIME = 0.5;
-	private static final double MAX_MOVE_TIME = 30;
+	private static final double MAX_MOVE_TIME = 10;
 
 
 	private static final String REPORT_FOLDER = "matchreports/";
@@ -47,7 +47,7 @@ public class JenjinnHumanGameModel implements ChessGameModel
 	private Jenjinn jenjinn;
 	private StoredUserSelection userSelection;
 
-	private double moveTime = 40;
+	private double moveTime = 5;
 
 	private JenjinnHumanGameModel()
 	{
@@ -260,7 +260,7 @@ public class JenjinnHumanGameModel implements ChessGameModel
 			try
 			{
 				final long t = System.nanoTime();
-				Thread.sleep((long) MAX_MOVE_TIME * 1000);
+				Thread.sleep((long) moveTime * 1000);
 
 				if (jenjinnJob.isAlive())
 				{

@@ -4,7 +4,6 @@ import javafx.geometry.Bounds;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -16,7 +15,7 @@ import jenjinn.ui.chessboard.ResizableCanvas;
 
 public class JenjinnLogo extends Region
 {
-	private static final Color WHITE = Color.WHITE, BLACK = Color.BLACK, OVERLAY = Color.GREEN;
+	private static final Color WHITE = Color.WHITE, BLACK = Color.BLACK, OVERLAY = Color.rgb(0, 224, 52, 0.6);
 
 	private static final Image WHITE_N = new Image(StartScreen.class.getResourceAsStream("/WN64.png"));
 	private static final Image BLACK_N = new Image(StartScreen.class.getResourceAsStream("/BN64.png"));
@@ -38,15 +37,15 @@ public class JenjinnLogo extends Region
 		getChildren().addAll(back, txt_jenjinn, overlay);
 		overlay.getGraphicsContext2D().setStroke(OVERLAY);
 
-		setOnMouseClicked(this::mclickedAction);
+		//		setOnMouseClicked(this::mclickedAction);
 	}
-
-	private void mclickedAction(final MouseEvent evt)
-	{
-		final double evtX = evt.getX();
-		selected = evtX < getWidth()/2? Side.B : Side.W;
-		drawBackground(getWidth(), getHeight());
-	}
+	//
+	//	private void mclickedAction(final MouseEvent evt)
+	//	{
+	//		final double evtX = evt.getX();
+	//		selected = evtX < getWidth()/2? Side.B : Side.W;
+	//		redraw();
+	//	}
 
 	@Override
 	public void resize(final double w, final double h)
@@ -91,11 +90,12 @@ public class JenjinnLogo extends Region
 		final double w = getWidth(), h = getHeight();
 		final Bounds tBounds = txt_jenjinn.getLayoutBounds();
 		txt_jenjinn.relocate((w - tBounds.getWidth())/2, (h - tBounds.getHeight())/2);
-		drawBackground(w, h);
+		redraw();
 	}
 
-	private void drawBackground(final double w, final double h)
+	public void redraw()
 	{
+		final double w = getWidth(), h = getHeight();
 		final GraphicsContext backGC = back.getGraphicsContext2D();
 		final GraphicsContext overlayGC = overlay.getGraphicsContext2D();
 
@@ -121,6 +121,22 @@ public class JenjinnLogo extends Region
 				overlayGC.strokeRect(0, 0, w/ 2, h);
 			}
 		}
+	}
+
+	/**
+	 * @return the selected
+	 */
+	public Side getSelected()
+	{
+		return selected;
+	}
+
+	/**
+	 * @param selected the selected to set
+	 */
+	public void setSelected(final Side selected)
+	{
+		this.selected = selected;
 	}
 }
 
