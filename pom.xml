@@ -46,6 +46,9 @@
 						</goals>
 					</execution>
 				</executions>
+				<configuration>
+					<excludeResources>true</excludeResources>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
