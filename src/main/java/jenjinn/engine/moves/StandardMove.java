@@ -31,8 +31,8 @@ public class StandardMove extends AbstractChessMoveImplV2
 	// STATIC CACHE STUFF
 	/**
 	 * StandardMove database, all StandardMove objects we will need. Ordered in
-	 * natural way; start is first entry and target is second. Many entries will
-	 * be null but these correspond to impossible moves.
+	 * natural way; start is first entry and target is second. Many entries will be
+	 * null but these correspond to impossible moves.
 	 */
 	private static final StandardMove[][] SM_CACHE = generateStandardMoveDB();
 
@@ -71,11 +71,9 @@ public class StandardMove extends AbstractChessMoveImplV2
 
 	private static void convertAndAddBitboardsToStandardMoveDB(final StandardMove[][] db, final long[] bitboardsToAdd)
 	{
-		for (byte i = 0; i < bitboardsToAdd.length; i++)
-		{
+		for (byte i = 0; i < bitboardsToAdd.length; i++) {
 			final StandardMove[] movesetAsStandardMoves = bitboardToMoves(i, bitboardsToAdd[i]);
-			for (final StandardMove sm : movesetAsStandardMoves)
-			{
+			for (final StandardMove sm : movesetAsStandardMoves) {
 				db[sm.getStart()][sm.getTarget()] = sm;
 			}
 		}
@@ -88,8 +86,7 @@ public class StandardMove extends AbstractChessMoveImplV2
 		final StandardMove[] mvs = new StandardMove[bitboardCard];
 
 		int ctr = 0;
-		for (final byte b : EngineUtils.getSetBits(bitboard))
-		{
+		for (final byte b : EngineUtils.getSetBits(bitboard)) {
 			mvs[ctr++] = new StandardMove(loc, b);
 		}
 
@@ -140,8 +137,7 @@ public class StandardMove extends AbstractChessMoveImplV2
 
 		byte piecePhase = state.getPiecePhase();
 
-		if (removedPiece != null)
-		{
+		if (removedPiece != null) {
 			newPieceLocations[removedPiece.index()] ^= target;
 			newHash ^= BoardState.HASHER.getSquarePieceFeature(getTarget(), removedPiece);
 			piecePhase = updatePiecePhase(piecePhase, removedPiece);
@@ -151,24 +147,15 @@ public class StandardMove extends AbstractChessMoveImplV2
 
 		final long newDevStatus = state.getDevelopmentStatus() & ~start;
 
-		return new BoardStateImplV2(
-				state.getNewRecentHashings(newHash),
-				1 - state.getFriendlySideValue(),
-				newCastleRights,
-				state.getCastleStatus(),
-				newEnPassantSquare,
-				newClockValue,
-				piecePhase,
-				midPosEval,
-				endPosEval,
-				newDevStatus,
-				newPieceLocations);
+		return new BoardStateImplV2(state.getNewRecentHashings(newHash), 1 - state.getFriendlySideValue(),
+				newCastleRights, state.getCastleStatus(), newEnPassantSquare, newClockValue, piecePhase, midPosEval,
+				endPosEval, newDevStatus, newPieceLocations);
 	}
 
-	public final byte getNewClockValue(final ChessPiece movingPiece, final ChessPiece removedPiece, final byte oldClockValue)
+	public final byte getNewClockValue(final ChessPiece movingPiece, final ChessPiece removedPiece,
+			final byte oldClockValue)
 	{
-		if (removedPiece != null || movingPiece instanceof Pawn)
-		{
+		if (removedPiece != null || movingPiece instanceof Pawn) {
 			return 0;
 		}
 		return (byte) (oldClockValue + 1);
@@ -176,8 +163,7 @@ public class StandardMove extends AbstractChessMoveImplV2
 
 	public final byte getNewEnPassantSquare(final ChessPiece movingPiece)
 	{
-		if (movingPiece instanceof Pawn && Math.abs(getTarget() - getStart()) == 16)
-		{
+		if (movingPiece instanceof Pawn && Math.abs(getTarget() - getStart()) == 16) {
 			return (byte) (getStart() + Math.signum(getTarget() - getStart()) * 8);
 		}
 		return BoardState.NO_ENPASSANT;
@@ -185,15 +171,12 @@ public class StandardMove extends AbstractChessMoveImplV2
 
 	public final byte updateCastleRights(byte oldRights)
 	{
-		if (oldRights > 0)
-		{
-			if (CastlingRights.STANDARD_MOVE_ERASURES.containsKey(getStart()))
-			{
-				oldRights &= ~CastlingRights.STANDARD_MOVE_ERASURES.get(getStart());
+		if (oldRights > 0) {
+			if (CastlingRights.STANDARD_MOVE_ERASURES[getStart()] > 0) {
+				oldRights &= ~CastlingRights.STANDARD_MOVE_ERASURES[getStart()];
 			}
-			if (CastlingRights.STANDARD_MOVE_ERASURES.containsKey(getTarget()))
-			{
-				oldRights &= ~CastlingRights.STANDARD_MOVE_ERASURES.get(getTarget());
+			if (CastlingRights.STANDARD_MOVE_ERASURES[getTarget()] > 0) {
+				oldRights &= ~CastlingRights.STANDARD_MOVE_ERASURES[getTarget()];
 			}
 		}
 		return oldRights;
@@ -212,13 +195,12 @@ public class StandardMove extends AbstractChessMoveImplV2
 	}
 }
 
-/* ---------------------------------------------------------------------*
- * This software is the confidential and proprietary
- * information of Lhasa Limited
- * Granary Wharf House, 2 Canal Wharf, Leeds, LS11 5PS
- * ---
- * No part of this confidential information shall be disclosed
- * and it shall be used only in accordance with the terms of a
- * written license agreement entered into by holder of the information
- * with LHASA Ltd.
- * --------------------------------------------------------------------- */
+/*
+ * ---------------------------------------------------------------------* This
+ * software is the confidential and proprietary information of Lhasa Limited
+ * Granary Wharf House, 2 Canal Wharf, Leeds, LS11 5PS --- No part of this
+ * confidential information shall be disclosed and it shall be used only in
+ * accordance with the terms of a written license agreement entered into by
+ * holder of the information with LHASA Ltd.
+ * ---------------------------------------------------------------------
+ */

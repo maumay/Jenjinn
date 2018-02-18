@@ -1,5 +1,5 @@
 /**
- * Copyright © 2017 Lhasa Limited
+ * Copyright ï¿½ 2017 Lhasa Limited
  * File created: 30 Aug 2017 by ThomasB
  * Creator : ThomasB
  * Version : $Id$
@@ -53,8 +53,7 @@ public class KingSafetyV1 implements EvaluatingComponent
 		final boolean isWhite = side.isWhite();
 		final int orientation = side.orientation();
 
-		if (isWhite ? whiteCastled : blackCastled)
-		{
+		if (isWhite ? whiteCastled : blackCastled) {
 			final byte kingLoc = EngineUtils.getSetBits(state.getPieceLocations(5 + side.index()))[0];
 			// final int rankNum = kingLoc / 8, fileNum = 7 - (kingLoc % 8);
 
@@ -64,13 +63,13 @@ public class KingSafetyV1 implements EvaluatingComponent
 			final long pawns = state.getPieceLocations(side.index());
 
 			midEval += orientation * Long.bitCount(outerShieldArea & pawns) * MID_PAWN_SHIELD_BONUS;
-			midEval += orientation * Long.bitCount(immediateShieldArea & pawns) * (MID_PAWN_SHIELD_BONUS + MID_DIRECT_SHIELD_BONUS);
+			midEval += orientation * Long.bitCount(immediateShieldArea & pawns)
+					* (MID_PAWN_SHIELD_BONUS + MID_DIRECT_SHIELD_BONUS);
 
 			endEval += orientation * Long.bitCount(outerShieldArea & pawns) * END_PAWN_SHIELD_BONUS;
-			endEval += orientation * Long.bitCount(immediateShieldArea & pawns) * (END_PAWN_SHIELD_BONUS + END_DIRECT_SHIELD_BONUS);
-		}
-		else
-		{
+			endEval += orientation * Long.bitCount(immediateShieldArea & pawns)
+					* (END_PAWN_SHIELD_BONUS + END_DIRECT_SHIELD_BONUS);
+		} else {
 			midEval += 3 * orientation * MID_OPEN_FILE_PENALTY;
 			endEval += 3 * orientation * END_OPEN_FILE_PENALTY;
 		}
@@ -84,11 +83,9 @@ public class KingSafetyV1 implements EvaluatingComponent
 		final int rankNum = kingLoc / 8;
 
 		final int shiftStart = kingLoc + orientation * 7;
-		for (int i = 0; i < 3; i++)
-		{
+		for (int i = 0; i < 3; i++) {
 			final int shifted = Math.min(Math.max(shiftStart + orientation * i, 0), 64);
-			if (shifted / 8 == rankNum + orientation)
-			{
+			if (shifted / 8 == rankNum + orientation) {
 				components[i] = 1L << shifted;
 			}
 		}
@@ -103,13 +100,12 @@ public class KingSafetyV1 implements EvaluatingComponent
 	}
 }
 
-/* ---------------------------------------------------------------------*
- * This software is the confidential and proprietary
- * information of Lhasa Limited
- * Granary Wharf House, 2 Canal Wharf, Leeds, LS11 5PS
- * ---
- * No part of this confidential information shall be disclosed
- * and it shall be used only in accordance with the terms of a
- * written license agreement entered into by holder of the information
- * with LHASA Ltd.
- * --------------------------------------------------------------------- */
+/*
+ * ---------------------------------------------------------------------* This
+ * software is the confidential and proprietary information of Lhasa Limited
+ * Granary Wharf House, 2 Canal Wharf, Leeds, LS11 5PS --- No part of this
+ * confidential information shall be disclosed and it shall be used only in
+ * accordance with the terms of a written license agreement entered into by
+ * holder of the information with LHASA Ltd.
+ * ---------------------------------------------------------------------
+ */

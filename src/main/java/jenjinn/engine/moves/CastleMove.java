@@ -35,28 +35,25 @@ public final class CastleMove extends AbstractChessMoveImplV2
 
 	public static final CastleMove BLACK_QUEENSIDE = new CastleMove(59, 61, new int[] { 59, 61, 63, 60 });
 
-	private static final List<CastleMove> ALL = Arrays.asList(WHITE_KINGSIDE, WHITE_QUEENSIDE, BLACK_KINGSIDE, BLACK_QUEENSIDE);
+	private static final List<CastleMove> ALL = Arrays.asList(WHITE_KINGSIDE, WHITE_QUEENSIDE, BLACK_KINGSIDE,
+			BLACK_QUEENSIDE);
 
-	public static final List<CastleMove> ALL_INSTANCES = Collections.unmodifiableList(Arrays.asList(
-			WHITE_KINGSIDE,
-			WHITE_QUEENSIDE,
-			BLACK_KINGSIDE,
-			BLACK_QUEENSIDE));
+	public static final List<CastleMove> ALL_INSTANCES = Collections
+			.unmodifiableList(Arrays.asList(WHITE_KINGSIDE, WHITE_QUEENSIDE, BLACK_KINGSIDE, BLACK_QUEENSIDE));
 
 	public static CastleMove get(final String name)
 	{
-		switch (name)
-		{
-			case "WHITE_KINGSIDE":
-				return WHITE_KINGSIDE;
-			case "WHITE_QUEENSIDE":
-				return WHITE_QUEENSIDE;
-			case "BLACK_KINGSIDE":
-				return BLACK_KINGSIDE;
-			case "BLACK_QUEENSIDE":
-				return BLACK_QUEENSIDE;
-			default:
-				throw new IllegalArgumentException();
+		switch (name) {
+		case "WHITE_KINGSIDE":
+			return WHITE_KINGSIDE;
+		case "WHITE_QUEENSIDE":
+			return WHITE_QUEENSIDE;
+		case "BLACK_KINGSIDE":
+			return BLACK_KINGSIDE;
+		case "BLACK_QUEENSIDE":
+			return BLACK_QUEENSIDE;
+		default:
+			throw new IllegalArgumentException();
 		}
 	}
 
@@ -67,10 +64,16 @@ public final class CastleMove extends AbstractChessMoveImplV2
 	}
 
 	// ------------------------------------------------------------------------------------------------
-	/** The bit indices representing the 'from' and 'to' squares for the king in this castle move. */
+	/**
+	 * The bit indices representing the 'from' and 'to' squares for the king in this
+	 * castle move.
+	 */
 	private final byte kingRemovalSquare, kingAdditionSquare;
 
-	/** The bit indices representing the 'from' and 'to' squares for the rook in this castle move. */
+	/**
+	 * The bit indices representing the 'from' and 'to' squares for the rook in this
+	 * castle move.
+	 */
 	private final byte rookRemovalSquare, rookAdditionSquare;
 
 	private CastleMove(final int start, final int target, final int[] requiredSquares)
@@ -139,24 +142,15 @@ public final class CastleMove extends AbstractChessMoveImplV2
 
 		// -----------------------------------------------------------------
 
-		return new BoardStateImplV2(
-				state.getNewRecentHashings(newHash),
-				1 - state.getFriendlySideValue(),
-				newCastleRights,
-				newCastleStatus,
-				BoardState.NO_ENPASSANT,
-				state.getClockValue() + 1,
-				state.getPiecePhase(),
-				midPosEval,
-				endPosEval,
-				state.getDevelopmentStatus(),
-				newPiecePositions);
+		return new BoardStateImplV2(state.getNewRecentHashings(newHash), 1 - state.getFriendlySideValue(),
+				newCastleRights, newCastleStatus, BoardState.NO_ENPASSANT, state.getClockValue() + 1,
+				state.getPiecePhase(), midPosEval, endPosEval, state.getDevelopmentStatus(), newPiecePositions);
 	}
 
 	public final byte updateCastleRights(final byte oldRights, final Side moveSide)
 	{
 		final byte sideShift = (byte) (moveSide.isWhite() ? 0 : 2);
-		final int toMovesRights = CastlingRights.VALUES.get(sideShift) | CastlingRights.VALUES.get(sideShift + 1);
+		final int toMovesRights = CastlingRights.VALUES[sideShift] | CastlingRights.VALUES[sideShift + 1];
 		return (byte) (oldRights & ~toMovesRights);
 	}
 
@@ -164,7 +158,7 @@ public final class CastleMove extends AbstractChessMoveImplV2
 	{
 		final byte sideShift = (byte) (moveSide.isWhite() ? 0 : 2);
 		final int kingsideShift = (byte) (isKingside() ? 0 : 1);
-		return (byte) (oldStatus | CastlingRights.VALUES.get(sideShift + kingsideShift));
+		return (byte) (oldStatus | CastlingRights.VALUES[sideShift + kingsideShift]);
 	}
 
 	@Override
@@ -180,13 +174,12 @@ public final class CastleMove extends AbstractChessMoveImplV2
 	}
 
 }
-/* ---------------------------------------------------------------------*
- * This software is the confidential and proprietary
- * information of Lhasa Limited
- * Granary Wharf House, 2 Canal Wharf, Leeds, LS11 5PS
- * ---
- * No part of this confidential information shall be disclosed
- * and it shall be used only in accordance with the terms of a
- * written license agreement entered into by holder of the information
- * with LHASA Ltd.
- * --------------------------------------------------------------------- */
+/*
+ * ---------------------------------------------------------------------* This
+ * software is the confidential and proprietary information of Lhasa Limited
+ * Granary Wharf House, 2 Canal Wharf, Leeds, LS11 5PS --- No part of this
+ * confidential information shall be disclosed and it shall be used only in
+ * accordance with the terms of a written license agreement entered into by
+ * holder of the information with LHASA Ltd.
+ * ---------------------------------------------------------------------
+ */

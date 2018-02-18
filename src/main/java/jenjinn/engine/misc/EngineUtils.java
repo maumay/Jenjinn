@@ -6,6 +6,11 @@
 
 package jenjinn.engine.misc;
 
+import static io.xyz.chains.utilities.CollectionUtil.len;
+import static io.xyz.chains.utilities.CollectionUtil.take;
+import static io.xyz.chains.utilities.MapUtil.longMap;
+import static io.xyz.chains.utilities.MapUtil.objMap;
+
 import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.file.Files;
@@ -14,9 +19,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import gnu.trove.iterator.TLongIterator;
-import gnu.trove.list.TLongList;
-import gnu.trove.list.array.TLongArrayList;
 import jenjinn.engine.bitboarddatabase.BBDB;
 import jenjinn.engine.enums.Sq;
 import jenjinn.engine.moves.ChessMove;
@@ -27,8 +29,7 @@ import jenjinn.engine.pieces.ChessPiece;
  * @author TB
  * @date 21 Jan 2017
  *
- *       A general utility class containing various useful
- *       static methods.
+ *       A general utility class containing various useful static methods.
  */
 public class EngineUtils
 {
@@ -38,12 +39,10 @@ public class EngineUtils
 		final String lString = Long.toBinaryString(l);
 		final byte paddingZeros = (byte) (64 - lString.length());
 		final StringBuilder b = new StringBuilder(64);
-		for (byte i = 0; i < paddingZeros; i++)
-		{
+		for (byte i = 0; i < paddingZeros; i++) {
 			b.append("0");
 		}
-		for (byte i = 0; i < lString.length(); i++)
-		{
+		for (byte i = 0; i < lString.length(); i++) {
 			b.append(lString.charAt(i));
 		}
 		return b.toString();
@@ -55,18 +54,14 @@ public class EngineUtils
 		final byte n = (byte) args.length;
 		final String gap = "\t";
 		final String[] asStrings = new String[n];
-		for (byte i = 0; i < n; i++)
-		{
+		for (byte i = 0; i < n; i++) {
 			asStrings[i] = bitboardToString(args[i]);
 		}
-		for (byte i = 0; i < 8; i++)
-		{
+		for (byte i = 0; i < 8; i++) {
 			final StringBuilder builder = new StringBuilder();
-			for (byte j = 0; j < n; j++)
-			{
+			for (byte j = 0; j < n; j++) {
 				builder.append(asStrings[j].substring(8 * i, 8 * (i + 1)));
-				if (j < n - 1)
-				{
+				if (j < n - 1) {
 					builder.append(gap);
 				}
 			}
@@ -78,8 +73,7 @@ public class EngineUtils
 	public static long multipleOr(final long... args)
 	{
 		long ans = 0L;
-		for (final long arg : args)
-		{
+		for (final long arg : args) {
 			ans |= arg;
 		}
 		return ans;
@@ -89,28 +83,25 @@ public class EngineUtils
 	public static long multipleXor(final long... args)
 	{
 		long ans = 0L;
-		for (final long arg : args)
-		{
+		for (final long arg : args) {
 			ans ^= arg;
 		}
 		return ans;
 	}
 
 	/**
-	 * Performs bitwise or operation of all single occupancy
-	 * bitboards represented by the Sq in parameter array
+	 * Performs bitwise or operation of all single occupancy bitboards represented
+	 * by the Sq in parameter array
 	 */
 	public static long multipleOr(final Sq... args)
 	{
-		if (args == null)
-		{
+		if (args == null) {
 			return -1;
 		}
 
 		long ans = 0L;
 
-		for (final Sq arg : args)
-		{
+		for (final Sq arg : args) {
 			ans |= arg.getAsBB();
 		}
 		return ans;
@@ -121,11 +112,9 @@ public class EngineUtils
 	{
 		long ans = -1L;
 		final long sqAsBb = BBDB.SOB[sq.ordinal()];
-		for (byte i = 0; i < 8; i++)
-		{
+		for (byte i = 0; i < 8; i++) {
 			final long rnk = BBDB.RNK[i];
-			if ((sqAsBb & rnk) != 0)
-			{
+			if ((sqAsBb & rnk) != 0) {
 				ans = rnk;
 				break;
 			}
@@ -138,11 +127,9 @@ public class EngineUtils
 	{
 		long ans = -1L;
 		final long sqAsBb = BBDB.SOB[sq.ordinal()];
-		for (byte i = 0; i < 8; i++)
-		{
+		for (byte i = 0; i < 8; i++) {
 			final long file = BBDB.FILE[i];
-			if ((sqAsBb & file) != 0)
-			{
+			if ((sqAsBb & file) != 0) {
 				ans = file;
 				break;
 			}
@@ -155,11 +142,9 @@ public class EngineUtils
 	{
 		long ans = -1L;
 		final long sqAsBb = BBDB.SOB[sq.ordinal()];
-		for (byte i = 0; i < 15; i++)
-		{
+		for (byte i = 0; i < 15; i++) {
 			final long diag = BBDB.DGNL[i];
-			if ((sqAsBb & diag) != 0)
-			{
+			if ((sqAsBb & diag) != 0) {
 				ans = diag;
 				break;
 			}
@@ -172,11 +157,9 @@ public class EngineUtils
 	{
 		long ans = -1L;
 		final long sqAsBb = BBDB.SOB[sq.ordinal()];
-		for (int i = 0; i < 15; i++)
-		{
+		for (int i = 0; i < 15; i++) {
 			final long aDiag = BBDB.ADGNL[i];
-			if ((sqAsBb & aDiag) != 0)
-			{
+			if ((sqAsBb & aDiag) != 0) {
 				ans = aDiag;
 				break;
 			}
@@ -185,31 +168,23 @@ public class EngineUtils
 	}
 
 	/**
-	 * Recursive method to calculate and return all possible bitboards arising
-	 * from performing bitwise | operation on each element of each subset of
-	 * the powerset of the given array. The size of the returned array is
-	 * 2^(array.length).
+	 * Recursive method to calculate and return all possible bitboards arising from
+	 * performing bitwise | operation on each element of each subset of the powerset
+	 * of the given array. The size of the returned array is 2^(array.length).
 	 */
 	public static long[] findAllPossibleOrCombos(final long[] array)
 	{
 		final int length = array.length;
-		if (length == 1)
-		{
+		if (length == 1) {
 			return new long[] { 0L, array[0] };
-		}
-		else
-		{
+		} else {
 			final long[] ans = new long[(int) Math.pow(2.0, length)];
-			final TLongArrayList arrayAsArrayList = new TLongArrayList(array);
-			arrayAsArrayList.removeAt(length - 1);
-			final long[] recursiveArg = arrayAsArrayList.toArray(new long[length - 1]);
+			final long[] recursiveArg = take(length - 1, array);
 			final long[] recursiveAns = findAllPossibleOrCombos(recursiveArg);
 			int ansIndexCounter = 0;
 			int recursiveAnsIndexCounter = 0;
-			for (int j = 0; j < recursiveAns.length; j++)
-			{
-				for (long i = 0; i < 2; i++)
-				{
+			for (int j = 0; j < recursiveAns.length; j++) {
+				for (long i = 0; i < 2; i++) {
 					ans[ansIndexCounter] = recursiveAns[recursiveAnsIndexCounter] | (array[length - 1] * i);
 					ansIndexCounter++;
 				}
@@ -228,10 +203,8 @@ public class EngineUtils
 
 	public static <E> int getIndexInArray(final E[] arr, final E obj)
 	{
-		for (int i = 0; i < arr.length; i++)
-		{
-			if (arr[i] == obj)
-			{
+		for (int i = 0; i < arr.length; i++) {
+			if (arr[i] == obj) {
 				return i;
 			}
 		}
@@ -284,10 +257,8 @@ public class EngineUtils
 		final byte[] setBits = new byte[cardinality];
 		byte arrCounter = 0, loopCounter = 0;
 
-		while (bitboard != 0)
-		{
-			if ((1 & bitboard) != 0)
-			{
+		while (bitboard != 0) {
+			if ((1 & bitboard) != 0) {
 				setBits[arrCounter++] = loopCounter;
 			}
 			loopCounter++;
@@ -296,18 +267,16 @@ public class EngineUtils
 		return setBits;
 	}
 
-	public static List<BigInteger> average(final List<TLongList> values)
+	public static List<BigInteger> average(final List<long[]> values)
 	{
 		final List<BigInteger> averages = new ArrayList<>(values.size());
 
-		values.stream().forEach(x ->
-		{
+		values.stream().forEach(xs -> {
 			BigInteger total = BigInteger.ZERO;
-			for (final TLongIterator itr = x.iterator(); itr.hasNext();)
-			{
-				total = total.add(BigInteger.valueOf(itr.next()));
+			for (final long x : xs) {
+				total = total.add(BigInteger.valueOf(x));
 			}
-			averages.add(total.divide(BigInteger.valueOf(x.size())));
+			averages.add(total.divide(BigInteger.valueOf(len(xs))));
 		});
 
 		return averages;
@@ -321,8 +290,7 @@ public class EngineUtils
 
 		int ctr = 0;
 		final byte[] setBits = getSetBits(bitboard);
-		for (final byte b : setBits)
-		{
+		for (final byte b : setBits) {
 			mvs[ctr++] = StandardMove.get(loc, b);
 		}
 
@@ -333,8 +301,7 @@ public class EngineUtils
 	{
 		final long[] start = new long[12];
 
-		for (int i = 0; i < 12; i++)
-		{
+		for (int i = 0; i < 12; i++) {
 			start[i] = ChessPiece.get(i).getStartBitboard();
 		}
 
@@ -345,25 +312,18 @@ public class EngineUtils
 	{
 		final long[] startLocs = EngineUtils.getStartingPieceLocs();
 
-		return startLocs[1] | startLocs[2] | startLocs[7] | startLocs[8] |
-				((startLocs[0] | startLocs[6]) & (BBDB.FILE[3] | BBDB.FILE[4]));
+		return startLocs[1] | startLocs[2] | startLocs[7] | startLocs[8]
+				| ((startLocs[0] | startLocs[6]) & (BBDB.FILE[3] | BBDB.FILE[4]));
 	}
 
 	public static long getBB(final Sq... sqs)
 	{
-		return multipleOr(Arrays.stream(sqs).mapToLong(sq -> sq.getAsBB()).toArray());
+		return multipleOr(longMap(sq -> sq.getAsBB(), sqs));
 	}
 
 	public static void writeMoves(final List<ChessMove> toWrite, final Path path) throws IOException
 	{
-		final List<String> asStrings = new ArrayList<>();
-
-		for (final ChessMove mv : toWrite)
-		{
-			asStrings.add(mv.toCompactString());
-		}
-
-		Files.write(path, asStrings);
+		Files.write(path, objMap(mv -> mv.toCompactString(), toWrite));
 	}
 
 	public static List<ChessMove> readMoves(final Path path) throws IOException
@@ -371,43 +331,38 @@ public class EngineUtils
 		final List<String> lines = Files.readAllLines(path);
 		final List<ChessMove> mvs = new ArrayList<>();
 
-		for (final String line : lines)
-		{
+		for (final String line : lines) {
 			mvs.add(ChessMove.fromCompactString(line));
 		}
 
 		return mvs;
 	}
-	
-	public static String formatPieceTable(short[] ptable) 
+
+	public static String formatPieceTable(short[] ptable)
 	{
 		assert ptable.length == 64;
 		int maxlen = 0;
-		for (short val : ptable)
-		{
+		for (short val : ptable) {
 			maxlen = Math.max(Integer.toString(val).length(), maxlen);
 		}
-		
+
 		StringBuilder sb = new StringBuilder();
 		int ctr = 63;
-		for (int i = 63; i >= 0; i--)
-		{
+		for (int i = 63; i >= 0; i--) {
 			int val = ptable[i];
 			sb.append(getPaddedString(val, maxlen));
 			sb.append(" ");
-			if ((--ctr) % 8 == 7)
-			{
+			if ((--ctr) % 8 == 7) {
 				sb.append("\n");
 			}
 		}
 		return sb.toString();
 	}
-	
+
 	private static String getPaddedString(int i, int len)
 	{
 		StringBuilder sb = new StringBuilder(Integer.toString(i));
-		while (sb.length() < len)
-		{
+		while (sb.length() < len) {
 			sb.append(" ");
 		}
 		return sb.toString();
@@ -415,9 +370,9 @@ public class EngineUtils
 
 	public static void main(final String[] args)
 	{
-//		System.out.println(Arrays.toString(getSetBits(33746390L)));
-//		System.out.println(BBDB.SOB[0]);
-		
+		// System.out.println(Arrays.toString(getSetBits(33746390L)));
+		// System.out.println(BBDB.SOB[0]);
+
 		short[] testP = new short[64];
 		testP[0] = 1;
 		testP[Sq.c4.ordinal()] = -3;

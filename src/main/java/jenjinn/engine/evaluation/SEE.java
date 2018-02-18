@@ -7,7 +7,9 @@ import jenjinn.engine.misc.EngineUtils;
 import jenjinn.engine.pieces.ChessPiece;
 
 /**
- * Static exchange evaluator, implemented using pseudo c code on chessprogramming
+ * Static exchange evaluator, implemented using pseudo c code on
+ * chessprogramming
+ * 
  * @author t
  *
  */
@@ -34,40 +36,35 @@ public final class SEE
 
 		int d = 0;
 		final int[] gain = new int[32];
-		gain[d] = pieceValues[state.getPieceAt(targ).index()%6];
+		gain[d] = pieceValues[state.getPieceAt(targ).index() % 6];
 		ChessPiece attPiece = state.getPieceFromBB(fromset);
 
-		do
-		{
+		do {
 			d++;
 			fromSide = fromSide.otherSide();
 
-			gain[d] = pieceValues[attPiece.index()%6] - gain[d - 1];
-			
-			if (Math.max(-gain[d - 1], gain[d]) < 0)
-			{
+			gain[d] = pieceValues[attPiece.index() % 6] - gain[d - 1];
+
+			if (Math.max(-gain[d - 1], gain[d]) < 0) {
 				break;
 			}
 
 			attadef ^= fromset;
 			occ ^= fromset;
 
-			if ((fromset & knightLocs) == 0)
-			{
+			if ((fromset & knightLocs) == 0) {
 				updateXrays(state);
 			}
 			fromset = getLeastValuablePiece(state.getPieceLocationsCopy(), fromSide);
 			attPiece = state.getPieceFromBB(fromset);
-		}
-		while (fromset != 0);
-		
-		while (--d > 0)
-		{
+		} while (fromset != 0);
+
+		while (--d > 0) {
 			gain[d - 1] = -Math.max(-gain[d - 1], gain[d]);
 		}
 		return gain[0];
 	}
-	
+
 	public boolean isGoodExchange(final byte targ, final byte from, final BoardState state, final short[] pieceValues)
 	{
 		return eval(targ, from, state, pieceValues) >= 0;
@@ -75,11 +72,9 @@ public final class SEE
 
 	private void updateXrays(final BoardState state)
 	{
-		for (final byte loc : EngineUtils.getSetBits(potenxray))
-		{
+		for (final byte loc : EngineUtils.getSetBits(potenxray)) {
 			final ChessPiece p = state.getPieceAt(loc);
-			if ((p.getAttackset(loc, occ) & targBB) != 0)
-			{
+			if ((p.getAttackset(loc, occ) & targBB) != 0) {
 				final long locBB = 1L << loc;
 				potenxray ^= locBB;
 				attadef ^= locBB;
@@ -92,21 +87,16 @@ public final class SEE
 		attadef = 0L;
 		potenxray = 0L;
 		int ctr = 0;
-		for (final long locs : state.getPieceLocationsCopy())
-		{
+		for (final long locs : state.getPieceLocationsCopy()) {
 			final ChessPiece p = ChessPiece.get(ctr++);
 			final boolean canXray = p.canXray();
 
-			for (final byte loc : EngineUtils.getSetBits(locs))
-			{
+			for (final byte loc : EngineUtils.getSetBits(locs)) {
 				final long atts = p.getAttackset(loc, occ);
-				
-				if ((atts & targBB) != 0)
-				{
+
+				if ((atts & targBB) != 0) {
 					attadef |= (1L << loc);
-				}
-				else if (canXray && (BBDB.EBA[(p.index()%6) + 1][loc] & targBB) != 0)
-				{
+				} else if (canXray && (BBDB.EBA[(p.index() % 6) + 1][loc] & targBB) != 0) {
 					potenxray |= (1L << loc);
 				}
 			}
@@ -116,11 +106,9 @@ public final class SEE
 	private long getLeastValuablePiece(final long[] pieceLocs, final Side fromSide)
 	{
 		final int startIdx = fromSide.index(), endIdx = startIdx + 6;
-		for (int i = startIdx; i < endIdx; i++)
-		{
+		for (int i = startIdx; i < endIdx; i++) {
 			final long subset = attadef & pieceLocs[ASCENDING_PVALUES[i]];
-			if (subset != 0)
-			{
+			if (subset != 0) {
 				return (subset & -subset);
 			}
 		}

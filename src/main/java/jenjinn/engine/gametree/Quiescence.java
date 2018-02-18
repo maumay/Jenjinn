@@ -33,22 +33,20 @@ public class Quiescence
 	private final BoardEvaluator evaluator;
 	private final SEE see = new SEE();
 
-	public short search(final BoardState root, int alpha, final int beta, int depth, final boolean interruptionAllowed) throws InterruptedException
+	public short search(final BoardState root, int alpha, final int beta, int depth, final boolean interruptionAllowed)
+			throws InterruptedException
 	{
-		if (interruptionAllowed && Thread.currentThread().isInterrupted())
-		{
+		if (interruptionAllowed && Thread.currentThread().isInterrupted()) {
 			throw new InterruptedException();
 		}
 
 		currentDepth++;
-		if (currentDepth > maxDepth)
-		{
+		if (currentDepth > maxDepth) {
 			maxDepth = currentDepth;
 			System.out.println("Newmax qdepth: " + maxDepth);
 		}
-		
-		if (root.isTerminal())
-		{
+
+		if (root.isTerminal()) {
 			currentDepth--;
 			assert root.getTerminationState().matches(root.getFriendlySide());
 			return (short) (root.getFriendlySide().orientation() * root.getTerminationState().value);
@@ -56,15 +54,13 @@ public class Quiescence
 
 		final short standPat = evaluator.evaluate(root);
 
-		if (standPat >= beta)
-		{
+		if (standPat >= beta) {
 			assert (short) beta == beta;
 			currentDepth--;
 			return (short) beta;
 		}
-		
-		if (depth == 0)
-		{
+
+		if (depth == 0) {
 			currentDepth--;
 			return (short) Math.max(standPat, alpha);
 		}
@@ -74,34 +70,29 @@ public class Quiescence
 		/* big delta is the largest material swing */
 		final int bigDelta = pValues[4] + (isPromotingPawn(root) ? pValues[4] - pValues[0] : 0);
 
-		if (standPat < alpha - bigDelta)
-		{
+		if (standPat < alpha - bigDelta) {
 			// If we are here there is no way we will increase alpha so leave now
 			currentDepth--;
 			return (short) alpha;
 		}
 
-		if (alpha < standPat)
-		{
+		if (alpha < standPat) {
 			alpha = standPat;
 		}
 
 		final List<ChessMove> attackMoves = getMovesToProbe(root, pValues, standPat, alpha);
 
-		for (final ChessMove mv : attackMoves)
-		{
+		for (final ChessMove mv : attackMoves) {
 			final BoardState newState = mv.evolve(root);
 
 			final int score = -search(newState, -beta, -alpha, depth - 1, interruptionAllowed);
 
-			if (score >= beta)
-			{
+			if (score >= beta) {
 				assert (short) beta == beta;
 				currentDepth--;
 				return (short) beta;
 			}
-			if (score > alpha)
-			{
+			if (score > alpha) {
 				alpha = score;
 			}
 		}
@@ -110,17 +101,15 @@ public class Quiescence
 		return (short) alpha;
 	}
 
-	private List<ChessMove> getMovesToProbe(final BoardState state, final short[] pValues, final int standPat, final int alpha)
+	private List<ChessMove> getMovesToProbe(final BoardState state, final short[] pValues, final int standPat,
+			final int alpha)
 	{
 		final List<ChessMove> mtp = new ArrayList<>(), attMvs = state.getAttackMoves();
 
-		for (final ChessMove mv : attMvs)
-		{
-			if (mv instanceof EnPassantMove)
-			{
+		for (final ChessMove mv : attMvs) {
+			if (mv instanceof EnPassantMove) {
 				// Delta prune
-				if (standPat >= alpha - (pValues[0] + DP_SAFETY_MARGIN))
-				{
+				if (standPat >= alpha - (pValues[0] + DP_SAFETY_MARGIN)) {
 					mtp.add(mv);
 				}
 				continue;
@@ -129,8 +118,7 @@ public class Quiescence
 			final int targVal = pValues[state.getPieceAt(mv.getTarget(), state.getEnemySide()).index() % 6];
 
 			if (standPat >= alpha - (targVal + DP_SAFETY_MARGIN) // Delta prune
-					&& see.isGoodExchange(mv.getTarget(), mv.getStart(), state, pValues))
-			{
+					&& see.isGoodExchange(mv.getTarget(), mv.getStart(), state, pValues)) {
 				mtp.add(mv);
 			}
 		}
@@ -144,10 +132,8 @@ public class Quiescence
 		final long friendlyPawns = state.getPieceLocations(friendly.index());
 		final long seventhRank = 0b11111111L << (friendly.isWhite() ? 48 : 8);
 
-		for (final byte loc : EngineUtils.getSetBits(friendlyPawns & seventhRank))
-		{
-			if ((BBDB.EBA[friendly.ordinal()][loc] & enemys) != 0)
-			{
+		for (final byte loc : EngineUtils.getSetBits(friendlyPawns & seventhRank)) {
+			if ((BBDB.EBA[friendly.ordinal()][loc] & enemys) != 0) {
 				return true;
 			}
 		}
@@ -168,13 +154,12 @@ public class Quiescence
 	}
 }
 
-/* ---------------------------------------------------------------------*
- * This software is the confidential and proprietary
- * information of Lhasa Limited
- * Granary Wharf House, 2 Canal Wharf, Leeds, LS11 5PS
- * ---
- * No part of this confidential information shall be disclosed
- * and it shall be used only in accordance with the terms of a
- * written license agreement entered into by holder of the information
- * with LHASA Ltd.
- * --------------------------------------------------------------------- */
+/*
+ * ---------------------------------------------------------------------* This
+ * software is the confidential and proprietary information of Lhasa Limited
+ * Granary Wharf House, 2 Canal Wharf, Leeds, LS11 5PS --- No part of this
+ * confidential information shall be disclosed and it shall be used only in
+ * accordance with the terms of a written license agreement entered into by
+ * holder of the information with LHASA Ltd.
+ * ---------------------------------------------------------------------
+ */
