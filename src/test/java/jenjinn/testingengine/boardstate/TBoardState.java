@@ -15,8 +15,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import gnu.trove.list.TByteList;
-import gnu.trove.list.array.TByteArrayList;
 import jenjinn.engine.bitboarddatabase.BBDB;
 import jenjinn.engine.boardstate.BoardState;
 import jenjinn.engine.enums.Side;
@@ -480,7 +478,7 @@ public final class TBoardState implements BoardState
 			PieceType toPromoteTo = com.getToPromoteTo();
 			assert toPromoteTo != null;
 			
-			TByteList possStarts = new TByteArrayList();
+			List<Byte> possStarts = new ArrayList<>();
 			for (byte pawnLoc : EngineUtils.getSetBits(getPieceLocations(friendlySide.index())))
 			{
 				long friendly = getSideLocations(friendlySide), enemy = getSideLocations(getEnemySide());

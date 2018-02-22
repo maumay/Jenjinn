@@ -18,15 +18,15 @@ import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
-import gnu.trove.set.TLongSet;
-import gnu.trove.set.hash.TLongHashSet;
 import jenjinn.engine.enums.Side;
 import jenjinn.engine.exceptions.AmbiguousPgnException;
 import jenjinn.engine.openingdatabase.OpeningOrder;
@@ -142,7 +142,7 @@ public class PgnReader
 
 	public static void writeDBFile(final List<Path> fileName, final Path outPath, final int lengthCap, final Side toInclude) throws IOException
 	{
-		final TLongSet positionsUsed = new TLongHashSet();
+		final Set<Long> positionsUsed = new HashSet<>();
 
 		//		final String outFileName = outPath.getFileName().toString();
 		final Path outParentFolder = outPath.getParent();

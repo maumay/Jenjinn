@@ -6,10 +6,10 @@
  */
 package jenjinn.engine.zobristhashing;
 
+import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
 
-import gnu.trove.set.TLongSet;
-import gnu.trove.set.hash.TLongHashSet;
 import jenjinn.engine.enums.Sq;
 import jenjinn.engine.misc.EngineUtils;
 import jenjinn.engine.pieces.ChessPiece;
@@ -20,7 +20,7 @@ import jenjinn.engine.pieces.ChessPiece;
  */
 public class ZobristHasher
 {
-	private static final long DEFAULT_SEED = 0x110894L;//0x73abc76L;//
+	private static final long DEFAULT_SEED = 0x110894L;// 0x73abc76L;//
 
 	private long[][] squarePieceFeatures = new long[64][12];
 
@@ -41,8 +41,7 @@ public class ZobristHasher
 
 	public static final ZobristHasher getFrom(final long seed)
 	{
-		if (!seedIsValid(seed))
-		{
+		if (!seedIsValid(seed)) {
 			throw new AssertionError();
 		}
 
@@ -58,15 +57,13 @@ public class ZobristHasher
 
 	private static void addAuxilaryFeatures(final Random r, final ZobristHasher hasher)
 	{
-		for (int i = 0; i < 4; i++)
-		{
+		for (int i = 0; i < 4; i++) {
 			hasher.castleFeatures[i] = r.nextLong();
 		}
 
 		hasher.blackToMove = r.nextLong();
 
-		for (int i = 0; i < 8; i++)
-		{
+		for (int i = 0; i < 8; i++) {
 			hasher.enPassantFileFeatures[i] = r.nextLong();
 		}
 	}
@@ -75,10 +72,8 @@ public class ZobristHasher
 	{
 		int i = 0;
 		for (@SuppressWarnings("unused")
-		final Sq sq : Sq.values())
-		{
-			for (int j = 0; j < 12; j++)
-			{
+		final Sq sq : Sq.values()) {
+			for (int j = 0; j < 12; j++) {
 				hasher.squarePieceFeatures[i][j] = r.nextLong();
 			}
 			i++;
@@ -88,9 +83,8 @@ public class ZobristHasher
 	private static boolean seedIsValid(final long seed)
 	{
 		final Random r = new Random(seed);
-		final TLongSet values = new TLongHashSet();
-		for (int i = 0; i < 800; i++)
-		{
+		final Set<Long> values = new HashSet<>();
+		for (int i = 0; i < 800; i++) {
 			values.add(r.nextLong());
 		}
 		return values.size() == 800;
@@ -127,12 +121,10 @@ public class ZobristHasher
 
 		final long[] startPieceLocs = EngineUtils.getStartingPieceLocs();
 
-		for (int i = 0; i < 12; i++)
-		{
+		for (int i = 0; i < 12; i++) {
 			final byte[] locs = EngineUtils.getSetBits(startPieceLocs[i]);
 
-			for (final byte loc : locs)
-			{
+			for (final byte loc : locs) {
 				startHash ^= getSquarePieceFeature(loc, ChessPiece.get(i));
 			}
 		}
@@ -140,13 +132,12 @@ public class ZobristHasher
 	}
 }
 
-/* ---------------------------------------------------------------------*
- * This software is the confidential and proprietary
- * information of Lhasa Limited
- * Granary Wharf House, 2 Canal Wharf, Leeds, LS11 5PS
- * ---
- * No part of this confidential information shall be disclosed
- * and it shall be used only in accordance with the terms of a
- * written license agreement entered into by holder of the information
- * with LHASA Ltd.
- * --------------------------------------------------------------------- */
+/*
+ * ---------------------------------------------------------------------* This
+ * software is the confidential and proprietary information of Lhasa Limited
+ * Granary Wharf House, 2 Canal Wharf, Leeds, LS11 5PS --- No part of this
+ * confidential information shall be disclosed and it shall be used only in
+ * accordance with the terms of a written license agreement entered into by
+ * holder of the information with LHASA Ltd.
+ * ---------------------------------------------------------------------
+ */
