@@ -1,5 +1,5 @@
 /**
- * Copyright © 2017 Lhasa Limited
+ * Copyright ï¿½ 2017 Lhasa Limited
  * File created: 20 Sep 2017 by ThomasB
  * Creator : ThomasB
  * Version : $Id$
@@ -127,7 +127,7 @@ public class TCastleMove extends TAbstractChessMove
 	public final byte updateCastleRights(final byte oldRights, final Side moveSide)
 	{
 		final byte sideShift = (byte) (moveSide.isWhite() ? 0 : 2);
-		final int toMovesRights = CastlingRights.VALUES.get(sideShift) | CastlingRights.VALUES.get(sideShift + 1);
+		final int toMovesRights = CastlingRights.VALUES[sideShift] | CastlingRights.VALUES[sideShift + 1];
 		return (byte) (oldRights & ~toMovesRights);
 	}
 
@@ -135,7 +135,7 @@ public class TCastleMove extends TAbstractChessMove
 	{
 		final byte sideShift = (byte) (moveSide.isWhite() ? 0 : 2);
 		final int kingsideShift = (byte) (isKingside() ? 0 : 1);
-		return (byte) (oldStatus | CastlingRights.VALUES.get(sideShift + kingsideShift));
+		return (byte) (oldStatus | CastlingRights.VALUES[sideShift + kingsideShift]);
 	}
 
 	@Override

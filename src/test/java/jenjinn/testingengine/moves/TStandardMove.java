@@ -9,7 +9,6 @@ import jenjinn.engine.enums.MoveType;
 import jenjinn.engine.enums.Sq;
 import jenjinn.engine.pieces.ChessPiece;
 import jenjinn.engine.pieces.King;
-import jenjinn.engine.pieces.Pawn;
 import jenjinn.testingengine.boardstate.TBoardState;
 import jenjinn.testingengine.pieces.TPawn;
 
@@ -34,9 +33,12 @@ public class TStandardMove extends TAbstractChessMove
 		super(MoveType.STANDARD, start, target);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
 	 *
-	 * @see jenjinn.engine.moves.ChessMove#evolve(jenjinn.engine.boardstate.BoardState) */
+	 * @see
+	 * jenjinn.engine.moves.ChessMove#evolve(jenjinn.engine.boardstate.BoardState)
+	 */
 	@Override
 	public BoardState evolve(final BoardState state)
 	{
@@ -57,8 +59,7 @@ public class TStandardMove extends TAbstractChessMove
 		final long[] newPieceLocations = state.getPieceLocationsCopy();
 		newPieceLocations[movingPiece.index()] &= ~start;
 		newPieceLocations[movingPiece.index()] |= target;
-		if (removedPiece != null)
-		{
+		if (removedPiece != null) {
 			newPieceLocations[removedPiece.index()] &= ~target;
 		}
 		// -----------------------------------------------------------
@@ -77,8 +78,7 @@ public class TStandardMove extends TAbstractChessMove
 	/* These three methods will be tested separately! */
 	public final byte getNewClockValue(final ChessPiece movingPiece, final ChessPiece removedPiece, final byte oldClockValue)
 	{
-		if (removedPiece != null || movingPiece instanceof TPawn)
-		{
+		if (removedPiece != null || movingPiece instanceof TPawn) {
 			return 0;
 		}
 		return (byte) (oldClockValue + 1);
@@ -86,8 +86,7 @@ public class TStandardMove extends TAbstractChessMove
 
 	public final byte getNewEnPassantSquare(final ChessPiece movingPiece)
 	{
-		if (movingPiece instanceof TPawn && Math.abs(getTarget() - getStart()) == 16)
-		{
+		if (movingPiece instanceof TPawn && Math.abs(getTarget() - getStart()) == 16) {
 			return (byte) (getStart() + Math.signum(getTarget() - getStart()) * 8);
 		}
 		return BoardState.NO_ENPASSANT;
@@ -95,15 +94,12 @@ public class TStandardMove extends TAbstractChessMove
 
 	public final byte updateCastleRights(byte oldRights)
 	{
-		if (oldRights > 0)
-		{
-			if (CastlingRights.STANDARD_MOVE_ERASURES.containsKey(getStart()))
-			{
-				oldRights &= ~CastlingRights.STANDARD_MOVE_ERASURES.get(getStart());
+		if (oldRights > 0) {
+			if (CastlingRights.STANDARD_MOVE_ERASURES[getStart()] != 0) {
+				oldRights &= ~CastlingRights.STANDARD_MOVE_ERASURES[getStart()];
 			}
-			if (CastlingRights.STANDARD_MOVE_ERASURES.containsKey(getTarget()))
-			{
-				oldRights &= ~CastlingRights.STANDARD_MOVE_ERASURES.get(getTarget());
+			if (CastlingRights.STANDARD_MOVE_ERASURES[getTarget()] != 0) {
+				oldRights &= ~CastlingRights.STANDARD_MOVE_ERASURES[getTarget()];
 			}
 		}
 		return oldRights;
