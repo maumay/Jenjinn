@@ -3,6 +3,9 @@
  */
 package jenjinn.engine.gametree;
 
+import static io.xyz.chains.utilities.CollectionUtil.len;
+import static io.xyz.chains.utilities.PrimitiveUtil.max;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.math.BigInteger;
@@ -13,8 +16,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
 
-import gnu.trove.list.TIntList;
-import gnu.trove.list.array.TIntArrayList;
 import jenjinn.engine.boardstate.BoardState;
 import jenjinn.engine.boardstate.BoardStateImplV2;
 import jenjinn.engine.enums.Infinity;
@@ -35,14 +36,15 @@ import jenjinn.io.pgnutils.ChessGameReader;
 public class TTAlphaBetaV1_2 implements MoveCalculator
 {
 	private static final int QUIESCENCE_DEPTH_CAP = 30;
-	
+
 	private static final int DEFAULT_TABLE_SIZE = 17;
 
 	private static final String DESCRIPTOR = "[NegaAlphaBeta - no pv override 1 bucket tt - pv extraction - tt impl v1_2]";
 
 	/**
-	 * The heuristic position evaluator. It performs a quiescence search to make sure
-	 * only quiet positions are evaluated to avoid overlooking any nasty tactics.
+	 * The heuristic position evaluator. It performs a quiescence search to make
+	 * sure only quiet positions are evaluated to avoid overlooking any nasty
+	 * tactics.
 	 */
 	private Quiescence quiescence;
 
@@ -52,8 +54,8 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 	private TranspositionTable tt;
 
 	/**
-	 * Depth we will search at. Default to no max depth, i.e the
-	 * search is just time limited.
+	 * Depth we will search at. Default to no max depth, i.e the search is just time
+	 * limited.
 	 */
 	private int maxSearchDepth = 100;
 
@@ -80,25 +82,18 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 	{
 		bestFirstMoveIndex = -1;
 		ChessMove bestMove;
-		try
-		{
+		try {
 			bestMove = getBestMoveFrom(root, 1, false);
-		}
-		catch (final InterruptedException e1)
-		{
+		} catch (final InterruptedException e1) {
 			// We should not be getting here
 			e1.printStackTrace();
 			throw new AssertionError();
 		}
-		for (int depth = 2; depth <= maxSearchDepth; depth++)
-		{
-			try
-			{
+		for (int depth = 2; depth <= maxSearchDepth; depth++) {
+			try {
 				final ChessMove newBestMove = getBestMoveFrom(root, depth, true);
 				bestMove = newBestMove;
-			}
-			catch (final InterruptedException e)
-			{
+			} catch (final InterruptedException e) {
 				// Restore interrupted status
 				Thread.interrupted();
 				break;
@@ -128,22 +123,18 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 		return DESCRIPTOR;
 	}
 
-	private TIntList getPrincipalVariation(final BoardState root, final int depth)
+	private int[] getPrincipalVariation(final BoardState root, final int depth)
 	{
-		final TIntList pv = new TIntArrayList();
-
-		if (bestFirstMoveIndex > -1)
-		{
-			pv.add(bestFirstMoveIndex);
+		final int[] pv = new int[max(0, depth - 1)];
+		int count = 0;
+		if (bestFirstMoveIndex > -1) {
+			pv[count++] = bestFirstMoveIndex;
 			List<ChessMove> mvs = root.getMoves();
 			BoardState state = mvs.get(bestFirstMoveIndex).evolve(root);
 			TableEntry entry;
-			while ((entry = tt.get(state.getHashing())) != null
-					&& entry.getType() == TreeNodeType.PV
-					&& entry.getPositionHash() == state.getHashing()
-					&& pv.size() < depth - 1)
-			{
-				pv.add(entry.getMoveIndex());
+			while ((entry = tt.get(state.getHashing())) != null && entry.getType() == TreeNodeType.PV
+					&& entry.getPositionHash() == state.getHashing() && len(pv) < depth - 1) {
+				pv[count++] = entry.getMoveIndex();
 				mvs = state.getMoves();
 				state = mvs.get(entry.getMoveIndex()).evolve(state);
 			}
@@ -151,35 +142,34 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 		return pv;
 	}
 
-	private ChessMove getBestMoveFrom(final BoardState root, final int depth, final boolean interruptionAllowed) throws InterruptedException
+	private ChessMove getBestMoveFrom(final BoardState root, final int depth, final boolean interruptionAllowed)
+			throws InterruptedException
 	{
 		System.out.println("Starting search of DEPTH: " + depth);
 		// Initialise variables
 		int bestMoveIndex = -1;
 		int alpha = Infinity.IC_ALPHA; // Here alpha is the calculated value of our best move.
-		final TIntList pv = getPrincipalVariation(root, depth);
+		final int[] pv = getPrincipalVariation(root, depth);
 		final List<ChessMove> possibleMoves = root.getMoves();
 
-		if (pv.size() != depth - 1)
-		{
-			System.out.println("Expected pv of length: " + (depth - 1) + " but got " + pv.size());
+		if (len(pv) != depth - 1) {
+			System.out.println("Expected pv of length: " + (depth - 1) + " but got " + len(pv));
 		}
 
 		final int[] indices = IntStream.range(0, possibleMoves.size()).toArray();
 
-		if (depth > 1)
-		{
-			assert pv.size() > 0;
-			changeFirstIndex(indices, pv.get(0));
+		if (depth > 1) {
+			assert len(pv) > 0;
+			changeFirstIndex(indices, pv[0]);
 		}
 
-		for (final int idx : indices)
-		{
+		for (final int idx : indices) {
 			final ChessMove mv = possibleMoves.get(idx);
-			final int bestBlackReply = -negamax(mv.evolve(root), -Infinity.IC_BETA, -alpha, depth - 1, interruptionAllowed);
+			final int bestBlackReply = -negamax(mv.evolve(root), -Infinity.IC_BETA, -alpha, depth - 1,
+					interruptionAllowed);
 
-			if (bestBlackReply > alpha) // We want to maximise the value of best opponent reply
-			{
+			// We want to maximise the value of best opponent reply
+			if (bestBlackReply > alpha) {
 				alpha = bestBlackReply;
 				bestMoveIndex = idx;
 			}
@@ -197,10 +187,10 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 	 * @param depth
 	 * @return
 	 */
-	public int negamax(final BoardState root, int alpha, int beta, final int depth, final boolean interruptionAllowed) throws InterruptedException
+	public int negamax(final BoardState root, int alpha, int beta, final int depth, final boolean interruptionAllowed)
+			throws InterruptedException
 	{
-		if (interruptionAllowed && Thread.currentThread().isInterrupted())
-		{
+		if (interruptionAllowed && Thread.currentThread().isInterrupted()) {
 			throw new InterruptedException();
 		}
 
@@ -210,25 +200,22 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 		final TableEntry ttEntry = tt.get(rootHash);
 		int recommendedMoveIndex = -1;
 
-		if (entryIsValid(rootHash, ttEntry))
-		{
-			if (ttEntry.getDepthSearched() >= depth)
-			{
-				switch (ttEntry.getType())
-				{
-					case PV:
-						return ttEntry.getScore();
-					case CUT:
-						alpha = Math.max(alpha, ttEntry.getScore());
-						break;
-					case ALL:
-						beta = Math.min(beta, ttEntry.getScore());
-						break;
-					default:
-						throw new AssertionError();
+		if (entryIsValid(rootHash, ttEntry)) {
+			if (ttEntry.getDepthSearched() >= depth) {
+				switch (ttEntry.getType()) {
+				case PV:
+					return ttEntry.getScore();
+				case CUT:
+					alpha = Math.max(alpha, ttEntry.getScore());
+					break;
+				case ALL:
+					beta = Math.min(beta, ttEntry.getScore());
+					break;
+				default:
+					throw new AssertionError();
 				}
-				if (alpha >= beta) // If this isn't true then we need more information to get accurate calculation
-				{
+				// If this isn't true then we need more information to get accurate calculation
+				if (alpha >= beta) {
 					return ttEntry.getScore();
 				}
 			}
@@ -237,20 +224,15 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 
 		/* Not sure abou tthis termination bit */
 		final TerminationType tState = root.getTerminationState();
-		if (tState != TerminationType.NOT_TERMINAL)
-		{
+		if (tState != TerminationType.NOT_TERMINAL) {
 			return root.getFriendlySide().orientation() * tState.value;
 		}
 
-		if (depth == 0)
-		{
+		if (depth == 0) {
 			Quiescence.currentDepth = 0;
-			// We quiesce with new window constraints, think this is more stable as I was getting weird buggy cutoffs
-			return quiescence.search(
-					root, 
-					Infinity.IC_ALPHA, 
-					Infinity.IC_BETA, 
-					QUIESCENCE_DEPTH_CAP, 
+			// We quiesce with new window constraints, think this is more stable as I was
+			// getting weird buggy cutoffs
+			return quiescence.search(root, Infinity.IC_ALPHA, Infinity.IC_BETA, QUIESCENCE_DEPTH_CAP,
 					interruptionAllowed);
 		}
 
@@ -262,8 +244,7 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 
 		changeFirstIndex(indices, recommendedMoveIndex);
 
-		for (final int i : indices)
-		{
+		for (final int i : indices) {
 			final ChessMove mv = possibleMoves.get(i);
 			final int bestReply = -negamax(mv.evolve(root), -beta, -alpha, depth - 1, interruptionAllowed);
 
@@ -273,8 +254,7 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 
 			alpha = Math.max(alpha, bestValue);
 
-			if (alpha >= beta)
-			{
+			if (alpha >= beta) {
 				refutationMoveIndex = i;
 				break;
 			}
@@ -284,13 +264,11 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 		if (bestValue <= alphaOrig) // ALL node
 		{
 			potentialNewEntry = TableEntry.generateALL(rootHash, bestValue, depth);
-		}
-		else if (bestValue >= beta) // CUT node
+		} else if (bestValue >= beta) // CUT node
 		{
 			assert refutationMoveIndex != -1;
 			potentialNewEntry = TableEntry.generateCUT(rootHash, bestValue, refutationMoveIndex, depth);
-		}
-		else // PV node
+		} else // PV node
 		{
 			assert bestMoveIndex != -1;
 			potentialNewEntry = TableEntry.generatePV(rootHash, bestValue, bestMoveIndex, depth);
@@ -302,8 +280,7 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 
 	private void changeFirstIndex(final int[] indices, final int recommendedMoveIndex)
 	{
-		if (recommendedMoveIndex > -1)
-		{
+		if (recommendedMoveIndex > -1) {
 			final int tmp = indices[0];
 			indices[0] = indices[recommendedMoveIndex];
 			indices[recommendedMoveIndex] = tmp;
@@ -312,132 +289,46 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 
 	private void processTableReplacement(final TableEntry newEntry, final TableEntry oldEntry)
 	{
-		if (oldEntry == null)
-		{
+		if (oldEntry == null) {
 			tt.set(newEntry);
-		}
-		else if (newEntry.getType() == TreeNodeType.PV && oldEntry.getType() != TreeNodeType.PV)
-		{
+		} else if (newEntry.getType() == TreeNodeType.PV && oldEntry.getType() != TreeNodeType.PV) {
 			// System.out.println("SET PV NODE!");
 			tt.set(newEntry);
-		}
-		else if (newEntry.getType() != TreeNodeType.PV && oldEntry.getType() == TreeNodeType.PV)
-		{
+		} else if (newEntry.getType() != TreeNodeType.PV && oldEntry.getType() == TreeNodeType.PV) {
 			return;
-		}
-		else
-		{
-			//			final boolean replace = newEntry.getDepthSearched() >= oldEntry.getDepthSearched();
-			tt.set(newEntry);//replace ? newEntry : oldEntry);
+		} else {
+			tt.set(newEntry);
 		}
 	}
-
-	// /**
-	// * Assumes the {@link TableEntry} is valid.
-	// *
-	// * @param moveIndexList
-	// * @param ttEntry
-	// */
-	// private void orderMoves(final TIntList moveIndexList, final TableEntry ttEntry)
-	// {
-	// final int moveIndex = ttEntry.getMoveIndex();
-	// throw new RuntimeException("not yet impl");
-	// // if (moveIndex > -1)
-	// // {
-	// // changeFirstIndex(moveIndexList, moveIndex);
-	// // }
-	// }
 
 	private boolean entryIsValid(final long nodeHash, final TableEntry entry)
 	{
 		return entry != null && entry.getPositionHash() == nodeHash;
 	}
 
-	// /**
-	// * So now for both sides alpha is the minimum score we are guaranteed to be able
-	// * to get and beta is the best score
-	// *
-	// * @param root
-	// * @param alpha
-	// * @param beta
-	// * @param depth
-	// * @return
-	// */
-	// public int nAlphaBeta(final BoardState root, int alpha, final int beta, final int depth)
-	// {
-	// if (depth == 0)
-	// {
-	// return eval.evaluate(root);
-	// }
-	//
-	// for (final ChessMove mv : root.getPossibleMovesCopy())
-	// {
-	// /* Let root.sideToMove = S. Then bestReply is the best score !S can achieve from
-	// * the perspective of S, so the higher the score the better it is for S. */
-	// final int bestReply = -nAlphaBeta(mv.evolve(root), -beta, -alpha, depth - 1);
-	//
-	// if (bestReply >= beta)
-	// {
-	// return beta;
-	// }
-	// if (bestReply > alpha)
-	// {
-	// alpha = bestReply;
-	// }
-	// }
-	// return alpha;
-	// }
-
-//	private TIntList generateIndexList(final int length)
-//	{
-//		final TIntList indexList = new TIntArrayList();
-//		for (int i = 0; i < length; i++)
-//		{
-//			indexList.add(i);
-//		}
-//		return indexList;
-//	}
-//
-//	/**
-//	 * This method ONLY works once on a List
-//	 *
-//	 * @param indexList
-//	 * @param toGoFirst
-//	 */
-//	private <T> void changeFirstIndex(final List<T> x, final int toGoFirst)
-//	{
-//		if (toGoFirst > -1)
-//		{
-//			x.add(0, x.remove(toGoFirst));
-//		}
-//	}
-
 	static volatile ChessMove m;
 
 	public static void main(final String[] args) throws IOException, AmbiguousPgnException
 	{
 		// final BoardState state = BoardStateImplV2.getStartBoard();
-		final BoardEvaluator eval = new BoardEvaluator(Arrays.asList(new KingSafetyV1(), new MobilityV1(), new PawnStructureV1()));
+		final BoardEvaluator eval = new BoardEvaluator(
+				Arrays.asList(new KingSafetyV1(), new MobilityV1(), new PawnStructureV1()));
 		final TTAlphaBetaV1_2 c = new TTAlphaBetaV1_2(eval);
 		// final NegaAlphaBeta d = new NegaAlphaBeta(eval);
 
 		final List<BigInteger> times = new ArrayList<>();
 		// System.out.println(d.getBestMoveFrom(state, 6));
-		final BufferedReader br = Files.newBufferedReader(
-				Paths.get("positionproviders", "carlsenprovider.txt"));
+		final BufferedReader br = Files.newBufferedReader(Paths.get("positionproviders", "carlsenprovider.txt"));
 		br.readLine();
-		for (int i = 0; i < 20; i++)
-		{
-			if (i == 0)
-			{
+		for (int i = 0; i < 20; i++) {
+			if (i == 0) {
 				br.readLine();
 			}
 			System.out.println("Next");
 			c.tt.clear();
 			final AlgebraicCommand[] gComs = ChessGameReader.processSequenceOfCommands(br.readLine().trim());
 			BoardState state = BoardStateImplV2.getStartBoard();
-			for (int j = 0; j < Math.min(20, gComs.length); j++)
-			{
+			for (int j = 0; j < Math.min(20, gComs.length); j++) {
 				state = state.generateMove(gComs[j]).evolve(state);
 			}
 			assert state.getTerminationState() == TerminationType.NOT_TERMINAL;
