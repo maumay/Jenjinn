@@ -3,13 +3,6 @@
  */
 package jenjinn.engine.boardstate;
 
-import gnu.trove.impl.unmodifiable.TUnmodifiableByteByteMap;
-import gnu.trove.impl.unmodifiable.TUnmodifiableByteList;
-import gnu.trove.list.TByteList;
-import gnu.trove.list.array.TByteArrayList;
-import gnu.trove.map.TByteByteMap;
-import gnu.trove.map.hash.TByteByteHashMap;
-
 /**
  * @author t
  *
@@ -33,30 +26,25 @@ public final class CastlingRights
 	/**
 	 * A List of the different values, it is unmodifiable.
 	 */
-	public static final TByteList VALUES = new TUnmodifiableByteList(getValues());
+	public static final byte[] VALUES = new byte[] { W_KINGSIDE, W_QUEENSIDE, B_KINGSIDE, B_QUEENSIDE };
 
 	/**
 	 * A convenience map for when we want to update the castle rights feature of the
 	 * board hashing for standard moves. It allows us to quickly map corresponding
 	 * start and target squares to the rights they would lose.
 	 */
-	public static final TByteByteMap STANDARD_MOVE_ERASURES = new TUnmodifiableByteByteMap(getStandardMoveErasures());
+	public static final byte[] STANDARD_MOVE_ERASURES = getStandardMoveErasures();
 
-	private static final TByteArrayList getValues()
+	private static byte[] getStandardMoveErasures()
 	{
-		return new TByteArrayList(new byte[] { W_KINGSIDE, W_QUEENSIDE, B_KINGSIDE, B_QUEENSIDE });
-	}
+		final byte[] erasures = new byte[64];
 
-	private static TByteByteMap getStandardMoveErasures()
-	{
-		final TByteByteMap erasures = new TByteByteHashMap();
-
-		erasures.put((byte) 0, W_KINGSIDE);
-		erasures.put((byte) 3, (byte) (W_KINGSIDE | W_QUEENSIDE));
-		erasures.put((byte) 7, W_QUEENSIDE);
-		erasures.put((byte) 56, B_KINGSIDE);
-		erasures.put((byte) 59, (byte) (B_KINGSIDE | B_QUEENSIDE));
-		erasures.put((byte) 63, B_QUEENSIDE);
+		erasures[0] = W_KINGSIDE;
+		erasures[3] = W_KINGSIDE | W_QUEENSIDE;
+		erasures[7] = W_QUEENSIDE;
+		erasures[56] = B_KINGSIDE;
+		erasures[59] = B_KINGSIDE | B_QUEENSIDE;
+		erasures[63] = B_QUEENSIDE;
 
 		return erasures;
 	}
