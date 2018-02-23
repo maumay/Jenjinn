@@ -4,10 +4,8 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.scene.effect.GaussianBlur;
-import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import jenjinn.engine.enums.Side;
 import jenjinn.ui.chessboard.ChessBoard;
@@ -19,10 +17,10 @@ import jenjinn.ui.chessboard.ResizableCanvas;
  */
 public class StartScreen extends Region
 {
-	private static final Image WHITE_BTN = new Image(StartScreen.class.getResourceAsStream("/WQ64.png"));
-	private static final Image BLACK_BTN = new Image(StartScreen.class.getResourceAsStream("/BQ64.png"));
-	private static final Color BTN_OUTLINE = null;
-	private static final String PICK_COLOR = "Pick your color";
+//	private static final Image WHITE_BTN = new Image(StartScreen.class.getResourceAsStream("/WQ64.png"));
+//	private static final Image BLACK_BTN = new Image(StartScreen.class.getResourceAsStream("/BQ64.png"));
+//	private static final Color BTN_OUTLINE = null;
+//	private static final String PICK_COLOR = "Pick your color";
 
 	private BooleanProperty startTrigger = new SimpleBooleanProperty();
 
