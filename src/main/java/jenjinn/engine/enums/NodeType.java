@@ -7,7 +7,6 @@ package jenjinn.engine.enums;
  * @author t
  *
  */
-public enum NodeType 
-{
+public enum NodeType {
 	PV, ALL, CUT;
 }

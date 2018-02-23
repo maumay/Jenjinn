@@ -1,9 +1,3 @@
-/**
- * Copyright © 2017 Lhasa Limited
- * File created: 19 Sep 2017 by ThomasB
- * Creator : ThomasB
- * Version : $Id$
- */
 package jenjinn.testingengine.pieces;
 
 import java.util.Arrays;
@@ -26,8 +20,8 @@ public class TRook extends TChessPiece
 	 */
 	public TRook(final Side side)
 	{
-		super(PieceType.R, side, Arrays.stream(Direction.values())
-				.filter(x -> x.name().length() == 1).collect(Collectors.toList()));
+		super(PieceType.R, side, Arrays.stream(Direction.values()).filter(x -> x.name().length() == 1).collect(
+				Collectors.toList()));
 		assert movementDirections.size() == 4;
 	}
 
@@ -37,13 +31,3 @@ public class TRook extends TChessPiece
 		return 0b10000001L << 56 * (getSide().isWhite() ? 0 : 1);
 	}
 }
-/* ---------------------------------------------------------------------*
- * This software is the confidential and proprietary
- * information of Lhasa Limited
- * Granary Wharf House, 2 Canal Wharf, Leeds, LS11 5PS
- * ---
- * No part of this confidential information shall be disclosed
- * and it shall be used only in accordance with the terms of a
- * written license agreement entered into by holder of the information
- * with LHASA Ltd.
- * --------------------------------------------------------------------- */

@@ -15,7 +15,7 @@ import java.util.List;
 
 import javafx.application.Platform;
 import jenjinn.engine.boardstate.BoardState;
-import jenjinn.engine.boardstate.BoardStateImplV2;
+import jenjinn.engine.boardstate.BoardStateImpl;
 import jenjinn.engine.entity.Jenjinn;
 import jenjinn.engine.enums.Side;
 import jenjinn.engine.enums.Sq;
@@ -36,9 +36,7 @@ public class JenjinnHumanGameModel implements ChessGameModel
 	private static final double MIN_MOVE_TIME = 0.5;
 	private static final double MAX_MOVE_TIME = 10;
 
-
 	private static final String REPORT_FOLDER = "matchreports/";
-
 
 	private ChessGameController gameController;
 
@@ -56,15 +54,14 @@ public class JenjinnHumanGameModel implements ChessGameModel
 	public static JenjinnHumanGameModel createNewModel(final Side humanSide, final ChessGameController controller)
 	{
 		final JenjinnHumanGameModel newModel = new JenjinnHumanGameModel();
-		newModel.gameStates = new ArrayList<>(Arrays.asList(BoardStateImplV2.getStartBoard()));
+		newModel.gameStates = new ArrayList<>(Arrays.asList(BoardStateImpl.getStartBoard()));
 		newModel.movesPlayed = new ArrayList<>();
 		newModel.userSelection = new StoredUserSelection();
 		newModel.jenjinn = new Jenjinn(humanSide.otherSide(), BoardEvaluator.getDefault());
 		newModel.gameController = controller;
 		controller.setModel(newModel);
 
-		if (humanSide == Side.B)
-		{
+		if (humanSide == Side.B) {
 			newModel.performAiMove();
 		}
 
@@ -79,13 +76,11 @@ public class JenjinnHumanGameModel implements ChessGameModel
 		userSelection.reset();
 		fireDisplayUpdate();
 
-		if (getPresentGameState().getTerminationState().isTerminal())
-		{
+		if (getPresentGameState().getTerminationState().isTerminal()) {
 			disableUserInteraction();
 			triggerEndOfGame();
 		}
-		else
-		{
+		else {
 			performAiMove();
 		}
 	}
@@ -93,12 +88,10 @@ public class JenjinnHumanGameModel implements ChessGameModel
 	@Override
 	public void processUserClick(final Sq userClick)
 	{
-		if (!userSelection.selectionIsSet())
-		{
+		if (!userSelection.selectionIsSet()) {
 			processFirstClick(userClick);
 		}
-		else
-		{
+		else {
 			processSecondClick(userClick);
 		}
 	}
@@ -109,13 +102,11 @@ public class JenjinnHumanGameModel implements ChessGameModel
 		final ChessMove chosenMove = getIndicatedMove(userClick);
 		final boolean moveIsValid = chosenMove != null;
 
-		if (moveIsValid)
-		{
+		if (moveIsValid) {
 			gameController.clearMovementMarkers();
 			processMove(chosenMove);
 		}
-		else
-		{
+		else {
 			gameController.clearMovementMarkers();
 			userSelection.reset();
 			processFirstClick(userClick);
@@ -128,13 +119,10 @@ public class JenjinnHumanGameModel implements ChessGameModel
 		ChessMove indicatedMove = null;
 		final Sq firstClick = userSelection.getStoredSquare();
 
+		final List<ChessMove> possibleMoves = getLegalMoves();// getPresentGameState().getMoves();
 
-		final List<ChessMove> possibleMoves = getLegalMoves();//getPresentGameState().getMoves();
-
-		for (final ChessMove possibleMove : possibleMoves)
-		{
-			if (possibleMove.matches(firstClick, secondClick))
-			{
+		for (final ChessMove possibleMove : possibleMoves) {
+			if (possibleMove.matches(firstClick, secondClick)) {
 				indicatedMove = possibleMove;
 				break;
 			}
@@ -147,13 +135,11 @@ public class JenjinnHumanGameModel implements ChessGameModel
 		final BoardState present = getPresentGameState();
 		final List<ChessMove> moves = present.getMoves();
 
-		for (int i = moves.size() - 1; i >= 0; i--)
-		{
+		for (int i = moves.size() - 1; i >= 0; i--) {
 			final BoardState nextState = moves.get(i).evolve(present);
 			final TerminationType termStatus = nextState.getTerminationState();
 
-			if (termStatus.isWin())
-			{
+			if (termStatus.isWin()) {
 				moves.remove(i);
 			}
 		}
@@ -163,8 +149,7 @@ public class JenjinnHumanGameModel implements ChessGameModel
 
 	private void processFirstClick(final Sq userClick)
 	{
-		if (isValidFirstClick(userClick))
-		{
+		if (isValidFirstClick(userClick)) {
 			userSelection.setStoredSquare(userClick);
 			fireBoardMovementMarkerUpdateAlert((byte) userClick.ordinal());
 		}
@@ -178,16 +163,12 @@ public class JenjinnHumanGameModel implements ChessGameModel
 		final List<Sq> moveSquares = new ArrayList<>();
 		final List<Sq> attackSquares = new ArrayList<>();
 
-		for (final ChessMove mv : presentState.getMoves())
-		{
-			if (mv.matchesStart(Sq.get(loc)))
-			{
-				if (presentState.getPieceAt(mv.getTarget(), enemy) != null)
-				{
+		for (final ChessMove mv : presentState.getMoves()) {
+			if (mv.matchesStart(Sq.get(loc))) {
+				if (presentState.getPieceAt(mv.getTarget(), enemy) != null) {
 					attackSquares.add(Sq.get(mv.getTarget()));
 				}
-				else
-				{
+				else {
 					moveSquares.add(Sq.get(mv.getTarget()));
 				}
 			}
@@ -196,8 +177,8 @@ public class JenjinnHumanGameModel implements ChessGameModel
 	}
 
 	/**
-	 * Checks whether a given square on a chessboard is valid to initiate the possible generation
-	 * of a legal move for the present state in this game model.
+	 * Checks whether a given square on a chessboard is valid to initiate the
+	 * possible generation of a legal move for the present state in this game model.
 	 */
 	private boolean isValidFirstClick(final Sq firstClick)
 	{
@@ -219,16 +200,14 @@ public class JenjinnHumanGameModel implements ChessGameModel
 
 	public void performAiMove()
 	{
-		/* Can interrupt in this method maybe? So the thread we got now,
-		 * another timer thread which upon finishing interrupts this other
-		 * thread which should now terminate because of work done in
-		 * TTAlphaBeta class. */
+		/*
+		 * Can interrupt in this method maybe? So the thread we got now, another timer
+		 * thread which upon finishing interrupts this other thread which should now
+		 * terminate because of work done in TTAlphaBeta class.
+		 */
 
-
-		final Thread jenjinnJob = new Thread(() ->
-		{
-			synchronized (gameStates)
-			{
+		final Thread jenjinnJob = new Thread(() -> {
+			synchronized (gameStates) {
 				final BoardState presentState = getPresentGameState();
 				final ChessMove jenjinnMove = jenjinn.calculateBestMove(presentState);
 				gameStates.add(jenjinnMove.evolve(presentState));
@@ -237,16 +216,13 @@ public class JenjinnHumanGameModel implements ChessGameModel
 				final boolean terminal = getPresentGameState().getTerminationState().isTerminal();
 
 				// Tell the FX thread to do the updates.
-				Platform.runLater(() ->
-				{
+				Platform.runLater(() -> {
 					fireDisplayUpdate();
 
-					if (!terminal)
-					{
+					if (!terminal) {
 						enableUserInteraction();
 					}
-					else
-					{
+					else {
 						triggerEndOfGame();
 					}
 				});
@@ -255,21 +231,18 @@ public class JenjinnHumanGameModel implements ChessGameModel
 
 		jenjinnJob.start();
 
-		final Thread timer = new Thread(() ->
-		{
-			try
-			{
+		final Thread timer = new Thread(() -> {
+			try {
 				final long t = System.nanoTime();
 				Thread.sleep((long) moveTime * 1000);
 
-				if (jenjinnJob.isAlive())
-				{
+				if (jenjinnJob.isAlive()) {
 					System.out.println("Interrupted after: " + toSeconds(System.nanoTime() - t) + " s");
 					jenjinnJob.interrupt();
 				}
 
-			} catch (final InterruptedException e)
-			{
+			}
+			catch (final InterruptedException e) {
 				throw new AssertionError();
 			}
 		});
@@ -311,12 +284,10 @@ public class JenjinnHumanGameModel implements ChessGameModel
 	{
 		final LocalDateTime date = LocalDateTime.now();
 		final Path filePath = Paths.get(REPORT_FOLDER + date.format(DateTimeFormatter.ISO_DATE_TIME));
-		try
-		{
+		try {
 			EngineUtils.writeMoves(movesPlayed, filePath);
 		}
-		catch (final IOException ioe)
-		{
+		catch (final IOException ioe) {
 			ioe.printStackTrace();
 		}
 	}
@@ -329,7 +300,7 @@ public class JenjinnHumanGameModel implements ChessGameModel
 	@Override
 	public void setMoveTimeLimit(final double scaleFactor)
 	{
-		final double scaled = MIN_MOVE_TIME + scaleFactor*(MAX_MOVE_TIME - MIN_MOVE_TIME);
+		final double scaled = MIN_MOVE_TIME + scaleFactor * (MAX_MOVE_TIME - MIN_MOVE_TIME);
 		this.moveTime = scaled < MIN_MOVE_TIME ? MIN_MOVE_TIME : (scaled > MAX_MOVE_TIME ? MAX_MOVE_TIME : scaled);
 	}
 

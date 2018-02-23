@@ -10,8 +10,7 @@ import jenjinn.engine.enums.Side;
  * @author t
  *
  */
-public enum CastleArea
-{
+public enum CastleArea {
 	W_K(CastlingRights.W_KINGSIDE, 0), W_Q(CastlingRights.W_QUEENSIDE, 1), B_K(CastlingRights.B_KINGSIDE, 2), B_Q(CastlingRights.B_QUEENSIDE, 3);
 
 	public final byte byteRep;

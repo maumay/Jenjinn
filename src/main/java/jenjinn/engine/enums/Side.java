@@ -1,19 +1,12 @@
-/**
- * Written by Tom Ball 2017.
- *
- * This code is unlicensed but please don't plagiarize.
- */
-
 package jenjinn.engine.enums;
 
 /**
+ * Enumeration of the two sides in a chessgame.
+ * 
  * @author TB
  * @date 1 Dec 2016
- *
- *       Enumeration of the two sides in a chessgame.
  */
-public enum Side
-{
+public enum Side {
 	W(0, 1), B(6, -1);
 
 	private final byte index;
@@ -32,24 +25,20 @@ public enum Side
 
 	public Side otherSide()
 	{
-		if (this == B)
-		{
+		if (this == B) {
 			return W;
 		}
-		else
-		{
+		else {
 			return B;
 		}
 	}
 
 	public static Side getOtherSide(final Side s)
 	{
-		if (s == B)
-		{
+		if (s == B) {
 			return W;
 		}
-		else
-		{
+		else {
 			return B;
 		}
 	}
@@ -66,12 +55,10 @@ public enum Side
 
 	public boolean isMaximising()
 	{
-		if (this == W)
-		{
+		if (this == W) {
 			return true;
 		}
-		else
-		{
+		else {
 			return false;
 		}
 	}

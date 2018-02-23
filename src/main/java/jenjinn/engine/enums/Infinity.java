@@ -1,9 +1,3 @@
-/**
- * Copyright © 2017 Lhasa Limited
- * File created: 13 Jul 2017 by ThomasB
- * Creator : ThomasB
- * Version : $Id$
- */
 package jenjinn.engine.enums;
 
 /**
@@ -20,7 +14,7 @@ public final class Infinity
 
 	public static final short SHORT_INFINITY = Short.MAX_VALUE - 1;
 
-	public static final int IC_ALPHA = -INT_INFINITY/2, IC_BETA = INT_INFINITY/2;
+	public static final int IC_ALPHA = -INT_INFINITY / 2, IC_BETA = INT_INFINITY / 2;
 
 	private Infinity()
 	{
@@ -33,14 +27,3 @@ public final class Infinity
 		System.out.println(SHORT_INFINITY + " " + -SHORT_INFINITY);
 	}
 }
-
-/* ---------------------------------------------------------------------*
- * This software is the confidential and proprietary
- * information of Lhasa Limited
- * Granary Wharf House, 2 Canal Wharf, Leeds, LS11 5PS
- * ---
- * No part of this confidential information shall be disclosed
- * and it shall be used only in accordance with the terms of a
- * written license agreement entered into by holder of the information
- * with LHASA Ltd.
- * --------------------------------------------------------------------- */

@@ -122,15 +122,15 @@ public class MobilityAndKingSafetyV2 implements EvaluatingComponent
 	{
 		wPawnAtt = multipleOr(getPawnAttacksFromLocs(state.getPieceLocations(0), Side.W));
 		bPawnAtt = multipleOr(getPawnAttacksFromLocs(state.getPieceLocations(6), Side.B));
-		
+
 		wLocs = state.getSideLocations(Side.W);
 		bLocs = state.getSideLocations(Side.B);
 		final long occ = wLocs | bLocs;
 
 		atts = new ArrayList<>(8);
 		rQlocs = new ArrayList<>(4);
-		
-		for (byte i : new byte[]{1, 2, 3, 4, 7, 8, 9, 10}) {
+
+		for (byte i : new byte[] { 1, 2, 3, 4, 7, 8, 9, 10 }) {
 			final ChessPiece p = ChessPiece.get(i);
 			byte[] locs = getSetBits(state.getPieceLocations(i));
 			long[] patts = new long[locs.length];
@@ -169,13 +169,14 @@ public class MobilityAndKingSafetyV2 implements EvaluatingComponent
 			final long pawns = state.getPieceLocations(side.index());
 
 			midEval += orientation * Long.bitCount(outerShieldArea & pawns) * MID_PAWN_SHIELD_BONUS;
-			midEval += orientation * Long.bitCount(immediateShieldArea & pawns)
-					* (MID_PAWN_SHIELD_BONUS + MID_DIRECT_SHIELD_BONUS);
+			midEval += orientation * Long.bitCount(
+					immediateShieldArea & pawns) * (MID_PAWN_SHIELD_BONUS + MID_DIRECT_SHIELD_BONUS);
 
 			endEval += orientation * Long.bitCount(outerShieldArea & pawns) * END_PAWN_SHIELD_BONUS;
-			endEval += orientation * Long.bitCount(immediateShieldArea & pawns)
-					* (END_PAWN_SHIELD_BONUS + END_DIRECT_SHIELD_BONUS);
-		} else {
+			endEval += orientation * Long.bitCount(
+					immediateShieldArea & pawns) * (END_PAWN_SHIELD_BONUS + END_DIRECT_SHIELD_BONUS);
+		}
+		else {
 			midEval += 3 * orientation * MID_OPEN_FILE_PENALTY;
 			endEval += 3 * orientation * END_OPEN_FILE_PENALTY;
 		}
@@ -266,5 +267,4 @@ public class MobilityAndKingSafetyV2 implements EvaluatingComponent
 			endEval -= moveNum * END_MOBILITY_SCORES.getBishop();
 		}
 	}
-
 }

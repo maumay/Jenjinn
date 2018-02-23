@@ -1,16 +1,10 @@
-/**
- * Copyright � 2017 Lhasa Limited
- * File created: 20 Jul 2017 by ThomasB
- * Creator : ThomasB
- * Version : $Id$
- */
 package jenjinn.engine.moves;
 
 import static jenjinn.engine.boardstate.BoardState.END_TABLE;
 import static jenjinn.engine.boardstate.BoardState.MID_TABLE;
 
 import jenjinn.engine.boardstate.BoardState;
-import jenjinn.engine.boardstate.BoardStateImplV2;
+import jenjinn.engine.boardstate.BoardStateImpl;
 import jenjinn.engine.enums.MoveType;
 import jenjinn.engine.enums.Side;
 import jenjinn.engine.enums.Sq;
@@ -21,7 +15,7 @@ import jenjinn.engine.pieces.Pawn;
  * @author ThomasB
  * @since 20 Jul 2017
  */
-public class EnPassantMove extends AbstractChessMoveImplV2
+public class EnPassantMove extends AbstractChessMove
 {
 	/**
 	 * EnPassant moves are so rare that I don't think we really need to cache them.
@@ -87,7 +81,7 @@ public class EnPassantMove extends AbstractChessMoveImplV2
 		endPosEval -= END_TABLE.getPieceSquareValue((friendlySide.otherSide().index()), getEnPassantSquare());
 		// ---------------------------------------------------------------
 
-		return new BoardStateImplV2(
+		return new BoardStateImpl(
 				state.getNewRecentHashings(newHash),
 				1 - state.getFriendlySideValue(),
 				state.getCastleRights(),
@@ -107,14 +101,3 @@ public class EnPassantMove extends AbstractChessMoveImplV2
 		return "E" + "[" + Sq.get(getStart()).name() + ", " + Sq.get(getTarget()).name() + "]";
 	}
 }
-
-/* ---------------------------------------------------------------------*
- * This software is the confidential and proprietary
- * information of Lhasa Limited
- * Granary Wharf House, 2 Canal Wharf, Leeds, LS11 5PS
- * ---
- * No part of this confidential information shall be disclosed
- * and it shall be used only in accordance with the terms of a
- * written license agreement entered into by holder of the information
- * with LHASA Ltd.
- * --------------------------------------------------------------------- */

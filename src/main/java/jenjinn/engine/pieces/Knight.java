@@ -1,9 +1,3 @@
-/**
- * Written by Tom Ball 2017.
- *
- * This code is unlicensed but please don't plagiarize.
- */
-
 package jenjinn.engine.pieces;
 
 import jenjinn.engine.bitboarddatabase.BBDB;
@@ -22,9 +16,6 @@ public class Knight extends ChessPiece
 		super(PieceType.N, side);
 	}
 
-	/* (non-Javadoc)
-	 *
-	 * @see jenjinn.engine.pieces.ChessPiece#getAttackset(byte, long, long) */
 	@Override
 	public long getAttackset(final byte loc, final long occupiedSquares)
 	{

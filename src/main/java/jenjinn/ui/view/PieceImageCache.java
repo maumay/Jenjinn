@@ -23,23 +23,18 @@ public final class PieceImageCache
 	public PieceImageCache(final int... sizes)
 	{
 		cache = new HashMap<>();
-		for (final int size : sizes)
-		{
-			try
-			{
-				for (final ChessPiece wp : ChessPiece.WPIECES)
-				{
+		for (final int size : sizes) {
+			try {
+				for (final ChessPiece wp : ChessPiece.WPIECES) {
 					final String key = wp.getImageString(size);
 					cache.put(key, new Image(getClass().getResourceAsStream(FOLDER_PATH + key + IMAGE_FILE_EXTENSION)));
 				}
-				for (final ChessPiece bp : ChessPiece.BPIECES)
-				{
+				for (final ChessPiece bp : ChessPiece.BPIECES) {
 					final String key = bp.getImageString(size);
 					cache.put(key, new Image(getClass().getResourceAsStream(FOLDER_PATH + key + IMAGE_FILE_EXTENSION)));
 				}
 			}
-			catch (final Exception e)
-			{
+			catch (final Exception e) {
 				System.err.println("Problem with creating images of size: " + size);
 				e.printStackTrace();
 			}

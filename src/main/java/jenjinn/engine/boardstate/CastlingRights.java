@@ -48,17 +48,4 @@ public final class CastlingRights
 
 		return erasures;
 	}
-
-	// public static final byte representationOf(final CastlingArea area)
-	// {
-	// return VALUES.get(area.ordinal());
-	// }
-
-	/**
-	 * @param args
-	 */
-	public static void main(final String[] args)
-	{
-		System.out.println(Integer.toBinaryString(W_KINGSIDE | W_QUEENSIDE | B_KINGSIDE | B_QUEENSIDE));
-	}
 }

@@ -1,9 +1,3 @@
-/**
- * Copyright � 2017 Lhasa Limited
- * File created: 20 Sep 2017 by ThomasB
- * Creator : ThomasB
- * Version : $Id$
- */
 package jenjinn.testingengine.moves;
 
 import jenjinn.engine.boardstate.BoardState;
@@ -30,42 +24,46 @@ public class TCastleMove extends TAbstractChessMove
 
 	public static TCastleMove get(final String name)
 	{
-		switch (name)
-		{
-			case "WHITE_KINGSIDE":
-				return WHITE_KINGSIDE;
-			case "WHITE_QUEENSIDE":
-				return WHITE_QUEENSIDE;
-			case "BLACK_KINGSIDE":
-				return BLACK_KINGSIDE;
-			case "BLACK_QUEENSIDE":
-				return BLACK_QUEENSIDE;
-			default:
-				throw new IllegalArgumentException();
+		switch (name) {
+		case "WHITE_KINGSIDE":
+			return WHITE_KINGSIDE;
+		case "WHITE_QUEENSIDE":
+			return WHITE_QUEENSIDE;
+		case "BLACK_KINGSIDE":
+			return BLACK_KINGSIDE;
+		case "BLACK_QUEENSIDE":
+			return BLACK_QUEENSIDE;
+		default:
+			throw new IllegalArgumentException();
 		}
 	}
 
 	public static TCastleMove get(final CastleArea area)
 	{
-		switch (area)
-		{
-			case W_K:
-				return WHITE_KINGSIDE;
-			case W_Q:
-				return WHITE_QUEENSIDE;
-			case B_K:
-				return BLACK_KINGSIDE;
-			case B_Q:
-				return BLACK_QUEENSIDE;
-			default:
-				throw new RuntimeException("Not yet impl");
+		switch (area) {
+		case W_K:
+			return WHITE_KINGSIDE;
+		case W_Q:
+			return WHITE_QUEENSIDE;
+		case B_K:
+			return BLACK_KINGSIDE;
+		case B_Q:
+			return BLACK_QUEENSIDE;
+		default:
+			throw new RuntimeException("Not yet impl");
 		}
 	}
 
-	/** The bit indices representing the 'from' and 'to' squares for the king in this castle move. */
+	/**
+	 * The bit indices representing the 'from' and 'to' squares for the king in this
+	 * castle move.
+	 */
 	private final byte kingRemovalSquare, kingAdditionSquare;
 
-	/** The bit indices representing the 'from' and 'to' squares for the rook in this castle move. */
+	/**
+	 * The bit indices representing the 'from' and 'to' squares for the rook in this
+	 * castle move.
+	 */
 	private final byte rookRemovalSquare, rookAdditionSquare;
 
 	/**
@@ -144,13 +142,3 @@ public class TCastleMove extends TAbstractChessMove
 		return getMoveSide().name() + "_" + (isKingside() ? "KINGSIDE" : "QUEENSIDE");
 	}
 }
-/* ---------------------------------------------------------------------*
- * This software is the confidential and proprietary
- * information of Lhasa Limited
- * Granary Wharf House, 2 Canal Wharf, Leeds, LS11 5PS
- * ---
- * No part of this confidential information shall be disclosed
- * and it shall be used only in accordance with the terms of a
- * written license agreement entered into by holder of the information
- * with LHASA Ltd.
- * --------------------------------------------------------------------- */

@@ -1,19 +1,13 @@
-/**
- * Written by Tom Ball 2017.
- *
- * This code is unlicensed but please don't plagiarize.
- */
-
 package jenjinn.engine.pieces;
 
 import jenjinn.engine.bitboarddatabase.BBDB;
 import jenjinn.engine.enums.Side;
 
 /**
+ * A class representing a Bishop, to be used by the engine
+ * 
  * @author TB
  * @date 24 Jan 2017
- *
- *       A class representing a Bishop, to be used by the engine
  */
 public class Bishop extends ChessPiece
 {
@@ -22,9 +16,6 @@ public class Bishop extends ChessPiece
 		super(PieceType.B, side);
 	}
 
-	/* (non-Javadoc)
-	 *
-	 * @see jenjinn.engine.pieces.ChessPiece#getAttackset(byte, long, long) */
 	@Override
 	public long getAttackset(final byte loc, final long occupiedSquares)
 	{

@@ -1,9 +1,3 @@
-/**
- * Copyright © 2017 Lhasa Limited
- * File created: 20 Nov 2017 by ThomasB
- * Creator : ThomasB
- * Version : $Id$
- */
 package jenjinn.ui.view;
 
 import javafx.scene.canvas.GraphicsContext;
@@ -30,11 +24,11 @@ public final class StandardisedBacking
 
 	public static final Rectangle getShadowedBackground(final double w, final double h)
 	{
-		final Color c = Color.web("#0d2c5e");//#7a7a7a
+		final Color c = Color.web("#0d2c5e");// #7a7a7a
 		final Rectangle back = new Rectangle(w, h, c);
 		final InnerShadow shadeEffect = new InnerShadow();
-		shadeEffect.setWidth(w/2);
-		shadeEffect.setHeight(h/2);
+		shadeEffect.setWidth(w / 2);
+		shadeEffect.setHeight(h / 2);
 		shadeEffect.setInput(BACK_ADJUST);
 		back.setEffect(shadeEffect);
 		return back;
@@ -54,20 +48,9 @@ public final class StandardisedBacking
 	{
 		final double w = gc.getCanvas().getWidth(), h = gc.getCanvas().getHeight();
 		final InnerShadow shadeEffect = new InnerShadow();
-		shadeEffect.setWidth(w/2);
-		shadeEffect.setHeight(h/2);
+		shadeEffect.setWidth(w / 2);
+		shadeEffect.setHeight(h / 2);
 		shadeEffect.setInput(BACK_ADJUST);
 		gc.setEffect(shadeEffect);
 	}
 }
-
-/* ---------------------------------------------------------------------*
- * This software is the confidential and proprietary
- * information of Lhasa Limited
- * Granary Wharf House, 2 Canal Wharf, Leeds, LS11 5PS
- * ---
- * No part of this confidential information shall be disclosed
- * and it shall be used only in accordance with the terms of a
- * written license agreement entered into by holder of the information
- * with LHASA Ltd.
- * --------------------------------------------------------------------- */

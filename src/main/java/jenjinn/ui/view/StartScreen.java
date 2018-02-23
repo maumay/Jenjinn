@@ -1,9 +1,3 @@
-/**
- * Copyright © 2017 Lhasa Limited
- * File created: 28 Nov 2017 by ThomasB
- * Creator : ThomasB
- * Version : $Id$
- */
 package jenjinn.ui.view;
 
 import javafx.beans.property.BooleanProperty;
@@ -35,7 +29,7 @@ public class StartScreen extends Region
 	private JenjinnLogo logo = new JenjinnLogo();
 	private Rectangle back = new Rectangle();
 	private ChessBoard board = new ChessBoard(BoardColors.BLUE_THEME);
-	//	private Text txt_pickColor = new Text(PICK_COLOR);
+	// private Text txt_pickColor = new Text(PICK_COLOR);
 	private ResizableCanvas btn_white = new ResizableCanvas(), btn_black = new ResizableCanvas();
 
 	private Side chosenSide;
@@ -50,7 +44,7 @@ public class StartScreen extends Region
 
 	private void mClickedHandler(final MouseEvent evt)
 	{
-		chosenSide = logo.getSelected() == null? Side.W : logo.getSelected();
+		chosenSide = logo.getSelected() == null ? Side.W : logo.getSelected();
 		startTrigger.set(!startTrigger.get());
 	}
 
@@ -63,7 +57,7 @@ public class StartScreen extends Region
 	private void mMovedHandler(final MouseEvent evt)
 	{
 		final double evtX = evt.getX();
-		logo.setSelected(evtX < logo.getWidth()/2? Side.B : Side.W);
+		logo.setSelected(evtX < logo.getWidth() / 2 ? Side.B : Side.W);
 		logo.redraw();
 	}
 
@@ -71,11 +65,11 @@ public class StartScreen extends Region
 	protected void layoutChildren()
 	{
 		final double w = getWidth(), h = getHeight();
-		logo.relocate((w - logo.getPrefWidth())/2, (h - logo.getPrefHeight())/2);
-		board.relocate((w - board.getWidth())/2, (h - board.getHeight())/2);
+		logo.relocate((w - logo.getPrefWidth()) / 2, (h - logo.getPrefHeight()) / 2);
+		board.relocate((w - board.getWidth()) / 2, (h - board.getHeight()) / 2);
 
-		btn_white.relocate((w/2 - btn_white.getWidth())/2, h/3 + (h/3 - btn_white.getHeight())/2);
-		btn_black.relocate((3*w/2 - btn_white.getWidth())/2, h/3 + (h/3 - btn_white.getHeight())/2);
+		btn_white.relocate((w / 2 - btn_white.getWidth()) / 2, h / 3 + (h / 3 - btn_white.getHeight()) / 2);
+		btn_black.relocate((3 * w / 2 - btn_white.getWidth()) / 2, h / 3 + (h / 3 - btn_white.getHeight()) / 2);
 	}
 
 	@Override
@@ -84,17 +78,17 @@ public class StartScreen extends Region
 		super.resize(w, h);
 		updateBacking(w, h);
 
-		final GaussianBlur boardShadow = new GaussianBlur(Math.min(5, 0.05*Math.min(w,  h)));
+		final GaussianBlur boardShadow = new GaussianBlur(Math.min(5, 0.05 * Math.min(w, h)));
 		board.setEffect(boardShadow);
-		final double boardHeight = 0.7*Math.min(w, h);
+		final double boardHeight = 0.7 * Math.min(w, h);
 		board.resize(boardHeight, boardHeight);
 
-		final double h3 = h/2;
+		final double h3 = h / 2;
 
-		final double logoHeight = Math.min(0.7*Math.min(boardHeight/2, 1000), 100);
-		final double btnHeight = 0.75*Math.min(h3, w/2);
+		final double logoHeight = Math.min(0.7 * Math.min(boardHeight / 2, 1000), 100);
+		final double btnHeight = 0.75 * Math.min(h3, w / 2);
 
-		logo.setPrefSize(2*logoHeight, logoHeight);
+		logo.setPrefSize(2 * logoHeight, logoHeight);
 		logo.autosize();
 		btn_white.resize(btnHeight, btnHeight);
 		btn_black.resize(btnHeight, btnHeight);
@@ -117,16 +111,3 @@ public class StartScreen extends Region
 		return chosenSide;
 	}
 }
-
-
-
-/* ---------------------------------------------------------------------*
- * This software is the confidential and proprietary
- * information of Lhasa Limited
- * Granary Wharf House, 2 Canal Wharf, Leeds, LS11 5PS
- * ---
- * No part of this confidential information shall be disclosed
- * and it shall be used only in accordance with the terms of a
- * written license agreement entered into by holder of the information
- * with LHASA Ltd.
- * --------------------------------------------------------------------- */

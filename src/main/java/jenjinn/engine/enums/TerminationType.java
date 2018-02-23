@@ -6,13 +6,13 @@ package jenjinn.engine.enums;
 /**
  * @author TB
  * @date 1 Feb 2017
- *
  */
-public enum TerminationType
-{
-	// Make just a little bigger than the initial alpha beta calls so we don't change the bounds for terminal states..
+public enum TerminationType {
+	// Make just a little bigger than the initial alpha beta calls so we don't
+	// change the bounds for terminal states..
 	/*
-	 * Surely we do want to change the bounds for terminakl states, or does it not matter at all?
+	 * Surely we do want to change the bounds for terminakl states, or does it not
+	 * matter at all?
 	 */
 	WHITE_WIN(Infinity.SHORT_INFINITY), BLACK_WIN(-Infinity.SHORT_INFINITY), DRAW(0), NOT_TERMINAL(0);
 
@@ -36,12 +36,11 @@ public enum TerminationType
 	@SuppressWarnings("incomplete-switch")
 	public boolean matches(final Side s)
 	{
-		switch (this)
-		{
-			case WHITE_WIN:
-				return s.isWhite();
-			case BLACK_WIN:
-				return !s.isWhite();
+		switch (this) {
+		case WHITE_WIN:
+			return s.isWhite();
+		case BLACK_WIN:
+			return !s.isWhite();
 		}
 		return true;
 	}

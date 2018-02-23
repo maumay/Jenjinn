@@ -12,7 +12,6 @@ import jenjinn.ui.model.ChessGameModel;
 
 /**
  * @author ThomasB
- *
  */
 public final class ChessGameController
 {
@@ -25,53 +24,44 @@ public final class ChessGameController
 		board.setController(this);
 	}
 
-
 	public void processUserClick(final Sq squareClicked)
 	{
-		try
-		{
+		try {
 			model.processUserClick(squareClicked);
 		}
-		catch (final NullPointerException npe)
-		{
+		catch (final NullPointerException npe) {
 			System.err.println("No model is registered to the controller.");
 		}
 	}
 
 	public void updateBoardVisuals(final List<BoardOccupancy> piecePlacementInfo)
 	{
-		try
-		{
+		try {
 			board.setPieceLocations(piecePlacementInfo);
 			board.redrawPieces();
 		}
-		catch (final NullPointerException npe)
-		{
+		catch (final NullPointerException npe) {
 			System.err.println("No chessboard is registered to the controller.");
 		}
 	}
 
 	public void clearMovementMarkers()
 	{
-		try
-		{
+		try {
 			board.clearMovementMarkers();
 		}
-		catch (final NullPointerException npe)
-		{
+		catch (final NullPointerException npe) {
 			System.err.println("No chessboard is registered to the controller.");
 		}
 	}
 
 	public void updateBoardMovementMarkerUpdateAlert(final Sq loc, final List<Sq> movementSquares, final List<Sq> attackSquares)
 	{
-		try
-		{
+		try {
 			board.getMarkers().set(loc, movementSquares, attackSquares);
 			board.redrawMarkers();
 		}
-		catch (final NullPointerException npe)
-		{
+		catch (final NullPointerException npe) {
 			System.err.println("No chessboard is registered to the controller.");
 		}
 	}
@@ -80,20 +70,13 @@ public final class ChessGameController
 	{
 		this.model = model;
 	}
-	//
-	//	public void setChessboard(final ChessBoard board)
-	//	{
-	//		this.board = board;
-	//	}
 
 	public void setUserInteractionLocked(final boolean locked)
 	{
-		try
-		{
+		try {
 			board.setUserInterationDisabled(locked);
 		}
-		catch (final NullPointerException npe)
-		{
+		catch (final NullPointerException npe) {
 			System.err.println("No chessboard is registered to the controller.");
 		}
 	}

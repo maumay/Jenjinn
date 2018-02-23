@@ -1,9 +1,3 @@
-/**
- * Written by Tom Ball 2017.
- *
- * This code is unlicensed but please don't plagiarize.
- */
-
 package jenjinn.engine.bitboarddatabase;
 
 import java.util.ArrayList;
@@ -17,11 +11,9 @@ import jenjinn.engine.misc.PieceMovementDirectionArrays;
 /**
  * @author TB
  * @date 24 Jan 2017
- *
  */
 public class BBDBInitialisationUtilsSection3
 {
-
 	public static long[][] generateRookMagicMoveDatabase()
 	{
 		return generateMagicMoveDatabase(true);
@@ -37,15 +29,13 @@ public class BBDBInitialisationUtilsSection3
 		final long[][] mmDatabase = new long[64][];
 		final long[][] allSquaresOccupancyVariations = isRook ? BBDB.ROV : BBDB.BOV;
 
-		for (byte i = 0; i < 64; i++)
-		{
+		for (byte i = 0; i < 64; i++) {
 			final long[] singleSquaresOccupancyVariations = allSquaresOccupancyVariations[i];
 			final long magicNumber = isRook ? BBDB.RMN[i] : BBDB.BMN[i];
 			final byte bitShift = isRook ? BBDB.RMB[i] : BBDB.BMB[i];
 			final long[] singleSquareMmDatabase = new long[singleSquaresOccupancyVariations.length];
 
-			for (final long occVar : singleSquaresOccupancyVariations)
-			{
+			for (final long occVar : singleSquaresOccupancyVariations) {
 				final int magicIndex = (int) ((occVar * magicNumber) >>> bitShift);
 				singleSquareMmDatabase[magicIndex] = findAttackSetFromOccupancyVariation(Sq.get(i), occVar, isRook);
 			}
@@ -60,22 +50,18 @@ public class BBDBInitialisationUtilsSection3
 		final List<Sq> attackSquares = new ArrayList<>();
 		final Direction[] movementDirections = isRook ? PieceMovementDirectionArrays.RD : PieceMovementDirectionArrays.BD;
 
-		for (final Direction dir : movementDirections)
-		{
+		for (final Direction dir : movementDirections) {
 			Sq nextSq = startSq;
 
-			while (nextSq != null)
-			{
+			while (nextSq != null) {
 				nextSq = nextSq.getNextSqInDirection(dir);
 				final long nextSqAsBB = nextSq == null ? 0L : nextSq.getAsBB();
 				final boolean blocked = (nextSqAsBB & occVar) != 0;
 
-				if (nextSq != null)
-				{
+				if (nextSq != null) {
 					attackSquares.add(nextSq);
 				}
-				if (blocked)
-				{
+				if (blocked) {
 					break;
 				}
 			}

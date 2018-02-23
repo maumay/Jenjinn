@@ -1,9 +1,3 @@
-/**
- * Copyright � 2017 Lhasa Limited
- * File created: 20 Jul 2017 by ThomasB
- * Creator : ThomasB
- * Version : $Id$
- */
 package jenjinn.engine.moves;
 
 import static jenjinn.engine.boardstate.BoardState.END_TABLE;
@@ -13,7 +7,7 @@ import java.util.List;
 
 import jenjinn.engine.bitboarddatabase.BBDB;
 import jenjinn.engine.boardstate.BoardState;
-import jenjinn.engine.boardstate.BoardStateImplV2;
+import jenjinn.engine.boardstate.BoardStateImpl;
 import jenjinn.engine.boardstate.CastlingRights;
 import jenjinn.engine.enums.MoveType;
 import jenjinn.engine.enums.Sq;
@@ -26,7 +20,7 @@ import jenjinn.engine.pieces.Pawn;
  * @author ThomasB
  * @since 20 Jul 2017
  */
-public class StandardMove extends AbstractChessMoveImplV2
+public class StandardMove extends AbstractChessMove
 {
 	// STATIC CACHE STUFF
 	/**
@@ -147,7 +141,7 @@ public class StandardMove extends AbstractChessMoveImplV2
 
 		final long newDevStatus = state.getDevelopmentStatus() & ~start;
 
-		return new BoardStateImplV2(
+		return new BoardStateImpl(
 				state.getNewRecentHashings(newHash),
 				1 - state.getFriendlySideValue(),
 				newCastleRights,
@@ -202,13 +196,3 @@ public class StandardMove extends AbstractChessMoveImplV2
 		return get(Sq.valueOf(components.get(1)), Sq.valueOf(components.get(2)));
 	}
 }
-
-/*
- * ---------------------------------------------------------------------* This
- * software is the confidential and proprietary information of Lhasa Limited
- * Granary Wharf House, 2 Canal Wharf, Leeds, LS11 5PS --- No part of this
- * confidential information shall be disclosed and it shall be used only in
- * accordance with the terms of a written license agreement entered into by
- * holder of the information with LHASA Ltd.
- * ---------------------------------------------------------------------
- */

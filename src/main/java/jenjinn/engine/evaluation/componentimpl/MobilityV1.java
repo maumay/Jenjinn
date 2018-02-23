@@ -19,8 +19,8 @@ import jenjinn.engine.pieces.ChessPiece;
 public class MobilityV1 implements EvaluatingComponent
 {
 	/**
-	 * The mobility scores define what value we give to the mobility of the
-	 * various pieces.
+	 * The mobility scores define what value we give to the mobility of the various
+	 * pieces.
 	 */
 	private final MobilityScores midScores = new MobilityScores(2, 3, 0, 0, 1);
 	private final MobilityScores endScores = new MobilityScores(1, 1, 1, 1, 2);
@@ -36,9 +36,12 @@ public class MobilityV1 implements EvaluatingComponent
 
 	private long allWhiteLoc, allBlackLoc;
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
 	 *
-	 * @see jenjinn.engine.evaluation.EvaluatingComponent#evaluate(jenjinn.engine.boardstate.BoardState) */
+	 * @see jenjinn.engine.evaluation.EvaluatingComponent#evaluate(jenjinn.engine.
+	 * boardstate.BoardState)
+	 */
 	@Override
 	public short evaluate(final BoardState state)
 	{
@@ -63,18 +66,18 @@ public class MobilityV1 implements EvaluatingComponent
 	{
 		final byte[] whiteQueenLocs = EngineUtils.getSetBits(state.getPieceLocations(4));
 
-		for (final byte loc : whiteQueenLocs)
-		{
-			final int moveNum = Long.bitCount(ChessPiece.get(4).getMoveset(loc, allWhiteLoc, allBlackLoc) & ~bPawnAttacks);
+		for (final byte loc : whiteQueenLocs) {
+			final int moveNum = Long.bitCount(
+					ChessPiece.get(4).getMoveset(loc, allWhiteLoc, allBlackLoc) & ~bPawnAttacks);
 			midGamEval += moveNum * midScores.getQueen();
 			endGameEval += moveNum * endScores.getQueen();
 		}
 
 		final byte[] blackQueenLocs = EngineUtils.getSetBits(state.getPieceLocations(8));
 
-		for (final byte loc : blackQueenLocs)
-		{
-			final int moveNum = Long.bitCount(ChessPiece.get(10).getMoveset(loc, allBlackLoc, allWhiteLoc) & ~wPawnAttacks);
+		for (final byte loc : blackQueenLocs) {
+			final int moveNum = Long.bitCount(
+					ChessPiece.get(10).getMoveset(loc, allBlackLoc, allWhiteLoc) & ~wPawnAttacks);
 			midGamEval -= moveNum * midScores.getQueen();
 			endGameEval -= moveNum * endScores.getQueen();
 		}
@@ -84,8 +87,7 @@ public class MobilityV1 implements EvaluatingComponent
 	{
 		final byte[] whiteRookLocs = EngineUtils.getSetBits(state.getPieceLocations(3));
 
-		for (final byte loc : whiteRookLocs)
-		{
+		for (final byte loc : whiteRookLocs) {
 			final long file = BBDB.FILE[7 - (loc % 8)];
 			final long allMoves = ChessPiece.get(3).getMoveset(loc, allWhiteLoc, allBlackLoc) & ~bPawnAttacks;
 
@@ -99,8 +101,7 @@ public class MobilityV1 implements EvaluatingComponent
 
 		final byte[] blackRookLocs = EngineUtils.getSetBits(state.getPieceLocations(9));
 
-		for (final byte loc : blackRookLocs)
-		{
+		for (final byte loc : blackRookLocs) {
 			final long file = BBDB.FILE[7 - (loc % 8)];
 			final long allMoves = ChessPiece.get(9).getMoveset(loc, allBlackLoc, allWhiteLoc) & ~wPawnAttacks;
 
@@ -117,18 +118,18 @@ public class MobilityV1 implements EvaluatingComponent
 	{
 		final byte[] whiteKnightLocs = EngineUtils.getSetBits(state.getPieceLocations(2));
 
-		for (final byte loc : whiteKnightLocs)
-		{
-			final int moveNum = Long.bitCount(ChessPiece.get(2).getMoveset(loc, allWhiteLoc, allBlackLoc) & ~bPawnAttacks);
+		for (final byte loc : whiteKnightLocs) {
+			final int moveNum = Long.bitCount(
+					ChessPiece.get(2).getMoveset(loc, allWhiteLoc, allBlackLoc) & ~bPawnAttacks);
 			midGamEval += moveNum * midScores.getKnight();
 			endGameEval += moveNum * endScores.getKnight();
 		}
 
 		final byte[] blackKnightLocs = EngineUtils.getSetBits(state.getPieceLocations(8));
 
-		for (final byte loc : blackKnightLocs)
-		{
-			final int moveNum = Long.bitCount(ChessPiece.get(8).getMoveset(loc, allBlackLoc, allWhiteLoc) & ~wPawnAttacks);
+		for (final byte loc : blackKnightLocs) {
+			final int moveNum = Long.bitCount(
+					ChessPiece.get(8).getMoveset(loc, allBlackLoc, allWhiteLoc) & ~wPawnAttacks);
 			midGamEval -= moveNum * midScores.getKnight();
 			endGameEval -= moveNum * endScores.getKnight();
 		}
@@ -138,18 +139,18 @@ public class MobilityV1 implements EvaluatingComponent
 	{
 		final byte[] whiteBishopLocs = EngineUtils.getSetBits(state.getPieceLocations(1));
 
-		for (final byte loc : whiteBishopLocs)
-		{
-			final int moveNum = Long.bitCount(ChessPiece.get(1).getMoveset(loc, allWhiteLoc, allBlackLoc) & ~bPawnAttacks);
+		for (final byte loc : whiteBishopLocs) {
+			final int moveNum = Long.bitCount(
+					ChessPiece.get(1).getMoveset(loc, allWhiteLoc, allBlackLoc) & ~bPawnAttacks);
 			midGamEval += moveNum * midScores.getBishop();
 			endGameEval += moveNum * endScores.getBishop();
 		}
 
 		final byte[] blackBishopLocs = EngineUtils.getSetBits(state.getPieceLocations(1));
 
-		for (final byte loc : blackBishopLocs)
-		{
-			final int moveNum = Long.bitCount(ChessPiece.get(7).getMoveset(loc, allBlackLoc, allWhiteLoc) & ~wPawnAttacks);
+		for (final byte loc : blackBishopLocs) {
+			final int moveNum = Long.bitCount(
+					ChessPiece.get(7).getMoveset(loc, allBlackLoc, allWhiteLoc) & ~wPawnAttacks);
 			midGamEval -= moveNum * midScores.getBishop();
 			endGameEval -= moveNum * endScores.getBishop();
 		}

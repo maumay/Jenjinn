@@ -3,9 +3,9 @@ package jenjinn.engine.openingdatabase;
 import jenjinn.engine.moves.ChessMove;
 
 /**
- * An opening order wraps a lightweight version of a BoardState and
- * a corresponding move to take from that position. Obviously we need
- * a way to check equality of these lw bordstates with actual ones.
+ * An opening order wraps a lightweight version of a BoardState and a
+ * corresponding move to take from that position. Obviously we need a way to
+ * check equality of these lw bordstates with actual ones.
  *
  * @author ThomasB
  *

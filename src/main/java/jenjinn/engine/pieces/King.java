@@ -10,11 +10,11 @@ import jenjinn.engine.bitboarddatabase.BBDB;
 import jenjinn.engine.enums.Side;
 
 /**
+ * A class representing a King, to be used by the engine. Note here that moving
+ * into check is not taken into consideration. This will be done later.
+ * 
  * @author TB
  * @date 24 Jan 2017
- *
- *       A class representing a King, to be used by the engine. Note here that
- *       moving into check is not taken into consideration. This will be done later.
  */
 public class King extends ChessPiece
 {
@@ -23,9 +23,6 @@ public class King extends ChessPiece
 		super(PieceType.K, side);
 	}
 
-	/* (non-Javadoc)
-	 *
-	 * @see jenjinn.engine.pieces.ChessPiece#getAttackset(byte, long, long) */
 	@Override
 	public long getAttackset(final byte loc, final long occupiedSquares)
 	{

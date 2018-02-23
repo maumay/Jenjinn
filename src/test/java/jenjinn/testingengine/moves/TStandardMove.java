@@ -33,12 +33,6 @@ public class TStandardMove extends TAbstractChessMove
 		super(MoveType.STANDARD, start, target);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see
-	 * jenjinn.engine.moves.ChessMove#evolve(jenjinn.engine.boardstate.BoardState)
-	 */
 	@Override
 	public BoardState evolve(final BoardState state)
 	{

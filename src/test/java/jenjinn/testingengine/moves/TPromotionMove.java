@@ -1,9 +1,3 @@
-/**
- * Copyright � 2017 Lhasa Limited
- * File created: 20 Sep 2017 by ThomasB
- * Creator : ThomasB
- * Version : $Id$
- */
 package jenjinn.testingengine.moves;
 
 import java.util.EnumSet;
@@ -23,7 +17,7 @@ import jenjinn.testingengine.boardstate.TBoardState;
 public class TPromotionMove extends TAbstractChessMove
 {
 	private PieceType toPromoteTo;
-	
+
 	/**
 	 * @param type
 	 * @param start
@@ -48,13 +42,13 @@ public class TPromotionMove extends TAbstractChessMove
 		final long[] newPieceLocations = state.getPieceLocationsCopy();
 
 		newPieceLocations[friendlySide.index()] &= ~getStartBB();
-		newPieceLocations[newPieceIndex] |= getTargetBB(); 
-		if (removedPiece != null)
-		{
+		newPieceLocations[newPieceIndex] |= getTargetBB();
+		if (removedPiece != null) {
 			newPieceLocations[removedPiece.index()] &= ~getTargetBB();
 		}
 		// ---------------------------------------------------------------------
-		return new TBoardState(friendlySide.otherSide(),
+		return new TBoardState(
+				friendlySide.otherSide(),
 				newPieceLocations,
 				state.getCastleRights(),
 				state.getCastleStatus(),
@@ -70,14 +64,3 @@ public class TPromotionMove extends TAbstractChessMove
 		return "P" + "[" + Sq.get(getStart()).name() + ", " + Sq.get(getTarget()).name() + "]";
 	}
 }
-
-/* ---------------------------------------------------------------------*
- * This software is the confidential and proprietary
- * information of Lhasa Limited
- * Granary Wharf House, 2 Canal Wharf, Leeds, LS11 5PS
- * ---
- * No part of this confidential information shall be disclosed
- * and it shall be used only in accordance with the terms of a
- * written license agreement entered into by holder of the information
- * with LHASA Ltd.
- * --------------------------------------------------------------------- */

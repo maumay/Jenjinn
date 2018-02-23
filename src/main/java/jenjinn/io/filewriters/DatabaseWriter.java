@@ -14,9 +14,9 @@ import jenjinn.engine.enums.Side;
 import jenjinn.io.pgnutils.PgnReader;
 
 /**
+ * Provides utilities for writing the db
+ * 
  * @author ThomasB
- *
- *         Provides utilities for writing the db
  */
 public class DatabaseWriter
 {
@@ -24,7 +24,6 @@ public class DatabaseWriter
 	private static final int LENGTH_CAP = 16;
 
 	private static final Side TO_WRITE_FOR = Side.W;
-
 
 	private static final String DB_FOLDER = "dbresources";
 
@@ -39,49 +38,41 @@ public class DatabaseWriter
 	{
 		assert Files.isDirectory(pgnFolder) : "Folder not passed!";
 
-
 		final List<Path> filePaths = Files.list(pgnFolder).collect(Collectors.toList());
 		filePaths.sort((a, b) -> a.getFileName().compareTo(b.getFileName()));
 
-		filePaths.forEach(x ->
-		{
+		filePaths.forEach(x -> {
 			assert x.getFileName().toString().endsWith(ZIP_EXT) : "Non zip file passed!";
 		});
 
 		final Path outFilePath = Paths.get(DB_FOLDER, outputFileName);
-		//		Files.
+		// Files.
 		PgnReader.writeDBFile(filePaths, outFilePath, LENGTH_CAP, requiredSide);
 	}
 
 	public static void main(final String[] args) throws IOException
 	{
-		//		try
-		//		{
-		//			writePgnFileToDbFormatTxtFile("Karpov.pgn", "karpovdb.txt");
-		//			writePgnFileToDbFormatTxtFile("Kasparov.pgn", "kasparovdb.txt");
-		//			writePgnFileToDbFormatTxtFile("Petrosian.pgn", "petrosiandb.txt");
-		//			writePgnFileToDbFormatTxtFile("Tal.pgn", "taldb.txt");
-		//			writePgnFileToDbFormatTxtFile("Topalov.pgn", "topalovdb.txt");
-		//		}
-		//		catch (final IOException e)
-		//		{
-		//			// TODO Auto-generated catch block
-		//			e.printStackTrace();
-		//		}
-		//		Files.list(Paths.get(DB_FOLDER)).forEach(x -> System.out.println(x.toString()));
+		// try
+		// {
+		// writePgnFileToDbFormatTxtFile("Karpov.pgn", "karpovdb.txt");
+		// writePgnFileToDbFormatTxtFile("Kasparov.pgn", "kasparovdb.txt");
+		// writePgnFileToDbFormatTxtFile("Petrosian.pgn", "petrosiandb.txt");
+		// writePgnFileToDbFormatTxtFile("Tal.pgn", "taldb.txt");
+		// writePgnFileToDbFormatTxtFile("Topalov.pgn", "topalovdb.txt");
+		// }
+		// catch (final IOException e)
+		// {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// }
+		// Files.list(Paths.get(DB_FOLDER)).forEach(x ->
+		// System.out.println(x.toString()));
 
 		final String sideName = TO_WRITE_FOR.name().toLowerCase();
 
-		final String[] names = {
-				"modernkings",
-				"classickings",
-				"modernqueens",
-				"classicqueens",
-				"flank"
-		};
+		final String[] names = { "modernkings", "classickings", "modernqueens", "classicqueens", "flank" };
 
-		for (final String name : names)
-		{
+		for (final String name : names) {
 			System.out.println("Next");
 			final Path folder = Paths.get("F:", "chessopenings", name);
 			writePgnFileToDbFormatTxtFile(folder, sideName + name, TO_WRITE_FOR);

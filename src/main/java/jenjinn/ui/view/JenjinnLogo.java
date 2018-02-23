@@ -37,15 +37,15 @@ public class JenjinnLogo extends Region
 		getChildren().addAll(back, txt_jenjinn, overlay);
 		overlay.getGraphicsContext2D().setStroke(OVERLAY);
 
-		//		setOnMouseClicked(this::mclickedAction);
+		// setOnMouseClicked(this::mclickedAction);
 	}
 	//
-	//	private void mclickedAction(final MouseEvent evt)
-	//	{
-	//		final double evtX = evt.getX();
-	//		selected = evtX < getWidth()/2? Side.B : Side.W;
-	//		redraw();
-	//	}
+	// private void mclickedAction(final MouseEvent evt)
+	// {
+	// final double evtX = evt.getX();
+	// selected = evtX < getWidth()/2? Side.B : Side.W;
+	// redraw();
+	// }
 
 	@Override
 	public void resize(final double w, final double h)
@@ -61,7 +61,7 @@ public class JenjinnLogo extends Region
 		dropShadow2.setOffsetY(4.0);
 		setEffect(dropShadow2);
 
-		overlay.getGraphicsContext2D().setLineWidth(Math.min(7, h/20));
+		overlay.getGraphicsContext2D().setLineWidth(Math.min(7, h / 20));
 	}
 
 	private void updateFonts(final double w, final double h)
@@ -73,8 +73,7 @@ public class JenjinnLogo extends Region
 		txt_jenjinn.autosize();
 		Bounds b = txt_jenjinn.getLayoutBounds();
 
-		while (b.getWidth() >= w)
-		{
+		while (b.getWidth() >= w) {
 			fheight -= 0.5;
 			f = Font.font(fheight);
 			txt_jen.setFont(f);
@@ -89,7 +88,7 @@ public class JenjinnLogo extends Region
 	{
 		final double w = getWidth(), h = getHeight();
 		final Bounds tBounds = txt_jenjinn.getLayoutBounds();
-		txt_jenjinn.relocate((w - tBounds.getWidth())/2, (h - tBounds.getHeight())/2);
+		txt_jenjinn.relocate((w - tBounds.getWidth()) / 2, (h - tBounds.getHeight()) / 2);
 		redraw();
 	}
 
@@ -103,22 +102,19 @@ public class JenjinnLogo extends Region
 		overlayGC.clearRect(0, 0, w, h);
 
 		backGC.setFill(WHITE);
-		backGC.fillRect(0, 0, w/ 2, h);
-		backGC.drawImage(BLACK_N, 0, 0, w/ 2, h);
+		backGC.fillRect(0, 0, w / 2, h);
+		backGC.drawImage(BLACK_N, 0, 0, w / 2, h);
 
 		backGC.setFill(BLACK);
-		backGC.fillRect(w/2, 0, w/2, h);
-		backGC.drawImage(WHITE_N, w/2, 0, w/2, h);
+		backGC.fillRect(w / 2, 0, w / 2, h);
+		backGC.drawImage(WHITE_N, w / 2, 0, w / 2, h);
 
-		if (selected != null)
-		{
-			if (selected.isWhite())
-			{
-				overlayGC.strokeRect(w/2, 0, w/2, h);
+		if (selected != null) {
+			if (selected.isWhite()) {
+				overlayGC.strokeRect(w / 2, 0, w / 2, h);
 			}
-			else
-			{
-				overlayGC.strokeRect(0, 0, w/ 2, h);
+			else {
+				overlayGC.strokeRect(0, 0, w / 2, h);
 			}
 		}
 	}
@@ -132,21 +128,11 @@ public class JenjinnLogo extends Region
 	}
 
 	/**
-	 * @param selected the selected to set
+	 * @param selected
+	 *            the selected to set
 	 */
 	public void setSelected(final Side selected)
 	{
 		this.selected = selected;
 	}
 }
-
-/* ---------------------------------------------------------------------*
- * This software is the confidential and proprietary
- * information of Lhasa Limited
- * Granary Wharf House, 2 Canal Wharf, Leeds, LS11 5PS
- * ---
- * No part of this confidential information shall be disclosed
- * and it shall be used only in accordance with the terms of a
- * written license agreement entered into by holder of the information
- * with LHASA Ltd.
- * --------------------------------------------------------------------- */

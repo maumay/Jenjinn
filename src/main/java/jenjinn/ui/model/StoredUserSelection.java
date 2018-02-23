@@ -7,34 +7,32 @@ import jenjinn.engine.enums.Sq;
 
 /**
  * @author ThomasB
- *
  */
 public class StoredUserSelection
 {
-     private Sq storedSquare;
-     
-     StoredUserSelection()
-     {
-     }
+	private Sq storedSquare;
 
-     Sq getStoredSquare()
-     {
-          return storedSquare;
-     }
+	StoredUserSelection()
+	{
+	}
 
-     void setStoredSquare(final Sq firstClickedSquare)
-     {
-          this.storedSquare = firstClickedSquare;
-     }
+	Sq getStoredSquare()
+	{
+		return storedSquare;
+	}
 
-     void reset()
-     {
-          storedSquare = null;
-     }
-     
-     boolean selectionIsSet()
-     {
-          return storedSquare != null;
-     }
-     
+	void setStoredSquare(final Sq firstClickedSquare)
+	{
+		this.storedSquare = firstClickedSquare;
+	}
+
+	void reset()
+	{
+		storedSquare = null;
+	}
+
+	boolean selectionIsSet()
+	{
+		return storedSquare != null;
+	}
 }

@@ -1,12 +1,5 @@
-/**
- * Copyright � 2017 Lhasa Limited
- * File created: 28 Jul 2017 by ThomasB
- * Creator : ThomasB
- * Version : $Id$
- */
 package jenjinn.engine.evaluation.piecetablesimpl;
 
-import jenjinn.engine.misc.EngineUtils;
 
 /**
  *
@@ -37,15 +30,6 @@ public class MiddleGamePSTimplV1 extends AbstractPSTimplV1
 	protected short[] getPawnTable()
 	{
 		return new short[64]; 
-//				{
-//				-20, -10, -10, -10, -10, -10, -10, -20,
-//				-10, 0, 0, 0, 0, 0, 0, -10,
-//				-10, 0, 5, 10, 10, 5, 0, -10,
-//				-10, 5, 5, 10, 10, 5, 5, -10,
-//				-10, 0, 10, 100, 100, 10, 0, -10,
-//				-10, 10, 10, 10, 10, 10, 10, -10,
-//				-10, 5, 0, 0, 0, 0, 5, -10,
-//				-20, -10, -10, -10, -10, -10, -10, -20 };
 	}
 
 	@Override
@@ -158,25 +142,4 @@ public class MiddleGamePSTimplV1 extends AbstractPSTimplV1
 	{
 		return PIECE_VALUES[5];
 	}
-
-	public static void main(final String[] args)
-	{
-		final MiddleGamePSTimplV1 m = new MiddleGamePSTimplV1();
-		System.out.println(EngineUtils.formatPieceTable(m.getKingTable()));
-		System.out.println();
-		System.out.println(EngineUtils.formatPieceTable(m.tables.get(4)));
-		System.out.println();
-		System.out.println(EngineUtils.formatPieceTable(m.tables.get(10)));
-	}
 }
-
-/* ---------------------------------------------------------------------*
- * This software is the confidential and proprietary
- * information of Lhasa Limited
- * Granary Wharf House, 2 Canal Wharf, Leeds, LS11 5PS
- * ---
- * No part of this confidential information shall be disclosed
- * and it shall be used only in accordance with the terms of a
- * written license agreement entered into by holder of the information
- * with LHASA Ltd.
- * --------------------------------------------------------------------- */

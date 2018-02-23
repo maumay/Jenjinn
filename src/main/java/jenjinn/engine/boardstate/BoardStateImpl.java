@@ -1,9 +1,3 @@
-/**
- * Copyright � 2017 Lhasa Limited
- * File created: 19 Jul 2017 by ThomasB
- * Creator : ThomasB
- * Version : $Id$
- */
 package jenjinn.engine.boardstate;
 
 import static io.xyz.chains.utilities.CollectionUtil.len;
@@ -36,16 +30,11 @@ import jenjinn.engine.pieces.PieceType;
  * @author ThomasB
  * @since 19 Jul 2017
  */
-public class BoardStateImplV2 implements BoardState
+public class BoardStateImpl implements BoardState
 {
-
 	private static final long EXCESS_CHOPPER = ~EngineUtils.multipleOr(BBDB.RNK[2], BBDB.RNK[3], BBDB.RNK[4],
 			BBDB.RNK[5], BBDB.RNK[6], BBDB.RNK[7]);
 
-	// Stored in metadata bitboard
-	/*
-	 *
-	 */
 	private static final long CASTLE_RIGHTS_GETTER = 0b11110000L << (7 * 8);
 
 	private static final long CASTLE_STATUS_GETTER = 0b1111L << (7 * 8);
@@ -55,8 +44,6 @@ public class BoardStateImplV2 implements BoardState
 	private static final long FRIENDLY_SIDE_GETTER = 1L << (6 * 8);
 
 	private static final long HALFMOVE_CLOCK_GETTER = 0b1111111L << (5 * 8);
-
-	private static final long PIECE_PHASE_GETTER = 0b11111L << (4 * 8);
 
 	private static final long MIDGAME_LOC_EVAL_GETTER = 0b1111111111111111L << (2 * 8);
 
@@ -84,7 +71,7 @@ public class BoardStateImplV2 implements BoardState
 
 	private TerminationType termType;
 
-	public BoardStateImplV2(final long[] recentHashings, final long friendlySide, final long castleRights, final long castleStatus, final long enPassantSq, final long halfMoveClock, final long piecePhase, final long midPieceLocEval, final long endPieceLocEval, final long devStatus, final long[] pieceLocations)
+	public BoardStateImpl(final long[] recentHashings, final long friendlySide, final long castleRights, final long castleStatus, final long enPassantSq, final long halfMoveClock, final long piecePhase, final long midPieceLocEval, final long endPieceLocEval, final long devStatus, final long[] pieceLocations)
 	{
 		this.recentHashings = recentHashings;
 		this.devStatus = devStatus;
@@ -109,8 +96,8 @@ public class BoardStateImplV2 implements BoardState
 		final List<ChessMove> moves = new ArrayList<>(getCastleMoves(enemyPieces | friendlyPieces));
 
 		final byte upperBound = (byte) (5 + friendlySide.index()), lowerBound = friendlySide.index();
-		for (byte i = upperBound; i > lowerBound; i--) // Get the most valuable piece moves first
-		{
+		for (byte i = upperBound; i > lowerBound; i--) {
+			// Get the most valuable piece moves first
 			final ChessPiece p = ChessPiece.get(i);
 
 			for (final byte loc : EngineUtils.getSetBits(pieceLocations[i])) {
@@ -119,7 +106,7 @@ public class BoardStateImplV2 implements BoardState
 		}
 
 		// Add Pawn moves.
-		final ChessPiece p = ChessPiece.get(lowerBound); // Pawn
+		final ChessPiece p = ChessPiece.get(lowerBound); 
 		if (getEnPassantSq() != BoardState.NO_ENPASSANT) {
 			for (final byte loc : EngineUtils.getSetBits(pieceLocations[lowerBound])) {
 				addPawnStandardAndPromotionMoves(moves, loc, p.getMoveset(loc, friendlyPieces, enemyPieces));
@@ -157,7 +144,7 @@ public class BoardStateImplV2 implements BoardState
 		}
 
 		// Add Pawn moves.
-		final ChessPiece p = ChessPiece.get(lowerBound); // Pawn
+		final ChessPiece p = ChessPiece.get(lowerBound); 
 		if (getEnPassantSq() != BoardState.NO_ENPASSANT) {
 			for (final byte loc : EngineUtils.getSetBits(pieceLocations[lowerBound])) {
 				addPawnStandardAndPromotionMoves(moves, loc, p.getAttackset(loc, allPieces) & enemyPieces);
@@ -171,7 +158,6 @@ public class BoardStateImplV2 implements BoardState
 				addPawnStandardAndPromotionMoves(moves, loc, p.getAttackset(loc, allPieces) & enemyPieces);
 			}
 		}
-
 		return moves;
 	}
 
@@ -243,7 +229,7 @@ public class BoardStateImplV2 implements BoardState
 				final long mvset = p.getMoveset(loc, friendly, enemy);
 
 				for (final byte targ : EngineUtils.getSetBits(mvset)) {
-					final BoardStateImplV2 evolved = (BoardStateImplV2) StandardMove.get(loc, targ).evolve(this);
+					final BoardStateImpl evolved = (BoardStateImpl) StandardMove.get(loc, targ).evolve(this);
 					if (!evolved.isTerminalWin()) {
 						return false;
 					}
@@ -433,18 +419,6 @@ public class BoardStateImplV2 implements BoardState
 	@Override
 	public short getMidgamePositionalEval()
 	{
-		// int eval = 0, ctr = 0;
-		// for (final long locs : pieceLocations)
-		// {
-		// for (final byte loc : EngineUtils.getSetBits(locs))
-		// {
-		// eval += BoardState.MID_TABLE.getPieceSquareValue((byte) ctr, loc);
-		// }
-		// System.out.println("Index: " + ctr + ", Value: " +
-		// BoardState.MID_TABLE.getPieceSquareValue((byte) ctr, (byte) 0));
-		// ctr++;
-		// }
-		// return (short) eval;
 		return (short) ((metaData & MIDGAME_LOC_EVAL_GETTER) >>> 16);
 	}
 
@@ -503,7 +477,7 @@ public class BoardStateImplV2 implements BoardState
 	{
 		final long startHash = BoardState.HASHER.generateStartHash();
 
-		return new BoardStateImplV2(
+		return new BoardStateImpl(
 				new long[] { startHash, 1L, 2L, 3L },
 				0,
 				0b1111,
@@ -644,19 +618,6 @@ public class BoardStateImplV2 implements BoardState
 		return Arrays.copyOf(recentHashings, recentHashings.length);
 	}
 
-	public static void main(final String[] args)
-	{
-		EngineUtils.printNbitBoards(
-				EngineUtils.multipleOr(CASTLE_RIGHTS_GETTER, CASTLE_STATUS_GETTER, ENPASSANT_SQUARE_GETTER,
-						FRIENDLY_SIDE_GETTER, HALFMOVE_CLOCK_GETTER, PIECE_PHASE_GETTER, MIDGAME_LOC_EVAL_GETTER,
-						ENDGAME_LOC_EVAL_GETTER),
-				EngineUtils.multipleOr(CASTLE_RIGHTS_GETTER, CASTLE_STATUS_GETTER, ENPASSANT_SQUARE_GETTER,
-						FRIENDLY_SIDE_GETTER, HALFMOVE_CLOCK_GETTER, MIDGAME_LOC_EVAL_GETTER, ENDGAME_LOC_EVAL_GETTER));
-
-		System.out.println(Integer.toBinaryString(-3));
-		System.out.println(Integer.toBinaryString(~0b11111111111111111111111111111101));
-	}
-
 	@Override
 	public ChessPiece getPieceFromBB(final long fromset)
 	{
@@ -681,13 +642,3 @@ public class BoardStateImplV2 implements BoardState
 		return hash;
 	}
 }
-
-/*
- * ---------------------------------------------------------------------* This
- * software is the confidential and proprietary information of Lhasa Limited
- * Granary Wharf House, 2 Canal Wharf, Leeds, LS11 5PS --- No part of this
- * confidential information shall be disclosed and it shall be used only in
- * accordance with the terms of a written license agreement entered into by
- * holder of the information with LHASA Ltd.
- * ---------------------------------------------------------------------
- */

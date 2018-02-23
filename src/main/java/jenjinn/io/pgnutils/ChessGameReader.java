@@ -3,7 +3,7 @@ package jenjinn.io.pgnutils;
 import java.util.ArrayList;
 
 import jenjinn.engine.boardstate.BoardState;
-import jenjinn.engine.boardstate.BoardStateImplV2;
+import jenjinn.engine.boardstate.BoardStateImpl;
 import jenjinn.engine.exceptions.AmbiguousPgnException;
 import jenjinn.engine.moves.ChessMove;
 import jenjinn.engine.openingdatabase.AlgebraicCommand;
@@ -18,33 +18,25 @@ public class ChessGameReader
 	{
 	};
 
-	// public OpeningOrder[] convertFullGame(final String s)
-	// {
-	// }
-
 	public static OpeningOrder[] convertAlgebraicString(final String s, final int lengthCap) throws AmbiguousPgnException
 	{
 		final ArrayList<OpeningOrder> ans = new ArrayList<>();
 		final String trimmed = s.trim();
-		
+
 		AlgebraicCommand[] commands = null;
-		try
-		{
+		try {
 			commands = processSequenceOfCommands(trimmed);
 		}
-		catch (NullPointerException npe)
-		{
+		catch (NullPointerException npe) {
 			System.out.println(s);
 			throw npe;
 		}
-		
-		BoardState state = BoardStateImplV2.getStartBoard();
+
+		BoardState state = BoardStateImpl.getStartBoard();
 
 		int counter = 0;
-		for (final AlgebraicCommand a : commands)
-		{
-			if (counter > lengthCap)
-			{
+		for (final AlgebraicCommand a : commands) {
+			if (counter > lengthCap) {
 				break;
 			}
 
@@ -61,14 +53,11 @@ public class ChessGameReader
 		final String[] initialSplit = trimmed.split(" ");
 		final AlgebraicCommand[] finalSplit = new AlgebraicCommand[initialSplit.length];
 		int idx = 0;
-		for (final String s : initialSplit)
-		{
-			try
-			{
+		for (final String s : initialSplit) {
+			try {
 				finalSplit[idx] = new AlgebraicCommand(s);
 			}
-			catch (Throwable t)
-			{
+			catch (Throwable t) {
 				throw new AmbiguousPgnException();
 			}
 			idx++;

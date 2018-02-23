@@ -17,7 +17,6 @@ import jenjinn.engine.openingdatabase.Openings;
 /**
  * @author TB
  * @date 8 Feb 2017
- *
  */
 public final class Jenjinn
 {
@@ -39,26 +38,21 @@ public final class Jenjinn
 	{
 		ChessMove bestMove = null;
 
-		if (outsideOpeningCounter < 5)
-		{
-			try
-			{
+		if (outsideOpeningCounter < 5) {
+			try {
 				bestMove = openings.getMoveForPosition(root);
 			}
-			catch (final IOException e)
-			{
+			catch (final IOException e) {
 				e.printStackTrace();
 				throw new RuntimeException();
 			}
 		}
 
-		if (bestMove == null)
-		{
+		if (bestMove == null) {
 			bestMove = gts.getBestMoveFrom(root);
 			outsideOpeningCounter++;
 		}
-		else
-		{
+		else {
 			outsideOpeningCounter = 0;
 		}
 
@@ -103,7 +97,8 @@ public final class Jenjinn
 		// final long timeTakenInNs = System.nanoTime() - start;
 		// final BigDecimal inNano = new BigDecimal(timeTakenInNs);
 		// final BigDecimal ONE_BILLION = new BigDecimal((int) Math.pow(10, 9));
-		// final String inSeconds = inNano.divide(ONE_BILLION).toPlainString() + " seconds";
+		// final String inSeconds = inNano.divide(ONE_BILLION).toPlainString() + "
+		// seconds";
 		// System.out.println(numOfMovesMade + " moves made in " + inSeconds);
 	}
 }

@@ -29,7 +29,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 import jenjinn.engine.boardstate.BoardState;
-import jenjinn.engine.boardstate.BoardStateImplV2;
+import jenjinn.engine.boardstate.BoardStateImpl;
 import jenjinn.engine.evaluation.SEE;
 
 /**
@@ -43,7 +43,8 @@ public class SEETest
 	private static final int EXPECTED_TEST1 = 100, EXPECTED_TEST2 = -225;
 
 	/**
-	 * Test method for {@link jenjinn.engine.evaluation.SEE#eval(byte, byte, jenjinn.engine.boardstate.BoardState, short[])}.
+	 * Test method for
+	 * {@link jenjinn.engine.evaluation.SEE#eval(byte, byte, jenjinn.engine.boardstate.BoardState, short[])}.
 	 */
 	@Test
 	public void testEval()
@@ -70,7 +71,7 @@ public class SEETest
 		pieceLocs[5] = wKing;
 		pieceLocs[11] = bKing;
 
-		return new BoardStateImplV2(null, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, pieceLocs);
+		return new BoardStateImpl(null, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, pieceLocs);
 	}
 
 	private BoardState getPosition2()
@@ -84,6 +85,6 @@ public class SEETest
 
 		final long[] pieceLocs = { wPawn, wBish, wKnight, wRook, wQueen, wKing, bPawn, bBish, bKnight, bRook, bQueen, bKing };
 
-		return new BoardStateImplV2(null, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, pieceLocs);
+		return new BoardStateImpl(null, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, pieceLocs);
 	}
 }

@@ -9,13 +9,12 @@ package jenjinn.engine.pieces;
 import jenjinn.engine.enums.Side;
 
 /**
+ * The abstract superclass of all chess pieces to be used by the engine. These
+ * are immutable as we want all information about position on the board etc to
+ * be stored by each individual BoardState instance.
+ * 
  * @author TB
  * @date 24 Jan 2017
- *
- *       The abstract superclass of all chess pieces to be used by
- *       the engine. These are immutable as we want all information
- *       about position on the board etc to be stored by each individual
- *       BoardState instance.
  */
 public abstract class ChessPiece
 {
@@ -27,14 +26,12 @@ public abstract class ChessPiece
 	public static final ChessPiece[] BPIECES;
 
 	public static final ChessPiece[] PIECES;
-	static
-	{
+	static {
 		WPIECES = new ChessPiece[6];
 		BPIECES = new ChessPiece[6];
 		PIECES = new ChessPiece[12];
 
-		for (int i = 0; i < PieceType.values().length; i++)
-		{
+		for (int i = 0; i < PieceType.values().length; i++) {
 			WPIECES[i] = PieceType.values()[i].generatePiece(Side.W);
 			BPIECES[i] = PieceType.values()[i].generatePiece(Side.B);
 
@@ -51,7 +48,9 @@ public abstract class ChessPiece
 	/** The {@link Side} this piece belongs to. */
 	private final Side side;
 
-	/** The unique identifier of this piece. An interger between 0 - 12 inclusive. */
+	/**
+	 * The unique identifier of this piece. An interger between 0 - 12 inclusive.
+	 */
 	private final byte id;
 
 	protected ChessPiece(final PieceType type, final Side side)
@@ -61,18 +60,20 @@ public abstract class ChessPiece
 	}
 
 	/**
-	 * Given the location of the piece, the location of all friendly pieces
-	 * and the location of all enemy pieces this method returns the attackset
-	 * in bitboard form.
+	 * Given the location of the piece, the location of all friendly pieces and the
+	 * location of all enemy pieces this method returns the attackset in bitboard
+	 * form.
 	 */
 	public abstract long getAttackset(final byte loc, final long occupiedSquares);
 
+	/**
+	 */
 	public abstract long getStartBitboard();
 
 	/**
-	 * Given the location of the piece, the location of all friendly pieces
-	 * and the location of all enemy pieces this method returns the possible
-	 * (standard) moves as an array.
+	 * Given the location of the piece, the location of all friendly pieces and the
+	 * location of all enemy pieces this method returns the possible (standard)
+	 * moves as an array.
 	 */
 	public long getMoveset(final byte loc, final long friendlyPieces, final long enemyPieces)
 	{
@@ -120,7 +121,7 @@ public abstract class ChessPiece
 	{
 		return side == Side.W;
 	}
-	
+
 	public boolean canXray()
 	{
 		int modId = id % 6;

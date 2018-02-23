@@ -22,9 +22,6 @@ public class Pawn extends ChessPiece
 		super(PieceType.P, side);
 	}
 
-	/* (non-Javadoc)
-	 *
-	 * @see jenjinn.engine.pieces.ChessPiece#getAttackset(byte, long, long) */
 	@Override
 	public long getAttackset(final byte loc, final long occupiedSquares)
 	{
@@ -47,8 +44,7 @@ public class Pawn extends ChessPiece
 		final long attck = getAttackset(loc, enemyPieces | friendlyPieces) & enemyPieces;
 		long push = (1L << (loc + getSide().orientation() * 8)) & ~(friendlyPieces | enemyPieces);
 
-		if (inFirstMoveZone(loc) && push != 0)
-		{
+		if (inFirstMoveZone(loc) && push != 0) {
 			push |= ((1L << (loc + getSide().orientation() * 16)) & ~(friendlyPieces | enemyPieces));
 		}
 		return attck | push;

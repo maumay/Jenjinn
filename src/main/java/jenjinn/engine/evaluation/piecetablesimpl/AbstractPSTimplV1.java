@@ -1,9 +1,3 @@
-/**
- * Copyright � 2017 Lhasa Limited
- * File created: 28 Jul 2017 by ThomasB
- * Creator : ThomasB
- * Version : $Id$
- */
 package jenjinn.engine.evaluation.piecetablesimpl;
 
 import java.util.ArrayList;
@@ -19,7 +13,6 @@ import jenjinn.engine.evaluation.PieceSquareTable;
  */
 public abstract class AbstractPSTimplV1 implements PieceSquareTable
 {
-
 	protected final List<short[]> tables = new ArrayList<>();
 
 	/**
@@ -27,8 +20,7 @@ public abstract class AbstractPSTimplV1 implements PieceSquareTable
 	 */
 	public AbstractPSTimplV1()
 	{
-		for (final Side s : Side.values())
-		{
+		for (final Side s : Side.values()) {
 			tables.add(getTableFromReverseWhitePositionTable(getPawnTable(), s, getPawnValue()));
 			tables.add(getTableFromReverseWhitePositionTable(getBishopTable(), s, getBishopValue()));
 			tables.add(getTableFromReverseWhitePositionTable(getKnightTable(), s, getKnightValue()));
@@ -104,14 +96,3 @@ public abstract class AbstractPSTimplV1 implements PieceSquareTable
 	}
 
 }
-
-/* ---------------------------------------------------------------------*
- * This software is the confidential and proprietary
- * information of Lhasa Limited
- * Granary Wharf House, 2 Canal Wharf, Leeds, LS11 5PS
- * ---
- * No part of this confidential information shall be disclosed
- * and it shall be used only in accordance with the terms of a
- * written license agreement entered into by holder of the information
- * with LHASA Ltd.
- * --------------------------------------------------------------------- */

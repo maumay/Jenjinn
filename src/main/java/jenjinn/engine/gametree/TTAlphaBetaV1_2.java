@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 import jenjinn.engine.boardstate.BoardState;
-import jenjinn.engine.boardstate.BoardStateImplV2;
+import jenjinn.engine.boardstate.BoardStateImpl;
 import jenjinn.engine.enums.Infinity;
 import jenjinn.engine.enums.TerminationType;
 import jenjinn.engine.evaluation.BoardEvaluator;
@@ -84,7 +84,8 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 		ChessMove bestMove;
 		try {
 			bestMove = getBestMoveFrom(root, 1, false);
-		} catch (final InterruptedException e1) {
+		}
+		catch (final InterruptedException e1) {
 			// We should not be getting here
 			e1.printStackTrace();
 			throw new AssertionError();
@@ -93,7 +94,8 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 			try {
 				final ChessMove newBestMove = getBestMoveFrom(root, depth, true);
 				bestMove = newBestMove;
-			} catch (final InterruptedException e) {
+			}
+			catch (final InterruptedException e) {
 				// Restore interrupted status
 				Thread.interrupted();
 				break;
@@ -132,8 +134,9 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 			List<ChessMove> mvs = root.getMoves();
 			BoardState state = mvs.get(bestFirstMoveIndex).evolve(root);
 			TableEntry entry;
-			while ((entry = tt.get(state.getHashing())) != null && entry.getType() == TreeNodeType.PV
-					&& entry.getPositionHash() == state.getHashing() && len(pv) < depth - 1) {
+			while ((entry = tt.get(
+					state.getHashing())) != null && entry.getType() == TreeNodeType.PV && entry.getPositionHash() == state.getHashing() && len(
+							pv) < depth - 1) {
 				pv[count++] = entry.getMoveIndex();
 				mvs = state.getMoves();
 				state = mvs.get(entry.getMoveIndex()).evolve(state);
@@ -142,8 +145,7 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 		return pv;
 	}
 
-	private ChessMove getBestMoveFrom(final BoardState root, final int depth, final boolean interruptionAllowed)
-			throws InterruptedException
+	private ChessMove getBestMoveFrom(final BoardState root, final int depth, final boolean interruptionAllowed) throws InterruptedException
 	{
 		System.out.println("Starting search of DEPTH: " + depth);
 		// Initialise variables
@@ -187,8 +189,7 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 	 * @param depth
 	 * @return
 	 */
-	public int negamax(final BoardState root, int alpha, int beta, final int depth, final boolean interruptionAllowed)
-			throws InterruptedException
+	public int negamax(final BoardState root, int alpha, int beta, final int depth, final boolean interruptionAllowed) throws InterruptedException
 	{
 		if (interruptionAllowed && Thread.currentThread().isInterrupted()) {
 			throw new InterruptedException();
@@ -261,15 +262,17 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 		}
 
 		TableEntry potentialNewEntry;
-		if (bestValue <= alphaOrig) // ALL node
-		{
+		if (bestValue <= alphaOrig) {
+			// ALL node
 			potentialNewEntry = TableEntry.generateALL(rootHash, bestValue, depth);
-		} else if (bestValue >= beta) // CUT node
-		{
+		}
+		else if (bestValue >= beta) {
+			// CUT node
 			assert refutationMoveIndex != -1;
 			potentialNewEntry = TableEntry.generateCUT(rootHash, bestValue, refutationMoveIndex, depth);
-		} else // PV node
-		{
+		}
+		else {
+			// PV node
 			assert bestMoveIndex != -1;
 			potentialNewEntry = TableEntry.generatePV(rootHash, bestValue, bestMoveIndex, depth);
 		}
@@ -291,12 +294,15 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 	{
 		if (oldEntry == null) {
 			tt.set(newEntry);
-		} else if (newEntry.getType() == TreeNodeType.PV && oldEntry.getType() != TreeNodeType.PV) {
+		}
+		else if (newEntry.getType() == TreeNodeType.PV && oldEntry.getType() != TreeNodeType.PV) {
 			// System.out.println("SET PV NODE!");
 			tt.set(newEntry);
-		} else if (newEntry.getType() != TreeNodeType.PV && oldEntry.getType() == TreeNodeType.PV) {
+		}
+		else if (newEntry.getType() != TreeNodeType.PV && oldEntry.getType() == TreeNodeType.PV) {
 			return;
-		} else {
+		}
+		else {
 			tt.set(newEntry);
 		}
 	}
@@ -327,7 +333,7 @@ public class TTAlphaBetaV1_2 implements MoveCalculator
 			System.out.println("Next");
 			c.tt.clear();
 			final AlgebraicCommand[] gComs = ChessGameReader.processSequenceOfCommands(br.readLine().trim());
-			BoardState state = BoardStateImplV2.getStartBoard();
+			BoardState state = BoardStateImpl.getStartBoard();
 			for (int j = 0; j < Math.min(20, gComs.length); j++) {
 				state = state.generateMove(gComs[j]).evolve(state);
 			}

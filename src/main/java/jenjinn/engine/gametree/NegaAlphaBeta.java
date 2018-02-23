@@ -1,13 +1,7 @@
-/**
- * Copyright � 2017 Lhasa Limited
- * File created: 13 Jul 2017 by ThomasB
- * Creator : ThomasB
- * Version : $Id$
- */
 package jenjinn.engine.gametree;
 
 import jenjinn.engine.boardstate.BoardState;
-import jenjinn.engine.boardstate.BoardStateImplV2;
+import jenjinn.engine.boardstate.BoardStateImpl;
 import jenjinn.engine.enums.Infinity;
 import jenjinn.engine.evaluation.BoardEvaluator;
 import jenjinn.engine.moves.ChessMove;
@@ -19,8 +13,8 @@ import jenjinn.engine.moves.ChessMove;
 public class NegaAlphaBeta implements MoveCalculator
 {
 	/**
-	 * Only use a nega evaluator, i.e one that is signed depending
-	 * on whether white or black is to move.
+	 * Only use a nega evaluator, i.e one that is signed depending on whether white
+	 * or black is to move.
 	 */
 	private Quiescence quiescence;
 	private int depth = 1;
@@ -36,26 +30,21 @@ public class NegaAlphaBeta implements MoveCalculator
 		ChessMove bestMove = null;
 		int alpha = -Infinity.INT_INFINITY; // Here alpha is the calculated value of our best move.
 
-		for (final ChessMove mv : root.getMoves())
-		{
+		for (final ChessMove mv : root.getMoves()) {
 			System.out.println("---------------------");
 			System.out.println(mv.toString());
 
-			if (mv.toString().equals("S[b8, c6]"))
-			{
+			if (mv.toString().equals("S[b8, c6]")) {
 				System.out.println("Wait");
 			}
 			int bestReply = 0;
-			try
-			{
+			try {
 				bestReply = -nAlphaBeta(mv.evolve(root), -Infinity.INT_INFINITY, -alpha, depth - 1);
 			}
-			catch (final InterruptedException e)
-			{
+			catch (final InterruptedException e) {
 				e.printStackTrace();
 				throw new AssertionError();
 			}
-
 
 			System.out.println("Current alpha: " + alpha + "\nBest reply: " + bestReply);
 			System.out.println("---------------------");
@@ -82,25 +71,24 @@ public class NegaAlphaBeta implements MoveCalculator
 	 */
 	public int nAlphaBeta(final BoardState root, int alpha, final int beta, final int depth) throws InterruptedException
 	{
-		if (depth == 0 || root.isTerminal())
-		{
+		if (depth == 0 || root.isTerminal()) {
 			System.out.println((depth == 0) + ", " + root.isTerminal());
-			System.out.println("Quiescence: " + quiescence.search(root, Infinity.IC_ALPHA, Infinity.IC_BETA, 30, false));
+			System.out.println(
+					"Quiescence: " + quiescence.search(root, Infinity.IC_ALPHA, Infinity.IC_BETA, 30, false));
 			return quiescence.search(root, Infinity.IC_ALPHA, Infinity.IC_BETA, 30, false);// getEvaluator().evaluate(root);//
 		}
 
-		for (final ChessMove mv : root.getMoves())
-		{
-			/* Let root.sideToMove = S. Then bestReply is the best score !S can achieve from
-			 * the perspective of S, so the higher the score the better it is for S. */
+		for (final ChessMove mv : root.getMoves()) {
+			/*
+			 * Let root.sideToMove = S. Then bestReply is the best score !S can achieve from
+			 * the perspective of S, so the higher the score the better it is for S.
+			 */
 			final int bestReply = -nAlphaBeta(mv.evolve(root), -beta, -alpha, depth - 1);
 
-			if (bestReply >= beta)
-			{
+			if (bestReply >= beta) {
 				return beta;
 			}
-			if (bestReply > alpha)
-			{
+			if (bestReply > alpha) {
 				alpha = bestReply;
 			}
 		}
@@ -139,7 +127,7 @@ public class NegaAlphaBeta implements MoveCalculator
 		final NegaAlphaBeta nag = new NegaAlphaBeta(BoardEvaluator.getDefault());
 		final MoveCalculator mc = new TTAlphaBetaV1_2(BoardEvaluator.getDefault());
 
-		BoardState state = BoardStateImplV2.getStartBoard();
+		BoardState state = BoardStateImpl.getStartBoard();
 		state = ChessMove.fromCompactString2("0_e2_e4").evolve(state);
 		state = ChessMove.fromCompactString2("0_e7_e5").evolve(state);
 		state = ChessMove.fromCompactString2("0_d2_d4").evolve(state);
@@ -160,14 +148,3 @@ public class NegaAlphaBeta implements MoveCalculator
 		return quiescence;
 	}
 }
-
-/* ---------------------------------------------------------------------*
- * This software is the confidential and proprietary
- * information of Lhasa Limited
- * Granary Wharf House, 2 Canal Wharf, Leeds, LS11 5PS
- * ---
- * No part of this confidential information shall be disclosed
- * and it shall be used only in accordance with the terms of a
- * written license agreement entered into by holder of the information
- * with LHASA Ltd.
- * --------------------------------------------------------------------- */

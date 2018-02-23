@@ -1,9 +1,3 @@
-/**
- * Copyright © 2017 Lhasa Limited
- * File created: 19 Sep 2017 by ThomasB
- * Creator : ThomasB
- * Version : $Id$
- */
 package jenjinn.testingengine.pieces;
 
 import java.util.ArrayList;
@@ -42,11 +36,9 @@ public class TPawn extends TChessPiece
 	{
 		final List<Sq> attcks = new ArrayList<>();
 		final Sq start = Sq.get(loc);
-		attackDirections.stream().forEach(x ->
-		{
+		attackDirections.stream().forEach(x -> {
 			final Sq next = start.getNextSqInDirection(x);
-			if (next != null)
-			{
+			if (next != null) {
 				attcks.add(next);
 			}
 		});
@@ -62,8 +54,7 @@ public class TPawn extends TChessPiece
 		final long attck = getAttackset(loc, enemyPieces | friendlyPieces) & enemyPieces;
 		long push = (1L << (loc + getSide().orientation() * 8)) & ~(friendlyPieces | enemyPieces);
 
-		if (inFirstMoveZone(loc) && push != 0)
-		{
+		if (inFirstMoveZone(loc) && push != 0) {
 			push |= ((1L << (loc + getSide().orientation() * 16)) & ~(friendlyPieces | enemyPieces));
 		}
 		return attck | push;
@@ -81,14 +72,3 @@ public class TPawn extends TChessPiece
 	}
 
 }
-
-/* ---------------------------------------------------------------------*
- * This software is the confidential and proprietary
- * information of Lhasa Limited
- * Granary Wharf House, 2 Canal Wharf, Leeds, LS11 5PS
- * ---
- * No part of this confidential information shall be disclosed
- * and it shall be used only in accordance with the terms of a
- * written license agreement entered into by holder of the information
- * with LHASA Ltd.
- * --------------------------------------------------------------------- */

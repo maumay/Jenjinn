@@ -16,14 +16,9 @@ import jenjinn.ui.view.BoardColors;
 /**
  * @author TB
  * @date 16 Feb 2017
- *
  */
 public class FirstGameLauncher extends Application
 {
-
-	/* (non-Javadoc)
-	 *
-	 * @see javafx.application.Application#start(javafx.stage.Stage) */
 	@Override
 	public void start(final Stage stage) throws Exception
 	{

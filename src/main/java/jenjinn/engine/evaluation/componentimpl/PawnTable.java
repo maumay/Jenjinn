@@ -3,15 +3,14 @@
  */
 package jenjinn.engine.evaluation.componentimpl;
 
-
 /**
  * @author t
  *
  */
-public class PawnTable 
+public class PawnTable
 {
 	private static final int DEFAULT_SIZE = 13;
-	
+
 	/** We use the rowMapper to map position hashes to row entries. */
 	private final long rowMapper;
 
@@ -38,7 +37,7 @@ public class PawnTable
 	{
 		return new PawnTable(twoPower);
 	}
-	
+
 	static PawnTable createDefault()
 	{
 		return new PawnTable(DEFAULT_SIZE);

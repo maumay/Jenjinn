@@ -1,9 +1,3 @@
-/**
- * Written by Tom Ball 2017.
- *
- * This code is unlicensed but please don't plagiarize.
- */
-
 package jenjinn.engine.misc;
 
 import static io.xyz.chains.utilities.CollectionUtil.len;
@@ -209,43 +203,7 @@ public class EngineUtils
 		return -1;
 	}
 
-	// public static byte[] getSetBits(final long bitboard)
-	// {
-	// final int cardinality = Long.bitCount(bitboard);
-	// final byte[] setBits = new byte[cardinality];
-	// int counter = 0;
-	//
-	// for (byte i = 0; i < 64 && counter < cardinality; i++)
-	// {
-	// if ((BBDB.SOB[i] & bitboard) != 0)
-	// {
-	// setBits[counter++] = i;
-	// }
-	// }
-	// return setBits;
-	// }
-	//
-	// public static byte[] getSetBits2(long bitboard)
-	// {
-	// final int cardinality = Long.bitCount(bitboard);
-	// final byte[] setBits = new byte[cardinality];
-	// byte arrCounter = 0, loopCounter = 0;
-	//
-	// while (bitboard != 0)
-	// {
-	// if ((BBDB.SOB[0] & bitboard) != 0)
-	// {
-	// setBits[arrCounter++] = loopCounter;
-	// }
-	// loopCounter++;
-	// bitboard >>>= 1;
-	// }
-	// return setBits;
-	// }
-
 	/**
-	 * This method is the current champion
-	 *
 	 * @param bitboard
 	 * @return
 	 */

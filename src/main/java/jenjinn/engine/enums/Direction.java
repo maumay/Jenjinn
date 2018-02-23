@@ -1,9 +1,3 @@
-/**
- * Written by Tom Ball 2017. 
- * 
- * This code is unlicensed but please don't plagiarize. 
- */
-
 package jenjinn.engine.enums;
 
 /**

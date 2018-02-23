@@ -19,10 +19,8 @@ import jenjinn.engine.zobristhashing.ZobristHasher;
 
 /**
  * Completely immutable representation of a state of a chess board. IMPORTANT
- * CONVENTION: We denote the side to move by friendly for brevity.
- * The side which isn't to move is then denoted as enemy.
- *
- * // We need to make this class more memory efficient.
+ * CONVENTION: We denote the side to move by friendly for brevity. The side
+ * which isn't to move is then denoted as enemy.
  *
  * @author TB
  * @date 28 Jan 2017
@@ -30,8 +28,9 @@ import jenjinn.engine.zobristhashing.ZobristHasher;
 public interface BoardState
 {
 	/**
-	 * Static {@link PieceSquareTable} instances for incremental update to the stored evaluations,
-	 * we store two such evaluations in the boardstate, one for midgame and the other for endgame.
+	 * Static {@link PieceSquareTable} instances for incremental update to the
+	 * stored evaluations, we store two such evaluations in the boardstate, one for
+	 * midgame and the other for endgame.
 	 */
 	static PieceSquareTable MID_TABLE = new MiddleGamePSTimplV1(), END_TABLE = new EndGamePSTimplV1();
 
@@ -58,13 +57,6 @@ public interface BoardState
 
 	ChessMove generateMove(final AlgebraicCommand com) throws AmbiguousPgnException;
 
-	// /**
-	// * In general this hashing function is not what would be used during the tree search.
-	// *
-	// * @return
-	// */
-	// long zobristHash();
-
 	ChessPiece getPieceAt(final byte loc);
 
 	ChessPiece getPieceAt(final byte loc, Side s);
@@ -87,31 +79,10 @@ public interface BoardState
 
 	byte getPiecePhase();
 
-	default short getGamePhase()
-	{
-		return (short) ((getPiecePhase() * 256 + 12) / 24);
-	}
-
-	default short[] interpolatePieceValues()
-	{
-		final short[] arr1 = PieceValueProvider.MGAME_VALUES, arr2 = PieceValueProvider.EGAME_VALUES;
-		assert arr1.length == arr2.length;
-		final short[] result = new short[arr1.length];
-		final short gamePhase = getGamePhase();
-
-		for (int i = 0; i < arr1.length; i++)
-		{
-			final int ans = ((arr1[i] * (256 - gamePhase)) + (arr2[i] * gamePhase)) / 256;
-			assert (short) ans == ans;
-			result[i] = (short) (ans);
-		}
-		return result;
-	}
-
 	long getDevelopmentStatus();
 
 	long getHashing();
-	
+
 	long getPawnHash();
 
 	byte getEnPassantSq();
@@ -129,4 +100,24 @@ public interface BoardState
 	short getEndgamePositionalEval();
 
 	ChessPiece getPieceFromBB(long fromset);
+	
+	default short getGamePhase()
+	{
+		return (short) ((getPiecePhase() * 256 + 12) / 24);
+	}
+
+	default short[] interpolatePieceValues()
+	{
+		final short[] arr1 = PieceValueProvider.MGAME_VALUES, arr2 = PieceValueProvider.EGAME_VALUES;
+		assert arr1.length == arr2.length;
+		final short[] result = new short[arr1.length];
+		final short gamePhase = getGamePhase();
+
+		for (int i = 0; i < arr1.length; i++) {
+			final int ans = ((arr1[i] * (256 - gamePhase)) + (arr2[i] * gamePhase)) / 256;
+			assert (short) ans == ans;
+			result[i] = (short) (ans);
+		}
+		return result;
+	}
 }

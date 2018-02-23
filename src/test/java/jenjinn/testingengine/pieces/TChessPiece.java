@@ -1,9 +1,3 @@
-/**
- * Copyright © 2017 Lhasa Limited
- * File created: 19 Sep 2017 by ThomasB
- * Creator : ThomasB
- * Version : $Id$
- */
 package jenjinn.testingengine.pieces;
 
 import java.util.ArrayList;
@@ -31,14 +25,12 @@ public abstract class TChessPiece extends ChessPiece
 	public static final TChessPiece[] BPIECES;
 
 	public static final TChessPiece[] PIECES;
-	static
-	{
+	static {
 		WPIECES = new TChessPiece[6];
 		BPIECES = new TChessPiece[6];
 		PIECES = new TChessPiece[12];
 
-		for (int i = 0; i < PieceType.values().length; i++)
-		{
+		for (int i = 0; i < PieceType.values().length; i++) {
 			WPIECES[i] = TPieceType.values()[i].generatePiece(Side.W);
 			BPIECES[i] = TPieceType.values()[i].generatePiece(Side.B);
 
@@ -53,8 +45,8 @@ public abstract class TChessPiece extends ChessPiece
 	}
 
 	/**
-	 * For the testing engine we use a much slower but more intuitive way
-	 * of generating possible moves.
+	 * For the testing engine we use a much slower but more intuitive way of
+	 * generating possible moves.
 	 */
 	final List<Direction> movementDirections;
 
@@ -68,9 +60,9 @@ public abstract class TChessPiece extends ChessPiece
 	}
 
 	/**
-	 * Given the location of the piece, the location of all friendly pieces
-	 * and the location of all enemy pieces this method returns the attackset
-	 * in bitboard form.
+	 * Given the location of the piece, the location of all friendly pieces and the
+	 * location of all enemy pieces this method returns the attackset in bitboard
+	 * form.
 	 */
 	@Override
 	public long getAttackset(final byte loc, final long occupiedSquares)
@@ -78,14 +70,11 @@ public abstract class TChessPiece extends ChessPiece
 		final List<Sq> attackSq = new ArrayList<>();
 		final Sq start = Sq.get(loc);
 
-		for (final Direction d : movementDirections)
-		{
+		for (final Direction d : movementDirections) {
 			Sq next = start;
-			while ((next = next.getNextSqInDirection(d)) != null)
-			{
+			while ((next = next.getNextSqInDirection(d)) != null) {
 				attackSq.add(next);
-				if ((next.getAsBB() & occupiedSquares) != 0)
-				{
+				if ((next.getAsBB() & occupiedSquares) != 0) {
 					break;
 				}
 			}
@@ -95,18 +84,6 @@ public abstract class TChessPiece extends ChessPiece
 
 	protected final long bbFromSqs(final List<Sq> sqs)
 	{
-		return EngineUtils.multipleOr(sqs.stream()
-				.mapToLong(x -> x.getAsBB())
-				.toArray());
+		return EngineUtils.multipleOr(sqs.stream().mapToLong(x -> x.getAsBB()).toArray());
 	}
 }
-/* ---------------------------------------------------------------------*
- * This software is the confidential and proprietary
- * information of Lhasa Limited
- * Granary Wharf House, 2 Canal Wharf, Leeds, LS11 5PS
- * ---
- * No part of this confidential information shall be disclosed
- * and it shall be used only in accordance with the terms of a
- * written license agreement entered into by holder of the information
- * with LHASA Ltd.
- * --------------------------------------------------------------------- */

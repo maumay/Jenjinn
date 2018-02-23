@@ -1,9 +1,3 @@
-/**
- * Copyright � 2017 Lhasa Limited
- * File created: 21 Jul 2017 by ThomasB
- * Creator : ThomasB
- * Version : $Id$
- */
 package jenjinn.engine.moves;
 
 import static jenjinn.engine.boardstate.BoardState.END_TABLE;
@@ -12,7 +6,7 @@ import static jenjinn.engine.boardstate.BoardState.MID_TABLE;
 import java.util.EnumSet;
 
 import jenjinn.engine.boardstate.BoardState;
-import jenjinn.engine.boardstate.BoardStateImplV2;
+import jenjinn.engine.boardstate.BoardStateImpl;
 import jenjinn.engine.enums.MoveType;
 import jenjinn.engine.enums.Side;
 import jenjinn.engine.enums.Sq;
@@ -23,7 +17,7 @@ import jenjinn.engine.pieces.PieceType;
  * @author ThomasB
  * @since 21 Jul 2017
  */
-public class PromotionMove extends AbstractChessMoveImplV2
+public class PromotionMove extends AbstractChessMove
 {
 	private PieceType toPromoteTo;
 
@@ -83,8 +77,7 @@ public class PromotionMove extends AbstractChessMoveImplV2
 
 		byte oldPiecePhase = state.getPiecePhase();
 
-		if (removedPiece != null)
-		{
+		if (removedPiece != null) {
 			newPieceLocations[removedPiece.index()] ^= getTargetBB();
 			newHash ^= BoardState.HASHER.getSquarePieceFeature(getTarget(), ChessPiece.get(removedPiece.index()));
 			oldPiecePhase = updatePiecePhase(oldPiecePhase, removedPiece);
@@ -93,14 +86,14 @@ public class PromotionMove extends AbstractChessMoveImplV2
 			endPosEval -= END_TABLE.getPieceSquareValue(removedPiece.index(), getTarget());
 		}
 
-		return new BoardStateImplV2(
+		return new BoardStateImpl(
 				state.getNewRecentHashings(newHash),
 				1 - state.getFriendlySideValue(),
 				state.getCastleRights(),
 				state.getCastleStatus(),
 				BoardState.NO_ENPASSANT,
 				0,
-				Math.max(0, oldPiecePhase - PIECE_PHASES[newPieceIndex % 6]), // putting piece on board so pghase decreases
+				Math.max(0, oldPiecePhase - PIECE_PHASES[newPieceIndex % 6]),
 				midPosEval,
 				endPosEval,
 				state.getDevelopmentStatus(),
@@ -122,14 +115,3 @@ public class PromotionMove extends AbstractChessMoveImplV2
 		return sb.toString();
 	}
 }
-
-/* ---------------------------------------------------------------------*
- * This software is the confidential and proprietary
- * information of Lhasa Limited
- * Granary Wharf House, 2 Canal Wharf, Leeds, LS11 5PS
- * ---
- * No part of this confidential information shall be disclosed
- * and it shall be used only in accordance with the terms of a
- * written license agreement entered into by holder of the information
- * with LHASA Ltd.
- * --------------------------------------------------------------------- */

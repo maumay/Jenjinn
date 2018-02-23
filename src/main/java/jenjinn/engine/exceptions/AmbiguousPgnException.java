@@ -7,21 +7,22 @@ package jenjinn.engine.exceptions;
  * @author t
  *
  */
-public class AmbiguousPgnException extends Exception {
+public class AmbiguousPgnException extends Exception
+{
 
 	private static final long serialVersionUID = -822852476447898443L;
 
 	/**
 	 * 
 	 */
-	public AmbiguousPgnException() 
+	public AmbiguousPgnException()
 	{
 	}
 
 	/**
 	 * @param message
 	 */
-	public AmbiguousPgnException(String message) 
+	public AmbiguousPgnException(String message)
 	{
 		super(message);
 	}
@@ -38,7 +39,7 @@ public class AmbiguousPgnException extends Exception {
 	 * @param message
 	 * @param cause
 	 */
-	public AmbiguousPgnException(String message, Throwable cause) 
+	public AmbiguousPgnException(String message, Throwable cause)
 	{
 		super(message, cause);
 	}
@@ -49,8 +50,8 @@ public class AmbiguousPgnException extends Exception {
 	 * @param enableSuppression
 	 * @param writableStackTrace
 	 */
-	public AmbiguousPgnException(String message, Throwable cause, boolean enableSuppression,
-			boolean writableStackTrace) {
+	public AmbiguousPgnException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace)
+	{
 		super(message, cause, enableSuppression, writableStackTrace);
 	}
 
