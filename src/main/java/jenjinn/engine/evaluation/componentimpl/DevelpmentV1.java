@@ -3,7 +3,7 @@
  */
 package jenjinn.engine.evaluation.componentimpl;
 
-import jenjinn.engine.bitboarddatabase.BBDB;
+import jenjinn.engine.bitboarddatabase.Bitboards;
 import jenjinn.engine.boardstate.BoardState;
 import jenjinn.engine.boardstate.BoardStateImpl;
 import jenjinn.engine.evaluation.EvaluatingComponent;
@@ -18,7 +18,7 @@ public class DevelpmentV1 implements EvaluatingComponent
 	private static final short CASTLE_BONUS = 150;
 	private static final short[] DEV_BONUSES = { 80, 75, 90, 90, 75, 80 };
 
-	private static final long WRANKS = BBDB.RNK[0] | BBDB.RNK[1], BRANKS = BBDB.RNK[6] | BBDB.RNK[7];
+	private static final long WRANKS = Bitboards.RNK[0] | Bitboards.RNK[1], BRANKS = Bitboards.RNK[6] | Bitboards.RNK[7];
 
 	/*
 	 * (non-Javadoc)
@@ -43,7 +43,7 @@ public class DevelpmentV1 implements EvaluatingComponent
 		// EngineUtils.printNbitBoards(devStatus, wdev, bdev);
 
 		for (int i = 1; i < 7; i++) {
-			long fle = BBDB.FILE[i];
+			long fle = Bitboards.FILE[i];
 			eval += (((wdev & fle) == 0 ? 1 : 0) - ((bdev & fle) == 0 ? 1 : 0)) * DEV_BONUSES[i - 1];
 		}
 		// System.out.println(eval);

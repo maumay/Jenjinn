@@ -1,6 +1,6 @@
 package jenjinn.engine.evaluation;
 
-import jenjinn.engine.bitboarddatabase.BBDB;
+import jenjinn.engine.bitboarddatabase.Bitboards;
 import jenjinn.engine.boardstate.BoardState;
 import jenjinn.engine.enums.Side;
 import jenjinn.engine.misc.EngineUtils;
@@ -12,11 +12,11 @@ import jenjinn.engine.pieces.ChessPiece;
  * 
  * @author t
  */
-public final class SEE
+public final class StaticExchangeEvaluator
 {
 	private static final int[] ASCENDING_PVALUES = { 0, 2, 1, 3, 4, 5, 6, 8, 7, 9, 10, 11 };
 
-	public SEE()
+	public StaticExchangeEvaluator()
 	{
 	}
 
@@ -96,7 +96,7 @@ public final class SEE
 				if ((atts & targBB) != 0) {
 					attadef |= (1L << loc);
 				}
-				else if (canXray && (BBDB.EBA[(p.index() % 6) + 1][loc] & targBB) != 0) {
+				else if (canXray && (Bitboards.EBA[(p.index() % 6) + 1][loc] & targBB) != 0) {
 					potenxray |= (1L << loc);
 				}
 			}

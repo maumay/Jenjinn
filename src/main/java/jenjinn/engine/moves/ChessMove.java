@@ -1,5 +1,7 @@
 package jenjinn.engine.moves;
 
+import static jenjinn.engine.boardstate.BoardStateConstants.getStateHasher;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -53,23 +55,23 @@ public interface ChessMove
 
 	default long updateGeneralHashFeatures(final BoardState oldState, final byte newCastleRights, final byte newEnPassantSquare)
 	{
-		long newHashing = oldState.getHashing() ^ BoardState.HASHER.getBlackToMove();
+		long newHashing = oldState.getHashing() ^ getStateHasher().getBlackToMove();
 
 		// Can't gain castling rights, can only lose them.
 		final byte castleRightsChange = (byte) (oldState.getCastleRights() & ~newCastleRights);
 		if (castleRightsChange > 0) {
 			for (int i = 0; i < 4; i++) {
 				if ((CastlingRights.VALUES[i] & castleRightsChange) > 0) {
-					newHashing ^= BoardState.HASHER.getCastleFeature(i);
+					newHashing ^= getStateHasher().getCastleFeature(i);
 				}
 			}
 		}
 
 		if (oldState.getEnPassantSq() != BoardState.NO_ENPASSANT) {
-			newHashing ^= BoardState.HASHER.getEnpassantFeature(oldState.getEnPassantSq() % 8);
+			newHashing ^= getStateHasher().getEnpassantFeature(oldState.getEnPassantSq() % 8);
 		}
 		if (newEnPassantSquare != BoardState.NO_ENPASSANT) {
-			newHashing ^= BoardState.HASHER.getEnpassantFeature(newEnPassantSquare % 8);
+			newHashing ^= getStateHasher().getEnpassantFeature(newEnPassantSquare % 8);
 		}
 
 		return newHashing;

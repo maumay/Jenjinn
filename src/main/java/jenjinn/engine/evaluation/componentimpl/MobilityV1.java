@@ -5,7 +5,7 @@ package jenjinn.engine.evaluation.componentimpl;
 
 import static jenjinn.engine.evaluation.componentimpl.PawnStructureV1.getPawnAttacksFromLocs;
 
-import jenjinn.engine.bitboarddatabase.BBDB;
+import jenjinn.engine.bitboarddatabase.Bitboards;
 import jenjinn.engine.boardstate.BoardState;
 import jenjinn.engine.enums.Side;
 import jenjinn.engine.evaluation.EvaluatingComponent;
@@ -88,7 +88,7 @@ public class MobilityV1 implements EvaluatingComponent
 		final byte[] whiteRookLocs = EngineUtils.getSetBits(state.getPieceLocations(3));
 
 		for (final byte loc : whiteRookLocs) {
-			final long file = BBDB.FILE[7 - (loc % 8)];
+			final long file = Bitboards.FILE[7 - (loc % 8)];
 			final long allMoves = ChessPiece.get(3).getMoveset(loc, allWhiteLoc, allBlackLoc) & ~bPawnAttacks;
 
 			final int vMovesNum = Long.bitCount(allMoves & file), hMovesNum = Long.bitCount(allMoves & ~file);
@@ -102,7 +102,7 @@ public class MobilityV1 implements EvaluatingComponent
 		final byte[] blackRookLocs = EngineUtils.getSetBits(state.getPieceLocations(9));
 
 		for (final byte loc : blackRookLocs) {
-			final long file = BBDB.FILE[7 - (loc % 8)];
+			final long file = Bitboards.FILE[7 - (loc % 8)];
 			final long allMoves = ChessPiece.get(9).getMoveset(loc, allBlackLoc, allWhiteLoc) & ~wPawnAttacks;
 
 			final int vMovesNum = Long.bitCount(allMoves & file), hMovesNum = Long.bitCount(allMoves & ~file);

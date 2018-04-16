@@ -8,7 +8,7 @@ import static jenjinn.engine.misc.EngineUtils.multipleOr;
 import java.util.ArrayList;
 import java.util.List;
 
-import jenjinn.engine.bitboarddatabase.BBDB;
+import jenjinn.engine.bitboarddatabase.Bitboards;
 import jenjinn.engine.boardstate.BoardState;
 import jenjinn.engine.enums.Side;
 import jenjinn.engine.evaluation.EvaluatingComponent;
@@ -92,8 +92,8 @@ public class MobilityAndKingSafetyV2 implements EvaluatingComponent
 		final boolean bckrnk = s.isWhite() ? rnk == 7 : rnk == 0;
 
 		int ebaIdxShift = (fileNum == 0) ? -1 : ((fileNum == 7) ? 1 : 0);
-		long eba = BBDB.EBA[6][kingLoc + ebaIdxShift];
-		long kingzone = (bckrnk ? 0L : (eba & BBDB.RNK[rnk + (s.isWhite() ? 1 : -1)])) | (eba & mvset) | kloc;
+		long eba = Bitboards.EBA[6][kingLoc + ebaIdxShift];
+		long kingzone = (bckrnk ? 0L : (eba & Bitboards.RNK[rnk + (s.isWhite() ? 1 : -1)])) | (eba & mvset) | kloc;
 
 		int lower = s.isWhite() ? 4 : 0, upper = lower + 4;
 		for (int i = lower; i < upper; i++) {

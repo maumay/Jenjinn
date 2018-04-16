@@ -12,7 +12,7 @@ import jenjinn.engine.enums.Side;
  * The abstract superclass of all chess pieces to be used by the engine. These
  * are immutable as we want all information about position on the board etc to
  * be stored by each individual BoardState instance.
- * 
+ *
  * @author TB
  * @date 24 Jan 2017
  */
@@ -104,19 +104,11 @@ public abstract class ChessPiece
 		return sb.toString();
 	}
 
-	/**
-	 * @return the side
-	 */
 	public Side getSide()
 	{
 		return side;
 	}
 
-	/**
-	 * Convenience method.
-	 *
-	 * @return
-	 */
 	public boolean isWhite()
 	{
 		return side == Side.W;
@@ -124,13 +116,10 @@ public abstract class ChessPiece
 
 	public boolean canXray()
 	{
-		int modId = id % 6;
+		final int modId = id % 6;
 		return modId == 1 || modId == 3 || modId == 4;
 	}
 
-	/**
-	 * @return the id
-	 */
 	public byte index()
 	{
 		return id;

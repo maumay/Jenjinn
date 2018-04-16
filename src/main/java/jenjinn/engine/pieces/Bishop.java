@@ -1,6 +1,6 @@
 package jenjinn.engine.pieces;
 
-import jenjinn.engine.bitboarddatabase.BBDB;
+import jenjinn.engine.bitboarddatabase.Bitboards;
 import jenjinn.engine.enums.Side;
 
 /**
@@ -25,14 +25,14 @@ public class Bishop extends ChessPiece
 	static long staticGetAttackset(final byte loc, final long occupiedSquares)
 	{
 		final int magicIndex = generateMagicIndex(loc, occupiedSquares);
-		return BBDB.BMM[loc][magicIndex];
+		return Bitboards.BMM[loc][magicIndex];
 	}
 
 	private static int generateMagicIndex(final byte loc, final long allPieces)
 	{
-		final long occupancyVariation = allPieces & BBDB.BOM[loc];
-		final long magicNumber = BBDB.BMN[loc];
-		final byte bitShift = BBDB.BMB[loc];
+		final long occupancyVariation = allPieces & Bitboards.BOM[loc];
+		final long magicNumber = Bitboards.BMN[loc];
+		final byte bitShift = Bitboards.BMB[loc];
 		return (int) ((occupancyVariation * magicNumber) >>> bitShift);
 	}
 

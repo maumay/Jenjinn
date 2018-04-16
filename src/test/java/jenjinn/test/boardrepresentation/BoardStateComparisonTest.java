@@ -1,5 +1,6 @@
 package jenjinn.test.boardrepresentation;
 
+import static java.util.stream.Collectors.toSet;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -10,7 +11,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -31,7 +31,10 @@ import jenjinn.testingengine.boardstate.TBoardState;
  */
 public class BoardStateComparisonTest
 {
-	private static final String[] POSITIONPROVIDERS = { "carlsenprovider.txt", "fischerprovider.txt", "grischukprovider.txt", "karpovprovider.txt", "kasparovprovider.txt", "petrosianprovider.txt", "talprovider.txt", "topalovprovider.txt" };
+	private static final String[] POSITIONPROVIDERS = {
+			"carlsenprovider.txt", "fischerprovider.txt", "grischukprovider.txt", "karpovprovider.txt",
+			//"kasparovprovider.txt", "petrosianprovider.txt", "talprovider.txt", "topalovprovider.txt"
+			};
 
 	@Test
 	public void test()
@@ -69,7 +72,7 @@ public class BoardStateComparisonTest
 		for (final AlgebraicCommand com : commands) {
 			final String errorOutput = com.getAsString() + " in: " + game;
 			final ChessMove conMv = constraint.generateMove(com), testMv = toTest.generateMove(com);
-			assertEquals(conMv.toString(), testMv.toString());// , "Different moves generated");
+			assertEquals("Different moves generated", conMv.toString(), testMv.toString());
 
 			toTest = testMv.evolve(toTest);
 			constraint = conMv.evolve(constraint);
@@ -117,16 +120,16 @@ public class BoardStateComparisonTest
 		assertEquals(errorOutput, cons.getSquaresAttackedBy(Side.W), test.getSquaresAttackedBy(Side.W));
 		assertEquals(errorOutput, cons.getSquaresAttackedBy(Side.B), test.getSquaresAttackedBy(Side.B));
 
-		Set<String> cMoves = cons.getMoves().stream().map(x -> x.toString()).collect(Collectors.toSet());
-		Set<String> tMoves = test.getMoves().stream().map(x -> x.toString()).collect(Collectors.toSet());
+		Set<String> cMoves = cons.getMoves().stream().map(x -> x.toString()).collect(toSet());
+		Set<String> tMoves = test.getMoves().stream().map(x -> x.toString()).collect(toSet());
 		boolean sameMoves = cMoves.containsAll(tMoves) && tMoves.containsAll(cMoves);
 
 		assertTrue(
 				errorOutput + "\n\n" + "Constraint has " + cMoves.size() + " moves:" + cMoves.toString() + "\n\nTotest has " + tMoves.size() + " moves:" + tMoves.toString(),
 				sameMoves);
 
-		cMoves = cons.getAttackMoves().stream().map(x -> x.toString()).collect(Collectors.toSet());
-		tMoves = test.getAttackMoves().stream().map(x -> x.toString()).collect(Collectors.toSet());
+		cMoves = cons.getAttackMoves().stream().map(x -> x.toString()).collect(toSet());
+		tMoves = test.getAttackMoves().stream().map(x -> x.toString()).collect(toSet());
 		sameMoves = cMoves.containsAll(tMoves) && tMoves.containsAll(cMoves);
 
 		assertTrue(

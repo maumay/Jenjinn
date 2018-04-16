@@ -1,6 +1,6 @@
 package jenjinn.engine.pieces;
 
-import jenjinn.engine.bitboarddatabase.BBDB;
+import jenjinn.engine.bitboarddatabase.Bitboards;
 import jenjinn.engine.enums.Side;
 
 /**
@@ -19,7 +19,7 @@ public class Knight extends ChessPiece
 	@Override
 	public long getAttackset(final byte loc, final long occupiedSquares)
 	{
-		return BBDB.EBA[3][loc];
+		return Bitboards.EBA[3][loc];
 	}
 
 	@Override

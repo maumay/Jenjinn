@@ -1,7 +1,9 @@
 package jenjinn.engine.moves;
 
-import static jenjinn.engine.boardstate.BoardState.END_TABLE;
-import static jenjinn.engine.boardstate.BoardState.MID_TABLE;
+import static java.lang.Math.signum;
+import static jenjinn.engine.boardstate.BoardStateConstants.getEndGamePST;
+import static jenjinn.engine.boardstate.BoardStateConstants.getMiddleGamePST;
+import static jenjinn.engine.boardstate.BoardStateConstants.getStateHasher;
 
 import jenjinn.engine.boardstate.BoardState;
 import jenjinn.engine.boardstate.BoardStateImpl;
@@ -41,7 +43,7 @@ public class EnPassantMove extends AbstractChessMove
 
 	public final byte getEnPassantSquare()
 	{
-		return (byte) (getTarget() - Math.signum(getTarget() - getStart()) * 8);
+		return (byte) (getTarget() - signum(getTarget() - getStart()) * 8);
 	}
 
 	@Override
@@ -63,22 +65,22 @@ public class EnPassantMove extends AbstractChessMove
 
 		// Update metadata ----------------------------------------------
 		long newHash = updateGeneralHashFeatures(state, state.getCastleRights(), BoardState.NO_ENPASSANT);
-		newHash ^= BoardState.HASHER.getSquarePieceFeature(getStart(), ChessPiece.get(friendlySide.index()));
-		newHash ^= BoardState.HASHER.getSquarePieceFeature(getTarget(), ChessPiece.get(friendlySide.index()));
-		newHash ^= BoardState.HASHER.getSquarePieceFeature(getEnPassantSquare(), ChessPiece.get(friendlySide.otherSide().index()));
+		newHash ^= getStateHasher().getSquarePieceFeature(getStart(), ChessPiece.get(friendlySide.index()));
+		newHash ^= getStateHasher().getSquarePieceFeature(getTarget(), ChessPiece.get(friendlySide.index()));
+		newHash ^= getStateHasher().getSquarePieceFeature(getEnPassantSquare(), ChessPiece.get(friendlySide.otherSide().index()));
 		// ---------------------------------------------------------------
 
 		// Update positional evaluations --------------------------------
 		short midPosEval = state.getMidgamePositionalEval(), endPosEval = state.getEndgamePositionalEval();
 
-		midPosEval += MID_TABLE.getPieceSquareValue((friendlySide.index()), getTarget());
-		midPosEval -= MID_TABLE.getPieceSquareValue((friendlySide.index()), getStart());
+		midPosEval += getMiddleGamePST().getPieceSquareValue((friendlySide.index()), getTarget());
+		midPosEval -= getMiddleGamePST().getPieceSquareValue((friendlySide.index()), getStart());
 
-		endPosEval += END_TABLE.getPieceSquareValue((friendlySide.index()), getTarget());
-		endPosEval -= END_TABLE.getPieceSquareValue((friendlySide.index()), getStart());
+		endPosEval += getEndGamePST().getPieceSquareValue((friendlySide.index()), getTarget());
+		endPosEval -= getEndGamePST().getPieceSquareValue((friendlySide.index()), getStart());
 
-		midPosEval -= MID_TABLE.getPieceSquareValue((friendlySide.otherSide().index()), getEnPassantSquare());
-		endPosEval -= END_TABLE.getPieceSquareValue((friendlySide.otherSide().index()), getEnPassantSquare());
+		midPosEval -= getMiddleGamePST().getPieceSquareValue((friendlySide.otherSide().index()), getEnPassantSquare());
+		endPosEval -= getEndGamePST().getPieceSquareValue((friendlySide.otherSide().index()), getEnPassantSquare());
 		// ---------------------------------------------------------------
 
 		return new BoardStateImpl(

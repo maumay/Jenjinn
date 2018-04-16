@@ -1,7 +1,8 @@
 package jenjinn.engine.moves;
 
-import static jenjinn.engine.boardstate.BoardState.END_TABLE;
-import static jenjinn.engine.boardstate.BoardState.MID_TABLE;
+import static jenjinn.engine.boardstate.BoardStateConstants.getEndGamePST;
+import static jenjinn.engine.boardstate.BoardStateConstants.getMiddleGamePST;
+import static jenjinn.engine.boardstate.BoardStateConstants.getStateHasher;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -112,27 +113,27 @@ public final class CastleMove extends AbstractChessMove
 		final byte newCastleStatus = updateCastleStatus(state.getCastleStatus(), moveSide);
 
 		long newHash = updateGeneralHashFeatures(state, newCastleRights, BoardState.NO_ENPASSANT);
-		newHash ^= BoardState.HASHER.getSquarePieceFeature(kingAdditionSquare, ChessPiece.get(5 + moveSide.index()));
-		newHash ^= BoardState.HASHER.getSquarePieceFeature(kingRemovalSquare, ChessPiece.get(5 + moveSide.index()));
-		newHash ^= BoardState.HASHER.getSquarePieceFeature(rookAdditionSquare, ChessPiece.get(3 + moveSide.index()));
-		newHash ^= BoardState.HASHER.getSquarePieceFeature(rookRemovalSquare, ChessPiece.get(3 + moveSide.index()));
+		newHash ^= getStateHasher().getSquarePieceFeature(kingAdditionSquare, ChessPiece.get(5 + moveSide.index()));
+		newHash ^= getStateHasher().getSquarePieceFeature(kingRemovalSquare, ChessPiece.get(5 + moveSide.index()));
+		newHash ^= getStateHasher().getSquarePieceFeature(rookAdditionSquare, ChessPiece.get(3 + moveSide.index()));
+		newHash ^= getStateHasher().getSquarePieceFeature(rookRemovalSquare, ChessPiece.get(3 + moveSide.index()));
 		// -----------------------------------------------------------------
 
 		// Update positional evaluation------------------------------------
 
 		short midPosEval = state.getMidgamePositionalEval(), endPosEval = state.getEndgamePositionalEval();
 
-		midPosEval += MID_TABLE.getPieceSquareValue((byte) (5 + moveSide.index()), kingAdditionSquare);
-		midPosEval -= MID_TABLE.getPieceSquareValue((byte) (5 + moveSide.index()), kingRemovalSquare);
+		midPosEval += getMiddleGamePST().getPieceSquareValue((byte) (5 + moveSide.index()), kingAdditionSquare);
+		midPosEval -= getMiddleGamePST().getPieceSquareValue((byte) (5 + moveSide.index()), kingRemovalSquare);
 
-		endPosEval += END_TABLE.getPieceSquareValue((byte) (5 + moveSide.index()), kingAdditionSquare);
-		endPosEval -= END_TABLE.getPieceSquareValue((byte) (5 + moveSide.index()), kingRemovalSquare);
+		endPosEval += getEndGamePST().getPieceSquareValue((byte) (5 + moveSide.index()), kingAdditionSquare);
+		endPosEval -= getEndGamePST().getPieceSquareValue((byte) (5 + moveSide.index()), kingRemovalSquare);
 
-		midPosEval += MID_TABLE.getPieceSquareValue((byte) (3 + moveSide.index()), rookAdditionSquare);
-		midPosEval -= MID_TABLE.getPieceSquareValue((byte) (3 + moveSide.index()), rookRemovalSquare);
+		midPosEval += getMiddleGamePST().getPieceSquareValue((byte) (3 + moveSide.index()), rookAdditionSquare);
+		midPosEval -= getMiddleGamePST().getPieceSquareValue((byte) (3 + moveSide.index()), rookRemovalSquare);
 
-		endPosEval += END_TABLE.getPieceSquareValue((byte) (3 + moveSide.index()), rookAdditionSquare);
-		endPosEval -= END_TABLE.getPieceSquareValue((byte) (3 + moveSide.index()), rookRemovalSquare);
+		endPosEval += getEndGamePST().getPieceSquareValue((byte) (3 + moveSide.index()), rookAdditionSquare);
+		endPosEval -= getEndGamePST().getPieceSquareValue((byte) (3 + moveSide.index()), rookRemovalSquare);
 
 		// -----------------------------------------------------------------
 

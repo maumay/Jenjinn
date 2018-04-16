@@ -6,7 +6,7 @@
 
 package jenjinn.engine.pieces;
 
-import jenjinn.engine.bitboarddatabase.BBDB;
+import jenjinn.engine.bitboarddatabase.Bitboards;
 import jenjinn.engine.enums.Side;
 
 /**
@@ -25,7 +25,7 @@ public class Pawn extends ChessPiece
 	@Override
 	public long getAttackset(final byte loc, final long occupiedSquares)
 	{
-		return BBDB.EBA[getSide().ordinal()][loc];
+		return Bitboards.EBA[getSide().ordinal()][loc];
 	}
 
 	private boolean inFirstMoveZone(final byte loc)

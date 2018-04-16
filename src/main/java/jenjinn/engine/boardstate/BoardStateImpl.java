@@ -3,15 +3,16 @@ package jenjinn.engine.boardstate;
 import static io.xyz.chains.utilities.CollectionUtil.len;
 import static io.xyz.chains.utilities.CombineUtil.join;
 import static io.xyz.chains.utilities.StreamUtil.stream;
+import static java.util.stream.Collectors.toList;
+import static jenjinn.engine.boardstate.BoardStateConstants.getStateHasher;
 import static jenjinn.engine.misc.EngineUtils.printNbitBoards;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import jenjinn.engine.bitboarddatabase.BBDB;
+import jenjinn.engine.bitboarddatabase.Bitboards;
 import jenjinn.engine.enums.Side;
 import jenjinn.engine.enums.Sq;
 import jenjinn.engine.enums.TerminationType;
@@ -32,8 +33,9 @@ import jenjinn.engine.pieces.PieceType;
  */
 public class BoardStateImpl implements BoardState
 {
-	private static final long EXCESS_CHOPPER = ~EngineUtils.multipleOr(BBDB.RNK[2], BBDB.RNK[3], BBDB.RNK[4],
-			BBDB.RNK[5], BBDB.RNK[6], BBDB.RNK[7]);
+	private static final long EXCESS_CHOPPER = ~EngineUtils.multipleOr(
+			Bitboards.RNK[2], Bitboards.RNK[3], Bitboards.RNK[4],
+			Bitboards.RNK[5], Bitboards.RNK[6], Bitboards.RNK[7]);
 
 	private static final long CASTLE_RIGHTS_GETTER = 0b11110000L << (7 * 8);
 
@@ -77,7 +79,8 @@ public class BoardStateImpl implements BoardState
 		this.devStatus = devStatus;
 		this.pieceLocations = pieceLocations;
 
-		this.metaData = (castleRights << 60) | // 60 = (7 * 8) + 4
+		this.metaData =
+				(castleRights << 60) | // 60 = (7 * 8) + 4
 				(castleStatus << 56) | // 56 = 7 * 8
 				(enPassantSq << 49) | // 49 = (6 * 8) + 1
 				(friendlySide << 48) | // 48 = 6 * 8
@@ -106,7 +109,7 @@ public class BoardStateImpl implements BoardState
 		}
 
 		// Add Pawn moves.
-		final ChessPiece p = ChessPiece.get(lowerBound); 
+		final ChessPiece p = ChessPiece.get(lowerBound);
 		if (getEnPassantSq() != BoardState.NO_ENPASSANT) {
 			for (final byte loc : EngineUtils.getSetBits(pieceLocations[lowerBound])) {
 				addPawnStandardAndPromotionMoves(moves, loc, p.getMoveset(loc, friendlyPieces, enemyPieces));
@@ -144,7 +147,7 @@ public class BoardStateImpl implements BoardState
 		}
 
 		// Add Pawn moves.
-		final ChessPiece p = ChessPiece.get(lowerBound); 
+		final ChessPiece p = ChessPiece.get(lowerBound);
 		if (getEnPassantSq() != BoardState.NO_ENPASSANT) {
 			for (final byte loc : EngineUtils.getSetBits(pieceLocations[lowerBound])) {
 				addPawnStandardAndPromotionMoves(moves, loc, p.getAttackset(loc, allPieces) & enemyPieces);
@@ -475,7 +478,7 @@ public class BoardStateImpl implements BoardState
 
 	public static BoardState getStartBoard()
 	{
-		final long startHash = BoardState.HASHER.generateStartHash();
+		final long startHash = getStateHasher().generateStartHash();
 
 		return new BoardStateImpl(
 				new long[] { startHash, 1L, 2L, 3L },
@@ -537,8 +540,11 @@ public class BoardStateImpl implements BoardState
 		final int startRnk = com.getStartRow();
 		final int startFle = com.getStartFile();
 
-		final List<StandardMove> possibleStandardMoves = getMoves().stream().filter(x -> x instanceof StandardMove).map(
-				x -> (StandardMove) x).collect(Collectors.toList());
+		final List<StandardMove> possibleStandardMoves = getMoves()
+				.stream()
+				.filter(StandardMove.class::isInstance)
+				.map(StandardMove.class::cast)
+				.collect(toList());
 
 		final List<StandardMove> possibleMoves = new ArrayList<>();
 
@@ -633,11 +639,11 @@ public class BoardStateImpl implements BoardState
 	public long getPawnHash()
 	{
 		long hash = 0L;
-		for (byte ploc : EngineUtils.getSetBits(pieceLocations[0])) {
-			hash ^= BoardState.HASHER.getSquarePieceFeature(ploc, ChessPiece.get(0));
+		for (final byte ploc : EngineUtils.getSetBits(pieceLocations[0])) {
+			hash ^= getStateHasher().getSquarePieceFeature(ploc, ChessPiece.get(0));
 		}
-		for (byte ploc : EngineUtils.getSetBits(pieceLocations[6])) {
-			hash ^= BoardState.HASHER.getSquarePieceFeature(ploc, ChessPiece.get(6));
+		for (final byte ploc : EngineUtils.getSetBits(pieceLocations[6])) {
+			hash ^= getStateHasher().getSquarePieceFeature(ploc, ChessPiece.get(6));
 		}
 		return hash;
 	}

@@ -1,5 +1,7 @@
 package jenjinn.test.evaluation;
 
+import static jenjinn.engine.boardstate.BoardStateConstants.getEndGamePST;
+import static jenjinn.engine.boardstate.BoardStateConstants.getMiddleGamePST;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
@@ -16,9 +18,6 @@ import jenjinn.engine.pieces.ChessPiece;
  */
 public class PieceSquareTableTest
 {
-	// private static final short[] MIDVALUES = MiddleGamePSTimplV1.PIECE_VALUES,
-	// ENDVALUES = EndGamePSTimplV1.PIECE_VALUES;
-
 	@Test
 	public void testState1()
 	{
@@ -30,8 +29,8 @@ public class PieceSquareTableTest
 			final ChessPiece p = ChessPiece.get(ctr++);
 
 			for (final byte loc : EngineUtils.getSetBits(pieceLocs)) {
-				midEval += BoardState.MID_TABLE.getPieceSquareValue(p.index(), loc);
-				endEval += BoardState.END_TABLE.getPieceSquareValue(p.index(), loc);
+				midEval += getMiddleGamePST().getPieceSquareValue(p.index(), loc);
+				endEval += getEndGamePST().getPieceSquareValue(p.index(), loc);
 			}
 		}
 

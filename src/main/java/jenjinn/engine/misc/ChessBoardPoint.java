@@ -1,6 +1,6 @@
 package jenjinn.engine.misc;
 
-import jenjinn.engine.bitboarddatabase.BBDB;
+import jenjinn.engine.bitboarddatabase.Bitboards;
 import jenjinn.engine.enums.Sq;
 
 /**
@@ -37,7 +37,7 @@ public class ChessBoardPoint
 	{
 		long ans = 0;
 		if (x > -1) {
-			ans = BBDB.FILE[x] & BBDB.RNK[y];
+			ans = Bitboards.FILE[x] & Bitboards.RNK[y];
 		}
 		return ans;
 	}

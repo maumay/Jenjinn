@@ -7,15 +7,11 @@ import java.util.List;
 
 import jenjinn.engine.enums.Side;
 import jenjinn.engine.enums.TerminationType;
-import jenjinn.engine.evaluation.PieceSquareTable;
 import jenjinn.engine.evaluation.PieceValueProvider;
-import jenjinn.engine.evaluation.piecetablesimpl.EndGamePSTimplV1;
-import jenjinn.engine.evaluation.piecetablesimpl.MiddleGamePSTimplV1;
 import jenjinn.engine.exceptions.AmbiguousPgnException;
 import jenjinn.engine.moves.ChessMove;
 import jenjinn.engine.openingdatabase.AlgebraicCommand;
 import jenjinn.engine.pieces.ChessPiece;
-import jenjinn.engine.zobristhashing.ZobristHasher;
 
 /**
  * Completely immutable representation of a state of a chess board. IMPORTANT
@@ -27,16 +23,16 @@ import jenjinn.engine.zobristhashing.ZobristHasher;
  */
 public interface BoardState
 {
-	/**
-	 * Static {@link PieceSquareTable} instances for incremental update to the
-	 * stored evaluations, we store two such evaluations in the boardstate, one for
-	 * midgame and the other for endgame.
-	 */
-	static PieceSquareTable MID_TABLE = new MiddleGamePSTimplV1(), END_TABLE = new EndGamePSTimplV1();
-
+//	/**
+//	 * Static {@link PieceSquareTable} instances for incremental update to the
+//	 * stored evaluations, we store two such evaluations in the boardstate, one for
+//	 * midgame and the other for endgame.
+//	 */
+//	static PieceSquareTable MID_TABLE = new MiddleGamePieceSquareTable(), END_TABLE = new EndGamePieceSquareTable();
+//
 	static byte NO_ENPASSANT = 127;
-
-	static ZobristHasher HASHER = ZobristHasher.getDefault();
+//
+//	static ZobristHasher HASHER = ZobristHasher.getDefault();
 
 	byte getFriendlySideValue();
 
@@ -100,7 +96,7 @@ public interface BoardState
 	short getEndgamePositionalEval();
 
 	ChessPiece getPieceFromBB(long fromset);
-	
+
 	default short getGamePhase()
 	{
 		return (short) ((getPiecePhase() * 256 + 12) / 24);

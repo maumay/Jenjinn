@@ -1,6 +1,6 @@
 package jenjinn.engine.pieces;
 
-import jenjinn.engine.bitboarddatabase.BBDB;
+import jenjinn.engine.bitboarddatabase.Bitboards;
 import jenjinn.engine.enums.Side;
 
 /**
@@ -25,14 +25,14 @@ public class Rook extends ChessPiece
 	static long staticGetAttackset(final byte loc, final long occupiedSquares)
 	{
 		final int magicIndex = generateMagicIndex(loc, occupiedSquares);
-		return BBDB.RMM[loc][magicIndex];
+		return Bitboards.RMM[loc][magicIndex];
 	}
 
 	private static int generateMagicIndex(final byte loc, final long allPieces)
 	{
-		final long occupancyVariation = allPieces & BBDB.ROM[loc];
-		final long magicNumber = BBDB.RMN[loc];
-		final byte bitShift = BBDB.RMB[loc];
+		final long occupancyVariation = allPieces & Bitboards.ROM[loc];
+		final long magicNumber = Bitboards.RMN[loc];
+		final byte bitShift = Bitboards.RMB[loc];
 		return (int) ((occupancyVariation * magicNumber) >>> bitShift);
 	}
 

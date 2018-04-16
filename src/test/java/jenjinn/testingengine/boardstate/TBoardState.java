@@ -1,5 +1,9 @@
 package jenjinn.testingengine.boardstate;
 
+import static jenjinn.engine.boardstate.BoardStateConstants.getEndGamePST;
+import static jenjinn.engine.boardstate.BoardStateConstants.getMiddleGamePST;
+import static jenjinn.engine.boardstate.BoardStateConstants.getStateHasher;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
@@ -9,7 +13,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import jenjinn.engine.bitboarddatabase.BBDB;
+import jenjinn.engine.bitboarddatabase.Bitboards;
 import jenjinn.engine.boardstate.BoardState;
 import jenjinn.engine.enums.Side;
 import jenjinn.engine.enums.Sq;
@@ -160,7 +164,7 @@ public final class TBoardState implements BoardState
 			if (p instanceof TPawn && p.getSide() == friendlySide) {
 				long mvSquares = p.getMoveset((byte) i, friendly, enemy);
 				final long attackSqs = p.getAttackset((byte) i, friendly | enemy);
-				final long backRankMvSqs = mvSquares & (friendlySide.isWhite() ? BBDB.RNK[7] : BBDB.RNK[0]);
+				final long backRankMvSqs = mvSquares & (friendlySide.isWhite() ? Bitboards.RNK[7] : Bitboards.RNK[0]);
 				mvSquares &= ~backRankMvSqs;
 
 				for (final byte targ : EngineUtils.getSetBits(mvSquares)) {
@@ -247,7 +251,7 @@ public final class TBoardState implements BoardState
 	@Override
 	public ChessPiece getPieceAt(final byte loc, final Side s)
 	{
-		TChessPiece p = board[loc];
+		final TChessPiece p = board[loc];
 		return (p != null && p.getSide() == s) ? p : null;
 	}
 
@@ -337,7 +341,7 @@ public final class TBoardState implements BoardState
 	@Override
 	public long getHashing()
 	{
-		final ZobristHasher hasher = BoardState.HASHER;
+		final ZobristHasher hasher = getStateHasher();
 		long hash = EngineUtils.multipleXor(IntStream.range(0, 64).filter(i -> board[i] != null).mapToLong(
 				i -> hasher.getSquarePieceFeature((byte) i, board[i])).toArray());
 
@@ -392,7 +396,7 @@ public final class TBoardState implements BoardState
 	{
 		return (short) IntStream.range(0, 64).filter(i -> board[i] != null).map(i -> {
 			final TChessPiece p = board[i];
-			return BoardState.MID_TABLE.getPieceSquareValue(p.index(), (byte) i);
+			return getMiddleGamePST().getPieceSquareValue(p.index(), (byte) i);
 		}).sum();
 	}
 
@@ -401,7 +405,7 @@ public final class TBoardState implements BoardState
 	{
 		return (short) IntStream.range(0, 64).filter(i -> board[i] != null).map(i -> {
 			final TChessPiece p = board[i];
-			return BoardState.END_TABLE.getPieceSquareValue(p.index(), (byte) i);
+			return getEndGamePST().getPieceSquareValue(p.index(), (byte) i);
 		}).sum();
 	}
 
@@ -409,14 +413,14 @@ public final class TBoardState implements BoardState
 	public ChessMove generateMove(final AlgebraicCommand com) throws AmbiguousPgnException
 	{
 		if (com.isPromotionOrder()) {
-			Sq target = com.getTargetSq();
-			PieceType toPromoteTo = com.getToPromoteTo();
+			final Sq target = com.getTargetSq();
+			final PieceType toPromoteTo = com.getToPromoteTo();
 			assert toPromoteTo != null;
 
-			List<Byte> possStarts = new ArrayList<>();
-			for (byte pawnLoc : EngineUtils.getSetBits(getPieceLocations(friendlySide.index()))) {
-				long friendly = getSideLocations(friendlySide), enemy = getSideLocations(getEnemySide());
-				long mvSet = TChessPiece.get(friendlySide.index()).getMoveset(pawnLoc, friendly, enemy);
+			final List<Byte> possStarts = new ArrayList<>();
+			for (final byte pawnLoc : EngineUtils.getSetBits(getPieceLocations(friendlySide.index()))) {
+				final long friendly = getSideLocations(friendlySide), enemy = getSideLocations(getEnemySide());
+				final long mvSet = TChessPiece.get(friendlySide.index()).getMoveset(pawnLoc, friendly, enemy);
 
 				if ((mvSet & target.getAsBB()) != 0) {
 					possStarts.add(pawnLoc);
@@ -549,7 +553,7 @@ public final class TBoardState implements BoardState
 		System.out.println();
 		System.out.println(s.board[1]);
 
-		System.out.println(s.getHashing() == BoardState.HASHER.generateStartHash());
+		System.out.println(s.getHashing() == getStateHasher().generateStartHash());
 	}
 
 	@Override
@@ -559,7 +563,7 @@ public final class TBoardState implements BoardState
 	}
 
 	@Override
-	public ChessPiece getPieceFromBB(long fromset)
+	public ChessPiece getPieceFromBB(final long fromset)
 	{
 		throw new RuntimeException("Not yet impl");
 	}

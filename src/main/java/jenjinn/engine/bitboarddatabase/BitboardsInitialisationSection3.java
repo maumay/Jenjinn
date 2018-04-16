@@ -12,7 +12,7 @@ import jenjinn.engine.misc.PieceMovementDirectionArrays;
  * @author TB
  * @date 24 Jan 2017
  */
-public class BBDBInitialisationUtilsSection3
+public class BitboardsInitialisationSection3
 {
 	public static long[][] generateRookMagicMoveDatabase()
 	{
@@ -27,12 +27,12 @@ public class BBDBInitialisationUtilsSection3
 	private static long[][] generateMagicMoveDatabase(final boolean isRook)
 	{
 		final long[][] mmDatabase = new long[64][];
-		final long[][] allSquaresOccupancyVariations = isRook ? BBDB.ROV : BBDB.BOV;
+		final long[][] allSquaresOccupancyVariations = isRook ? Bitboards.ROV : Bitboards.BOV;
 
 		for (byte i = 0; i < 64; i++) {
 			final long[] singleSquaresOccupancyVariations = allSquaresOccupancyVariations[i];
-			final long magicNumber = isRook ? BBDB.RMN[i] : BBDB.BMN[i];
-			final byte bitShift = isRook ? BBDB.RMB[i] : BBDB.BMB[i];
+			final long magicNumber = isRook ? Bitboards.RMN[i] : Bitboards.BMN[i];
+			final byte bitShift = isRook ? Bitboards.RMB[i] : Bitboards.BMB[i];
 			final long[] singleSquareMmDatabase = new long[singleSquaresOccupancyVariations.length];
 
 			for (final long occVar : singleSquaresOccupancyVariations) {

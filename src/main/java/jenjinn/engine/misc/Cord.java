@@ -8,7 +8,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import jenjinn.engine.bitboarddatabase.BBDB;
+import jenjinn.engine.bitboarddatabase.Bitboards;
 import jenjinn.engine.enums.Direction;
 import jenjinn.engine.enums.Sq;
 
@@ -84,7 +84,7 @@ public class Cord implements Comparable<Cord>
 
 	public static long getInclusiveCordBetween(final byte firstIndex, final byte secondIndex)
 	{
-		return getCordBetween(firstIndex, secondIndex) | BBDB.SOB[firstIndex] | BBDB.SOB[secondIndex];
+		return getCordBetween(firstIndex, secondIndex) | Bitboards.SOB[firstIndex] | Bitboards.SOB[secondIndex];
 	}
 
 	private static long[][] generateCordCache()
@@ -104,8 +104,8 @@ public class Cord implements Comparable<Cord>
 	{
 		final List<Cord> uniqueCords = new ArrayList<>();
 
-		final long[] bishopEmptyBoardMoves = BBDB.EBM[2];
-		final long[] rookEmptyBoardMoves = BBDB.EBM[4];
+		final long[] bishopEmptyBoardMoves = Bitboards.EBM[2];
+		final long[] rookEmptyBoardMoves = Bitboards.EBM[4];
 
 		for (byte i = 0; i < 64; i++) {
 			final Cord[] diagonalsToAdd = convertBitboardToCords(i, bishopEmptyBoardMoves[i]);

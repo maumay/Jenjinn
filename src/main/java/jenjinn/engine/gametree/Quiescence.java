@@ -3,11 +3,11 @@ package jenjinn.engine.gametree;
 import java.util.ArrayList;
 import java.util.List;
 
-import jenjinn.engine.bitboarddatabase.BBDB;
+import jenjinn.engine.bitboarddatabase.Bitboards;
 import jenjinn.engine.boardstate.BoardState;
 import jenjinn.engine.enums.Side;
 import jenjinn.engine.evaluation.BoardEvaluator;
-import jenjinn.engine.evaluation.SEE;
+import jenjinn.engine.evaluation.StaticExchangeEvaluator;
 import jenjinn.engine.misc.EngineUtils;
 import jenjinn.engine.moves.ChessMove;
 import jenjinn.engine.moves.EnPassantMove;
@@ -25,7 +25,7 @@ public class Quiescence
 	private static final int DP_SAFETY_MARGIN = 200;
 
 	private final BoardEvaluator evaluator;
-	private final SEE see = new SEE();
+	private final StaticExchangeEvaluator see = new StaticExchangeEvaluator();
 
 	public short search(final BoardState root, int alpha, final int beta, int depth, final boolean interruptionAllowed) throws InterruptedException
 	{
@@ -125,7 +125,7 @@ public class Quiescence
 		final long seventhRank = 0b11111111L << (friendly.isWhite() ? 48 : 8);
 
 		for (final byte loc : EngineUtils.getSetBits(friendlyPawns & seventhRank)) {
-			if ((BBDB.EBA[friendly.ordinal()][loc] & enemys) != 0) {
+			if ((Bitboards.EBA[friendly.ordinal()][loc] & enemys) != 0) {
 				return true;
 			}
 		}

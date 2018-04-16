@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import jenjinn.engine.bitboarddatabase.BBDB;
+import jenjinn.engine.bitboarddatabase.Bitboards;
 import jenjinn.engine.enums.Sq;
 import jenjinn.engine.moves.ChessMove;
 import jenjinn.engine.moves.StandardMove;
@@ -103,9 +103,9 @@ public class EngineUtils
 	public static long getRankOf(final Sq sq)
 	{
 		long ans = -1L;
-		final long sqAsBb = BBDB.SOB[sq.ordinal()];
+		final long sqAsBb = Bitboards.SOB[sq.ordinal()];
 		for (byte i = 0; i < 8; i++) {
-			final long rnk = BBDB.RNK[i];
+			final long rnk = Bitboards.RNK[i];
 			if ((sqAsBb & rnk) != 0) {
 				ans = rnk;
 				break;
@@ -118,9 +118,9 @@ public class EngineUtils
 	public static long getFileOf(final Sq sq)
 	{
 		long ans = -1L;
-		final long sqAsBb = BBDB.SOB[sq.ordinal()];
+		final long sqAsBb = Bitboards.SOB[sq.ordinal()];
 		for (byte i = 0; i < 8; i++) {
-			final long file = BBDB.FILE[i];
+			final long file = Bitboards.FILE[i];
 			if ((sqAsBb & file) != 0) {
 				ans = file;
 				break;
@@ -133,9 +133,9 @@ public class EngineUtils
 	public static long getDiagonalOf(final Sq sq)
 	{
 		long ans = -1L;
-		final long sqAsBb = BBDB.SOB[sq.ordinal()];
+		final long sqAsBb = Bitboards.SOB[sq.ordinal()];
 		for (byte i = 0; i < 15; i++) {
-			final long diag = BBDB.DGNL[i];
+			final long diag = Bitboards.DGNL[i];
 			if ((sqAsBb & diag) != 0) {
 				ans = diag;
 				break;
@@ -148,9 +148,9 @@ public class EngineUtils
 	public static long getAntiDiagonalOf(final Sq sq)
 	{
 		long ans = -1L;
-		final long sqAsBb = BBDB.SOB[sq.ordinal()];
+		final long sqAsBb = Bitboards.SOB[sq.ordinal()];
 		for (int i = 0; i < 15; i++) {
-			final long aDiag = BBDB.ADGNL[i];
+			final long aDiag = Bitboards.ADGNL[i];
 			if ((sqAsBb & aDiag) != 0) {
 				ans = aDiag;
 				break;
@@ -268,7 +268,7 @@ public class EngineUtils
 	{
 		final long[] startLocs = EngineUtils.getStartingPieceLocs();
 
-		return startLocs[1] | startLocs[2] | startLocs[7] | startLocs[8] | ((startLocs[0] | startLocs[6]) & (BBDB.FILE[3] | BBDB.FILE[4]));
+		return startLocs[1] | startLocs[2] | startLocs[7] | startLocs[8] | ((startLocs[0] | startLocs[6]) & (Bitboards.FILE[3] | Bitboards.FILE[4]));
 	}
 
 	public static long getBB(final Sq... sqs)

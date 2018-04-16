@@ -18,7 +18,7 @@ import jenjinn.engine.misc.PieceMovementDirectionArrays;
  * @author TB
  * @date 23 Jan 2017
  */
-public class BBDBInitialisationUtilsSection2
+public class BitboardsInitialisationSection2
 {
 	public static long[][] generateAllBishopOccupancyVariations()
 	{
@@ -69,7 +69,7 @@ public class BBDBInitialisationUtilsSection2
 	private static long[] generateOccupancyMasks(final boolean isRook)
 	{
 		final long[] ans = new long[64];
-		final long[][] allOccVars = isRook ? BBDB.ROV : BBDB.BOV;
+		final long[][] allOccVars = isRook ? Bitboards.ROV : Bitboards.BOV;
 
 		for (byte i = 0; i < 64; i++) {
 			long[] occVars = allOccVars[i];
@@ -92,7 +92,7 @@ public class BBDBInitialisationUtilsSection2
 	private static byte[] generateMagicBitshifts(final boolean isRook)
 	{
 		byte[] ans = new byte[64];
-		long[] occMasks = isRook ? BBDB.ROM : BBDB.BOM;
+		long[] occMasks = isRook ? Bitboards.ROM : Bitboards.BOM;
 
 		for (int i = 0; i < 64; i++) {
 			ans[i] = (byte) (64 - Long.bitCount(occMasks[i]));
@@ -116,7 +116,7 @@ public class BBDBInitialisationUtilsSection2
 	private static long[] generatePawnFirstMoveOccMasks(final boolean isWhite)
 	{
 		final long[] ans = new long[8];
-		final long[] moves = isWhite ? BBDB.EBM[0] : BBDB.EBM[1];
+		final long[] moves = isWhite ? Bitboards.EBM[0] : Bitboards.EBM[1];
 
 		final byte shiftFactor = (byte) (isWhite ? 8 : 48);
 

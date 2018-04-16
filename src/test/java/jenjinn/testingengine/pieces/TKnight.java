@@ -3,7 +3,7 @@ package jenjinn.testingengine.pieces;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-import jenjinn.engine.bitboarddatabase.BBDB;
+import jenjinn.engine.bitboarddatabase.Bitboards;
 import jenjinn.engine.enums.Direction;
 import jenjinn.engine.enums.Side;
 import jenjinn.engine.misc.EngineUtils;
@@ -35,10 +35,10 @@ public class TKnight extends TChessPiece
 		long sup = super.getAttackset(loc, occupiedSquares);
 		for (int i = 0; i < 8; i++) {
 			if (Math.abs((loc / 8) - i) > 2) {
-				sup &= ~BBDB.RNK[i];
+				sup &= ~Bitboards.RNK[i];
 			}
 			if (Math.abs((7 - (loc % 8)) - i) > 2) {
-				sup &= ~BBDB.FILE[i];
+				sup &= ~Bitboards.FILE[i];
 			}
 		}
 		return sup;

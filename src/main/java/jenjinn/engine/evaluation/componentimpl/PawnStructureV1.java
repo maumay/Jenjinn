@@ -1,8 +1,8 @@
 package jenjinn.engine.evaluation.componentimpl;
 
-import static jenjinn.engine.bitboarddatabase.BBDB.FILE;
+import static jenjinn.engine.bitboarddatabase.Bitboards.FILE;
 
-import jenjinn.engine.bitboarddatabase.BBDB;
+import jenjinn.engine.bitboarddatabase.Bitboards;
 import jenjinn.engine.boardstate.BoardState;
 import jenjinn.engine.enums.Side;
 import jenjinn.engine.evaluation.EvaluatingComponent;
@@ -92,7 +92,7 @@ public class PawnStructureV1 implements EvaluatingComponent
 		final long whiteAttacks = state.getSquaresAttackedBy(Side.W), blackAttacks = state.getSquaresAttackedBy(Side.B);
 
 		for (int i = 0; i < 8; i++) {
-			final long wFilePawns = wPawns & BBDB.FILE[i], bFilePawns = bPawns & BBDB.FILE[i];
+			final long wFilePawns = wPawns & Bitboards.FILE[i], bFilePawns = bPawns & Bitboards.FILE[i];
 
 			if (Long.bitCount(wFilePawns) > 0) {
 				final byte[] pLocs = EngineUtils.getSetBits(wFilePawns);
@@ -138,7 +138,7 @@ public class PawnStructureV1 implements EvaluatingComponent
 		long pawnsLeft = pawns;
 
 		for (int i = 0; i < 8; i++) {
-			final long filePawns = pawnsLeft & BBDB.FILE[7 - i];
+			final long filePawns = pawnsLeft & Bitboards.FILE[7 - i];
 
 			if (filePawns > 0) {
 				final byte[] positions = EngineUtils.getSetBits(filePawns);
@@ -240,13 +240,13 @@ public class PawnStructureV1 implements EvaluatingComponent
 	private long getAdjacentFilePawns(final long pawns, final int fileNumber)
 	{
 		if (fileNumber == 0) {
-			return pawns & BBDB.FILE[1];
+			return pawns & Bitboards.FILE[1];
 		}
 		else if (fileNumber == 7) {
-			return pawns & BBDB.FILE[6];
+			return pawns & Bitboards.FILE[6];
 		}
 		else {
-			return pawns & (BBDB.FILE[fileNumber - 1] | BBDB.FILE[fileNumber + 1]);
+			return pawns & (Bitboards.FILE[fileNumber - 1] | Bitboards.FILE[fileNumber + 1]);
 		}
 	}
 
@@ -262,19 +262,19 @@ public class PawnStructureV1 implements EvaluatingComponent
 		int wIsolatedLeft = 0b10000000, bIsolatedLeft = 0b00000001;
 
 		for (int i = 0; i < 7; i++) {
-			if ((BBDB.FILE[7 - i] & whitePawns) == 0) {
+			if ((Bitboards.FILE[7 - i] & whitePawns) == 0) {
 				wIsolatedRight |= (1 << (i + 1));
 			}
 
-			if ((BBDB.FILE[7 - i] & blackPawns) == 0) {
+			if ((Bitboards.FILE[7 - i] & blackPawns) == 0) {
 				bIsolatedRight |= (1 << (i + 1));
 			}
 
-			if ((BBDB.FILE[i] & whitePawns) == 0) {
+			if ((Bitboards.FILE[i] & whitePawns) == 0) {
 				wIsolatedLeft |= (1 << (6 - i));
 			}
 
-			if ((BBDB.FILE[i] & blackPawns) == 0) {
+			if ((Bitboards.FILE[i] & blackPawns) == 0) {
 				bIsolatedLeft |= (1 << (6 - i));
 			}
 		}
@@ -282,7 +282,7 @@ public class PawnStructureV1 implements EvaluatingComponent
 		final int wIsolated = wIsolatedLeft & wIsolatedRight, bIsolated = bIsolatedLeft & bIsolatedRight;
 
 		for (int i = 0; i < 8; i++) {
-			final long file = BBDB.FILE[7 - i];
+			final long file = Bitboards.FILE[7 - i];
 
 			if ((wIsolated & (1 << i)) != 0) {
 				final int wPawnPenalty = Long.bitCount(whitePawns & file) * ISOLATED_PENALTY;

@@ -30,7 +30,7 @@ import org.junit.Test;
 
 import jenjinn.engine.boardstate.BoardState;
 import jenjinn.engine.boardstate.BoardStateImpl;
-import jenjinn.engine.evaluation.SEE;
+import jenjinn.engine.evaluation.StaticExchangeEvaluator;
 
 /**
  * @author t
@@ -44,14 +44,14 @@ public class SEETest
 
 	/**
 	 * Test method for
-	 * {@link jenjinn.engine.evaluation.SEE#eval(byte, byte, jenjinn.engine.boardstate.BoardState, short[])}.
+	 * {@link jenjinn.engine.evaluation.StaticExchangeEvaluator#eval(byte, byte, jenjinn.engine.boardstate.BoardState, short[])}.
 	 */
 	@Test
 	public void testEval()
 	{
 		final BoardState firstTest = getPosition1(), secondTest = getPosition2();
 
-		final SEE see = new SEE();
+		final StaticExchangeEvaluator see = new StaticExchangeEvaluator();
 
 		assertEquals(EXPECTED_TEST1, see.eval((byte) e5.ordinal(), (byte) e1.ordinal(), firstTest, PIECE_VALUES));
 		assertEquals(EXPECTED_TEST2, see.eval((byte) e5.ordinal(), (byte) d3.ordinal(), secondTest, PIECE_VALUES));
